@@ -1,0 +1,1 @@
+esp32 cam pinout: https://randomnerdtutorials.com/esp32-cam-ai-thinker-pinout/
