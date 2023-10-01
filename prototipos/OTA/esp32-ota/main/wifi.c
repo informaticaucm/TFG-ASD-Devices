@@ -8,7 +8,7 @@
 #include "wifi.h"
 #include "main.h"
 
-#include "esp_event_loop.h"
+#include "esp_event.h"
 #include "esp_log.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
@@ -45,7 +45,7 @@ void initialise_wifi(const char *running_partition_label)
     assert(running_partition_label != NULL);
 
     tcpip_adapter_init();
-    APP_ABORT_ON_ERROR(esp_event_loop_init(esp_event_handler, NULL));
+    APP_ABORT_ON_ERROR(esp_event_loop_run(esp_event_handler, NULL));
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     APP_ABORT_ON_ERROR(esp_wifi_init(&cfg));
     APP_ABORT_ON_ERROR(esp_wifi_set_storage(WIFI_STORAGE_FLASH));

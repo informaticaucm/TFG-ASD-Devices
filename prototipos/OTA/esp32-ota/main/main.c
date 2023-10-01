@@ -7,7 +7,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
-#include "esp_event_loop.h"
+#include "esp_event.h"
 #include "esp_log.h"
 
 #include "lwip/err.h"
@@ -140,6 +140,9 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
     case MQTT_EVENT_BEFORE_CONNECT:
         ESP_LOGD(TAG, "MQTT_EVENT_BEFORE_CONNECT");
         break;
+    default:
+        ESP_LOGD(TAG, "MQTT_EVENT_default");
+        break;
     }
     return ESP_OK;
 }
@@ -175,6 +178,9 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
         break;
     case HTTP_EVENT_DISCONNECTED:
         ESP_LOGD(TAG, "HTTP_EVENT_DISCONNECTED");
+        break;
+    default:
+        ESP_LOGD(TAG, "HTTP_EVENT_default");
         break;
     }
     return ESP_OK;
@@ -292,7 +298,7 @@ static uint32_t get_mqtt_port(const char *running_partition_label)
     esp_err_t result_code = nvs_get_u32(handle, NVS_KEY_MQTT_PORT, &mqtt_port);
     if (result_code == ESP_OK)
     {
-        ESP_LOGI(TAG, "MQTT port from flash memory: %d", mqtt_port);
+        ESP_LOGI(TAG, "MQTT port from flash memory: %d", (int)mqtt_port);
     }
     else if (result_code == ESP_ERR_NVS_NOT_FOUND)
     {
@@ -364,13 +370,14 @@ static void mqtt_app_start(const char *running_partition_label)
     const char *mqtt_access_token = get_mqtt_access_token(running_partition_label);
 
     esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = mqtt_url,
-        .event_handle = mqtt_event_handler,
-        .port = mqtt_port,
-        .username = mqtt_access_token
-    };
+        .broker = {
+            .address.uri = mqtt_url,
+            .address.port = mqtt_port,
+        },
+        .credentials = {.username = mqtt_access_token}};
 
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+    esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, mqtt_client);
     APP_ABORT_ON_ERROR(esp_mqtt_client_start(mqtt_client));
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);

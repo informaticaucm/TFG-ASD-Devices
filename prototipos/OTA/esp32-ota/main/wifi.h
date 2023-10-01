@@ -5,7 +5,7 @@
 #ifndef PRJ_WIFI_MODULE
 #define PRJ_WIFI_MODULE
 
-#include "esp_event_loop.h"
+#include "esp_event.h"
 #include "freertos/FreeRTOS.h"
 
 #define WIFI_SSID CONFIG_WIFI_SSID
