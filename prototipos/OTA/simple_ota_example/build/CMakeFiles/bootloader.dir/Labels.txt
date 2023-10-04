@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/CMakeFiles/bootloader
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/CMakeFiles/bootloader.rule
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/CMakeFiles/bootloader-complete.rule
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/prototipos/OTA/simple_ota_example/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

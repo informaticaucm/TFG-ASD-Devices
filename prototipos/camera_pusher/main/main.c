@@ -3,8 +3,8 @@
 #include "connect_wifi.h"
 #include "esp_mac.h"
 
-#define WIFI_SSID "TP-Link_79D6"
-#define WIFI_PASSWORD "24098793"
+#define WIFI_SSID "dlink-39A5"
+#define WIFI_PASSWORD "bsknb76659"
 
 const char *TAG = "Main";
 
