@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-devicehive-proxy
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    component: "devicehive-proxy"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  replicas: {{ .Values.proxy.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-devicehive-proxy
+    spec:
+      serviceAccountName: {{ if .Values.rbac.create }}{{ template "devicehive.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end}}
+      containers:
+      - name: devicehive-proxy
+        image: {{ .Values.proxy.image | quote }}
+        imagePullPolicy: {{ .Values.proxy.PullPolicy }}
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: https
+          containerPort: 8443
+        livenessProbe:
+          httpGet:
+            path: /admin/
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 3
+        resources:
+{{ toYaml .Values.proxy.resources | indent 10 }}
+        volumeMounts:
+        - name: api-gateway-locations-conf
+          mountPath: /etc/nginx/location.d/api-gateway.conf
+          subPath: api-gateway.conf
+        - name: api-gateway-upstreams-conf
+          mountPath: /etc/nginx/upstream.d/api-gateway.conf
+          subPath: api-gateway.conf
+      volumes:
+        - name: api-gateway-locations-conf
+          configMap:
+            name: {{ .Release.Name }}-api-gateway-locations-conf
+        - name: api-gateway-upstreams-conf
+          configMap:
+            name: {{ .Release.Name }}-api-gateway-upstreams-conf
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+...

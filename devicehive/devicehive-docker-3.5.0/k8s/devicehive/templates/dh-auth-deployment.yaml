@@ -1,0 +1,80 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-devicehive-auth
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    component: "devicehive-auth"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  replicas: {{ .Values.javaServer.auth.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-devicehive-auth
+    spec:
+      serviceAccountName: {{ if .Values.rbac.create }}{{ template "devicehive.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end}}
+      containers:
+      - name: devicehive-auth
+        image: "{{ .Values.javaServer.repository }}/devicehive-auth:{{ .Values.javaServer.tag }}"
+        imagePullPolicy: {{ .Values.javaServer.PullPolicy }}
+        env:
+        {{- if eq .Values.javaServer.bus "rpc" }}
+        - name: SPRING_PROFILES_ACTIVE
+          value: "rpc-client"
+        {{- else }}
+        - name: DH_WS_PROXY
+          value: "{{ .Release.Name }}-devicehive-ws-proxy-internal:3000"
+        {{- end }}
+        - name: DH_KAFKA_BOOTSTRAP_SERVERS
+          value: "{{ .Release.Name }}-kafka:9092"
+        - name: DH_ZK_ADDRESS
+          value: "{{ .Release.Name }}-zookeeper"
+        - name: DH_ZK_PORT
+          value: "2181"
+        - name: DH_POSTGRES_ADDRESS
+          value: "{{ .Release.Name }}-postgresql"
+        - name: DH_POSTGRES_DB
+          value: "{{ .Values.postgresql.postgresDatabase }}"
+        - name: DH_POSTGRES_PORT
+          value: "5432"
+        - name: DH_POSTGRES_USERNAME
+          value: "{{ .Values.postgresql.postgresUser }}"
+        - name: DH_POSTGRES_PASSWORD
+          value: "{{ .Values.postgresql.postgresPassword }}"
+        - name: HC_MEMBERS
+          value: "{{ .Release.Name }}-devicehive-hazelcast"
+        - name: HC_GROUP_NAME
+          value: "dev"
+        - name: HC_GROUP_PASSWORD
+          value: "dev-pass"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-jwtsecret
+              key: jwtSecret
+        - name: DH_LOG_LEVEL
+          value: {{ .Values.javaServer.auth.dhLogLevel | quote }}
+        - name: ROOT_LOG_LEVEL
+          value: {{ .Values.javaServer.auth.rootLogLevel | quote }}
+        ports:
+        - name: dh-auth
+          containerPort: 8090
+        readinessProbe:
+          httpGet:
+            path: /auth/rest/info
+            port: dh-auth
+          initialDelaySeconds: 50
+        livenessProbe:
+          httpGet:
+            path: /auth/rest/info
+            port: dh-auth
+          initialDelaySeconds: 75
+          periodSeconds: 15
+        resources:
+{{ toYaml .Values.javaServer.auth.resources | indent 10 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}

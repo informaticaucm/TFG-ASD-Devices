@@ -1,0 +1,47 @@
+{{- if .Values.wsProxy.external.enabled }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-devicehive-ws-proxy-external
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    component: "devicehive-ws-proxy"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  replicas: {{ .Values.wsProxy.external.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-devicehive-ws-proxy-external
+    spec:
+      serviceAccountName: {{ if .Values.rbac.create }}{{ template "devicehive.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end}}
+      containers:
+      - name: devicehive-ws-proxy-external
+        image: {{ .Values.wsProxy.image | quote }}
+        imagePullPolicy: {{ .Values.wsProxy.PullPolicy }}
+        env:
+        - name: ENVSEPARATOR
+          value: '_'
+        - name: KAFKA_KAFKA_HOSTS
+          value: "{{ .Release.Name }}-kafka:9092"
+        - name: PLUGIN_MANAGER_AUTH_SERVICE_ENDPOINT
+          value: "http://{{ .Release.Name }}-devicehive-auth:8090/auth/rest"
+        - name: PLUGIN_MANAGER_PLUGIN_MANAGEMENT_SERVICE_ENDPOINT
+          value: "http://{{ .Release.Name }}-devicehive-plugin:8110/plugin/rest"
+        - name: PROXY_ENABLE_PLUGIN_MANAGER
+          value: 'true'
+        - name: PROXY_WEB_SOCKET_SERVER_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        ports:
+        - name: ws-proxy
+          containerPort: 3000
+        resources:
+{{ toYaml .Values.wsProxy.external.resources | indent 10 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}
