@@ -1,1 +1,0 @@
-void test_if_ota_is_due();

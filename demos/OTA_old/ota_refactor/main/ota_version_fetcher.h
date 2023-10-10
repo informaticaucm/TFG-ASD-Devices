@@ -1,1 +1,0 @@
-int http_fetch_ota_version();
