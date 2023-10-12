@@ -10,6 +10,6 @@ openssl req -new -key ../keys/server/server_key.pem -out ../keys/server/server_r
 # sign csr
 mkcert -csr ../keys/server/server_request.csr
 
-# cn: 192.168.43.209
-cp ./192.168.43.209.pem ../keys/server/server_cert.pem
-rm ./192.168.43.209.pem 
+# cn: otaserver
+cp ./otaserver.pem ../keys/server/server_cert.pem
+rm ./otaserver.pem 
