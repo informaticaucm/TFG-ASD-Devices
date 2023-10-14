@@ -116,5 +116,5 @@ void app_main(void)
 
     esp_wifi_set_ps(WIFI_PS_NONE);
 
-    xTaskCreate(&advanced_ota_example_task, "advanced_ota_example_task", 1024 * 8, NULL, 5, NULL); // TODO que loopee
+    xTaskCreate(&advanced_ota_example_task, "advanced_ota_example_task", 1024 * 8, NULL, 5, NULL);
 }
