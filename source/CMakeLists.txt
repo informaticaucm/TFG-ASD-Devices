@@ -6,7 +6,9 @@ cmake_minimum_required(VERSION 3.16)
 # This example uses an extra component for common functions such as Wi-Fi and Ethernet connection.
 set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/examples/common_components/protocol_examples_common)
 
+# Ive decided to use the git provided version
 # set(PROJECT_VER "0.0.2")
+# string(TIMESTAMP PROJECT_VER "%s")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(advanced_https_ota)
