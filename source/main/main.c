@@ -14,6 +14,7 @@
 #include "protocol_examples_common.h"
 
 #include "https_ota.h"
+#include "mqtt_plugin.h"
 
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
@@ -116,5 +117,7 @@ void app_main(void)
 
     esp_wifi_set_ps(WIFI_PS_NONE);
 
-    xTaskCreate(&advanced_ota_example_task, "advanced_ota_example_task", 1024 * 8, NULL, 5, NULL);
+    // xTaskCreate(&advanced_ota_example_task, "advanced_ota_example_task", 1024 * 8, NULL, 5, NULL);
+
+    mqtt_send("v1/devices/me/telemetry", "{\"temperature\":30}");
 }

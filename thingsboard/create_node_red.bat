@@ -1,1 +1,0 @@
-docker run -it -p 1880:1880 -v C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/thingsboard/node_red_data:/data --name mynodered nodered/node-red

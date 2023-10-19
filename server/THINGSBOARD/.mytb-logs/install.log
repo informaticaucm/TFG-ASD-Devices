@@ -1,0 +1,183 @@
+2023-10-18 21:16:22,596 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.0.20.Final
+2023-10-18 21:16:25,576 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-18 21:16:25,578 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-18 21:16:26,203 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 613 ms. Found 53 JPA repository interfaces.
+2023-10-18 21:16:26,214 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-18 21:16:26,216 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-18 21:16:26,241 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 23 ms. Found 1 JPA repository interfaces.
+2023-10-18 21:16:26,243 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-18 21:16:26,245 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-18 21:16:26,258 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 12 ms. Found 1 JPA repository interfaces.
+2023-10-18 21:16:26,259 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-18 21:16:26,260 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-18 21:16:26,282 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 21 ms. Found 1 JPA repository interfaces.
+2023-10-18 21:16:27,480 [main] INFO  o.s.i.c.DefaultConfiguringBeanFactoryPostProcessor - No bean named 'errorChannel' has been explicitly defined. Therefore, a default PublishSubscribeChannel will be created.
+2023-10-18 21:16:27,505 [main] INFO  o.s.i.c.DefaultConfiguringBeanFactoryPostProcessor - No bean named 'integrationHeaderChannelRegistry' has been explicitly defined. Therefore, a default DefaultHeaderChannelRegistry will be created.
+2023-10-18 21:16:28,601 [main] INFO  o.t.s.c.t.c.ssl.SslCredentialsConfig - HTTP Server SSL Credentials: Initializing SSL credentials.
+2023-10-18 21:16:28,621 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Unable to start web server; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'tomcatServletWebServerFactory' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryConfiguration$EmbeddedTomcat.class]: Initialization of bean failed; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sslCredentialsWebServerCustomizer': Unsatisfied dependency expressed through field 'httpServerSslCredentialsConfig'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'httpServerSslCredentials': Invocation of init method failed; nested exception is java.lang.RuntimeException: HTTP Server SSL Credentials: Invalid SSL credentials configuration. None of the PEM or KEYSTORE configurations can be used!
+2023-10-18 21:16:28,641 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLoggingListener - 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2023-10-18 21:16:28,684 [main] ERROR o.s.boot.SpringApplication - Application run failed
+org.springframework.context.ApplicationContextException: Unable to start web server; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'tomcatServletWebServerFactory' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryConfiguration$EmbeddedTomcat.class]: Initialization of bean failed; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sslCredentialsWebServerCustomizer': Unsatisfied dependency expressed through field 'httpServerSslCredentialsConfig'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'httpServerSslCredentials': Invocation of init method failed; nested exception is java.lang.RuntimeException: HTTP Server SSL Credentials: Invalid SSL credentials configuration. None of the PEM or KEYSTORE configurations can be used!
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.onRefresh(ServletWebServerApplicationContext.java:165)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:577)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:147)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:731)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:408)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:307)
+	at org.thingsboard.server.ThingsboardInstallApplication.main(ThingsboardInstallApplication.java:48)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.springframework.boot.loader.MainMethodRunner.run(MainMethodRunner.java:49)
+	at org.springframework.boot.loader.Launcher.launch(Launcher.java:108)
+	at org.springframework.boot.loader.Launcher.launch(Launcher.java:58)
+	at org.springframework.boot.loader.PropertiesLauncher.main(PropertiesLauncher.java:467)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'tomcatServletWebServerFactory' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryConfiguration$EmbeddedTomcat.class]: Initialization of bean failed; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sslCredentialsWebServerCustomizer': Unsatisfied dependency expressed through field 'httpServerSslCredentialsConfig'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'httpServerSslCredentials': Invocation of init method failed; nested exception is java.lang.RuntimeException: HTTP Server SSL Credentials: Invalid SSL credentials configuration. None of the PEM or KEYSTORE configurations can be used!
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:628)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:542)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:213)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.getWebServerFactory(ServletWebServerApplicationContext.java:219)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.createWebServer(ServletWebServerApplicationContext.java:182)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.onRefresh(ServletWebServerApplicationContext.java:162)
+	... 14 common frames omitted
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sslCredentialsWebServerCustomizer': Unsatisfied dependency expressed through field 'httpServerSslCredentialsConfig'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'httpServerSslCredentials': Invocation of init method failed; nested exception is java.lang.RuntimeException: HTTP Server SSL Credentials: Invalid SSL credentials configuration. None of the PEM or KEYSTORE configurations can be used!
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:660)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:640)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:119)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:399)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1431)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:619)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:542)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:208)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBeansOfType(DefaultListableBeanFactory.java:673)
+	at org.springframework.boot.web.server.WebServerFactoryCustomizerBeanPostProcessor.getWebServerFactoryCustomizerBeans(WebServerFactoryCustomizerBeanPostProcessor.java:87)
+	at org.springframework.boot.web.server.WebServerFactoryCustomizerBeanPostProcessor.getCustomizers(WebServerFactoryCustomizerBeanPostProcessor.java:78)
+	at org.springframework.boot.web.server.WebServerFactoryCustomizerBeanPostProcessor.postProcessBeforeInitialization(WebServerFactoryCustomizerBeanPostProcessor.java:70)
+	at org.springframework.boot.web.server.WebServerFactoryCustomizerBeanPostProcessor.postProcessBeforeInitialization(WebServerFactoryCustomizerBeanPostProcessor.java:58)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:440)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1796)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:620)
+	... 22 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'httpServerSslCredentials': Invocation of init method failed; nested exception is java.lang.RuntimeException: HTTP Server SSL Credentials: Invalid SSL credentials configuration. None of the PEM or KEYSTORE configurations can be used!
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:160)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:440)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1796)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:620)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:542)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:208)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:276)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1391)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1311)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:657)
+	... 40 common frames omitted
+Caused by: java.lang.RuntimeException: HTTP Server SSL Credentials: Invalid SSL credentials configuration. None of the PEM or KEYSTORE configurations can be used!
+	at org.thingsboard.server.common.transport.config.ssl.SslCredentialsConfig.init(SslCredentialsConfig.java:54)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleElement.invoke(InitDestroyAnnotationBeanPostProcessor.java:389)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:333)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:157)
+	... 52 common frames omitted
+2023-10-18 21:16:28,686 [main] ERROR o.t.s.ThingsboardInstallApplication - Unable to start web server; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'tomcatServletWebServerFactory' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/ServletWebServerFactoryConfiguration$EmbeddedTomcat.class]: Initialization of bean failed; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'sslCredentialsWebServerCustomizer': Unsatisfied dependency expressed through field 'httpServerSslCredentialsConfig'; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'httpServerSslCredentials': Invocation of init method failed; nested exception is java.lang.RuntimeException: HTTP Server SSL Credentials: Invalid SSL credentials configuration. None of the PEM or KEYSTORE configurations can be used!
+2023-10-18 21:19:00,254 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.0.20.Final
+2023-10-18 21:19:02,489 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-18 21:19:02,491 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-18 21:19:02,966 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 466 ms. Found 53 JPA repository interfaces.
+2023-10-18 21:19:02,974 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-18 21:19:02,975 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-18 21:19:02,989 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 14 ms. Found 1 JPA repository interfaces.
+2023-10-18 21:19:02,992 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-18 21:19:02,993 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-18 21:19:03,004 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 10 ms. Found 1 JPA repository interfaces.
+2023-10-18 21:19:03,005 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-18 21:19:03,006 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-18 21:19:03,019 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 12 ms. Found 1 JPA repository interfaces.
+2023-10-18 21:19:03,779 [main] INFO  o.s.i.c.DefaultConfiguringBeanFactoryPostProcessor - No bean named 'errorChannel' has been explicitly defined. Therefore, a default PublishSubscribeChannel will be created.
+2023-10-18 21:19:03,796 [main] INFO  o.s.i.c.DefaultConfiguringBeanFactoryPostProcessor - No bean named 'integrationHeaderChannelRegistry' has been explicitly defined. Therefore, a default DefaultHeaderChannelRegistry will be created.
+2023-10-18 21:19:04,928 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 9090 (http)
+2023-10-18 21:19:04,941 [main] INFO  o.a.coyote.http11.Http11NioProtocol - The ["http-nio-0.0.0.0-9090"] connector has been configured to support HTTP upgrade to [h2c]
+2023-10-18 21:19:04,941 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-0.0.0.0-9090"]
+2023-10-18 21:19:04,944 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2023-10-18 21:19:04,945 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.73]
+2023-10-18 21:19:05,063 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-10-18 21:19:05,064 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 4725 ms
+2023-10-18 21:19:05,579 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-10-18 21:19:05,758 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2023-10-18 21:19:06,042 [main] INFO  o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-10-18 21:19:06,209 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-10-18 21:19:06,530 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-10-18 21:19:06,594 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.PostgreSQL10Dialect
+2023-10-18 21:19:09,155 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-10-18 21:19:09,209 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-10-18 21:19:13,171 [main] INFO  o.t.s.d.a.CachedAttributesService - Going to use directExecutor for the local cache type caffeine
+2023-10-18 21:19:17,055 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2023-10-18 21:19:18,237 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [public/index.html]
+2023-10-18 21:19:20,345 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@6ccd3cf1, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4c9235c0, org.springframework.security.web.context.SecurityContextPersistenceFilter@71ad1d0b, org.springframework.security.web.header.HeaderWriterFilter@25fb43a9, org.springframework.security.web.csrf.CsrfFilter@66f88fd3, org.springframework.security.web.authentication.logout.LogoutFilter@39d62e47, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter@3b9d85c2, org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter@77eb76f, org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter@65e4eba5, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@29f72685, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@1ae69abe, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@5c2f5dc, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5166fe7a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@557f0a39, org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter@5c815478, org.springframework.security.web.session.SessionManagementFilter@6dccdc50, org.springframework.security.web.access.ExceptionTranslationFilter@203b98cf, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@57e83608]
+2023-10-18 21:19:21,100 [main] INFO  o.s.i.endpoint.EventDrivenConsumer - Adding {logging-channel-adapter:_org.springframework.integration.errorLogger} as a subscriber to the 'errorChannel' channel
+2023-10-18 21:19:21,103 [main] INFO  o.s.i.c.PublishSubscribeChannel - Channel 'application.errorChannel' has 1 subscriber(s).
+2023-10-18 21:19:21,105 [main] INFO  o.s.i.endpoint.EventDrivenConsumer - started bean '_org.springframework.integration.errorLogger'
+2023-10-18 21:19:21,106 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-0.0.0.0-9090"]
+2023-10-18 21:19:21,136 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 9090 (http) with context path ''
+2023-10-18 21:19:21,621 [main] INFO  o.t.s.i.ThingsboardInstallService - Starting ThingsBoard Installation...
+2023-10-18 21:19:21,625 [main] INFO  o.t.s.i.ThingsboardInstallService - Installing DataBase schema for entities...
+2023-10-18 21:19:21,627 [main] INFO  o.t.s.s.i.SqlAbstractDatabaseSchemaService - Installing SQL DataBase schema part: schema-entities.sql
+2023-10-18 21:19:24,142 [main] INFO  o.t.s.s.i.SqlAbstractDatabaseSchemaService - Installing SQL DataBase schema indexes part: schema-entities-idx.sql
+2023-10-18 21:19:24,934 [main] INFO  o.t.s.s.i.SqlEntityDatabaseSchemaService - Installing SQL DataBase schema PostgreSQL specific indexes part: schema-entities-idx-psql-addon.sql
+2023-10-18 21:19:25,103 [main] INFO  o.t.s.s.i.SqlEntityDatabaseSchemaService - Installing SQL DataBase schema views and functions: schema-views-and-functions.sql
+2023-10-18 21:19:25,440 [main] INFO  o.t.s.s.i.SqlAbstractDatabaseSchemaService - Successfully executed query: DROP VIEW IF EXISTS device_info_view CASCADE;
+2023-10-18 21:19:30,574 [main] INFO  o.t.s.s.i.SqlAbstractDatabaseSchemaService - Successfully executed query: CREATE OR REPLACE VIEW device_info_view AS SELECT * FROM device_info_active_attribute_view;
+2023-10-18 21:19:35,576 [main] INFO  o.t.s.i.ThingsboardInstallService - Installing DataBase schema for timeseries...
+2023-10-18 21:19:35,577 [main] INFO  o.t.s.s.i.SqlAbstractDatabaseSchemaService - Installing SQL DataBase schema part: schema-ts-psql.sql
+2023-10-18 21:19:35,933 [main] INFO  o.t.s.s.i.SqlAbstractDatabaseSchemaService - Successfully executed query: CREATE TABLE IF NOT EXISTS ts_kv_indefinite PARTITION OF ts_kv DEFAULT;
+2023-10-18 21:19:40,935 [main] INFO  o.t.s.i.ThingsboardInstallService - Loading system data...
+2023-10-18 21:19:41,163 [main] INFO  c.d.oss.driver.api.core.uuid.Uuids - PID obtained through JMX: 32
+2023-10-18 21:19:41,993 [main] INFO  org.owasp.validator.html.Policy - Attempting to load AntiSamy policy from an input stream.
+2023-10-18 21:19:42,165 [main] WARN  org.owasp.validator.html.Policy - The directive "noopenerAndNoreferrerAnchors" is enabled by default, but disabled in this policy. It is recommended to leave it enabled to prevent reverse tabnabbing attacks.
+2023-10-18 21:19:42,552 [main] INFO  o.t.s.s.s.a.j.s.DefaultJwtSettingsService - Creating JWT admin settings...
+2023-10-18 21:19:42,557 [main] INFO  o.t.s.s.s.a.j.s.DefaultJwtSettingsService - Saving new JWT admin settings. From this moment, the JWT parameters from YAML and ENV will be ignored
+2023-10-18 21:19:44,849 [main] INFO  o.t.s.s.i.DefaultSystemDataLoaderService - Creating default notification configs for system admin
+2023-10-18 21:19:45,122 [main] INFO  o.t.s.s.i.DefaultSystemDataLoaderService - Creating default notification configs for all tenants
+2023-10-18 21:19:50,606 [main] INFO  o.t.s.i.ThingsboardInstallService - Loading demo data...
+2023-10-18 21:19:53,158 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-0 [Attributes] queueSize [5] totalAdded [9] totalSaved [4] totalFailed [0]
+2023-10-18 21:19:53,161 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-1 [Attributes] queueSize [6] totalAdded [11] totalSaved [5] totalFailed [0]
+2023-10-18 21:19:53,163 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [Attributes] queueSize [0] totalAdded [1] totalSaved [1] totalFailed [0]
+2023-10-18 21:19:53,301 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [15] totalSaved [15] totalFailed [0]
+2023-10-18 21:19:53,364 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [15] totalSaved [15] totalFailed [0]
+2023-10-18 21:19:53,407 [main] INFO  o.t.s.i.ThingsboardInstallService - Installation finished successfully!
+2023-10-18 21:19:53,450 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Pausing ProtocolHandler ["http-nio-0.0.0.0-9090"]
+2023-10-18 21:19:53,454 [main] INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2023-10-18 21:19:53,470 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-0.0.0.0-9090"]
+2023-10-18 21:19:53,474 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Destroying ProtocolHandler ["http-nio-0.0.0.0-9090"]
+2023-10-18 21:19:53,476 [main] INFO  o.s.i.endpoint.EventDrivenConsumer - Removing {logging-channel-adapter:_org.springframework.integration.errorLogger} as a subscriber to the 'errorChannel' channel
+2023-10-18 21:19:53,477 [main] INFO  o.s.i.c.PublishSubscribeChannel - Channel 'application.errorChannel' has 0 subscriber(s).
+2023-10-18 21:19:53,478 [main] INFO  o.s.i.endpoint.EventDrivenConsumer - stopped bean '_org.springframework.integration.errorLogger'
+2023-10-18 21:19:53,536 [sql-queue-0-edge events-16-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [Edge Events] Queue polling was interrupted
+2023-10-18 21:19:53,547 [sql-queue-2-ts latest-13-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [TS Latest] Queue polling was interrupted
+2023-10-18 21:19:53,548 [sql-queue-2-ts-10-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [TS] Queue polling was interrupted
+2023-10-18 21:19:53,547 [sql-queue-1-ts latest-12-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [TS Latest] Queue polling was interrupted
+2023-10-18 21:19:53,547 [sql-queue-0-ts latest-11-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [TS Latest] Queue polling was interrupted
+2023-10-18 21:19:53,548 [sql-queue-0-ts-8-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [TS] Queue polling was interrupted
+2023-10-18 21:19:53,548 [sql-queue-1-ts-9-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [TS] Queue polling was interrupted
+2023-10-18 21:19:53,549 [sql-queue-0-attributes-5-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [Attributes] Queue polling was interrupted
+2023-10-18 21:19:53,549 [sql-queue-2-attributes-7-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [Attributes] Queue polling was interrupted
+2023-10-18 21:19:53,549 [sql-queue-1-attributes-6-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [Attributes] Queue polling was interrupted
+2023-10-18 21:19:53,556 [sql-queue-1-events-3-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [Events] Queue polling was interrupted
+2023-10-18 21:19:53,557 [sql-queue-2-events-4-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [Events] Queue polling was interrupted
+2023-10-18 21:19:53,557 [sql-queue-0-events-2-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - [Events] Queue polling was interrupted
+2023-10-18 21:19:53,565 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2023-10-18 21:19:53,569 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2023-10-18 21:19:53,575 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
