@@ -13,8 +13,6 @@
 #include "nvs_flash.h"
 #include "protocol_examples_common.h"
 
-#include "sync.h"
-
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
 #endif
@@ -78,14 +76,14 @@ static esp_err_t _http_client_init_cb(esp_http_client_handle_t http_client)
     return err;
 }
 
-void advanced_ota_example_task(void *pvParameter)
+void advanced_ota_example_task(char *url)
 {
     ESP_LOGI(TAG, "Starting Advanced OTA example");
 
 
     esp_err_t ota_finish_err = ESP_OK;
     esp_http_client_config_t config = {
-        .url = CONFIG_EXAMPLE_FIRMWARE_UPGRADE_URL,
+        .url = url,
         .cert_pem = (char *)server_cert_pem_start,
         .timeout_ms = CONFIG_EXAMPLE_OTA_RECV_TIMEOUT,
         .keep_alive_enable = true,
@@ -151,11 +149,8 @@ void advanced_ota_example_task(void *pvParameter)
         {
             ESP_LOGI(TAG, "ESP_HTTPS_OTA upgrade successful. Rebooting ...");
             vTaskDelay(1000 / portTICK_PERIOD_MS);
-            writer_start();
 
             esp_restart();
-
-            writer_end();
         }
         else
         {
@@ -174,4 +169,42 @@ ota_end:
     vTaskDelete(NULL);
 
     
+}
+
+void ota_event_handler(void *arg, esp_event_base_t event_base,
+                              int32_t event_id, void *event_data)
+{
+    if (event_base == ESP_HTTPS_OTA_EVENT)
+    {
+        switch (event_id)
+        {
+        case ESP_HTTPS_OTA_START:
+            ESP_LOGI(TAG, "OTA started");
+            break;
+        case ESP_HTTPS_OTA_CONNECTED:
+            ESP_LOGI(TAG, "Connected to server");
+            break;
+        case ESP_HTTPS_OTA_GET_IMG_DESC:
+            ESP_LOGI(TAG, "Reading Image Description");
+            break;
+        case ESP_HTTPS_OTA_VERIFY_CHIP_ID:
+            ESP_LOGI(TAG, "Verifying chip id of new image: %d", *(esp_chip_id_t *)event_data);
+            break;
+        case ESP_HTTPS_OTA_DECRYPT_CB:
+            ESP_LOGI(TAG, "Callback to decrypt function");
+            break;
+        case ESP_HTTPS_OTA_WRITE_FLASH:
+            ESP_LOGD(TAG, "Writing to flash: %d written", *(int *)event_data);
+            break;
+        case ESP_HTTPS_OTA_UPDATE_BOOT_PARTITION:
+            ESP_LOGI(TAG, "Boot partition updated. Next Partition: %d", *(esp_partition_subtype_t *)event_data);
+            break;
+        case ESP_HTTPS_OTA_FINISH:
+            ESP_LOGI(TAG, "OTA finish");
+            break;
+        case ESP_HTTPS_OTA_ABORT:
+            ESP_LOGI(TAG, "OTA abort");
+            break;
+        }
+    }
 }

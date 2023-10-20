@@ -20,3 +20,24 @@ Se ha experimentado con la forma de extraer la MAC del equipo para identificarse
 ## Objetivos del segundo sprint 
 * Integración de notificaciones mqtt en el proceso de OTA, usando el broker del hub IOT que se decida usar en adelante.
 * Esbozar el enrolment de máquinas recién falseadas usando el hub IOT
+
+
+# Cheat sheat
+
+cuando quitas y pones un firmware desde thingsboard a un perfil, un device con ese perfil recive esto
+- quitar:
+'''
+I (26415) mtqq_plugin: MQTT_EVENT_DATA
+TOPIC=v1/devices/me/attributes
+DATA={"deleted":["fw_checksum_algorithm","fw_version","fw_ts","fw_tag","fw_checksum","fw_title","fw_state","fw_size","fw_url"]}
+'''
+- poner:
+'''
+I (56855) mtqq_plugin: MQTT_EVENT_DATA
+TOPIC=v1/devices/me/attributes
+DATA={"deleted":["fw_checksum_algorithm","fw_checksum","fw_size"]}
+
+I (56915) mtqq_plugin: MQTT_EVENT_DATA
+TOPIC=v1/devices/me/attributes
+DATA={"fw_title":"first ota","fw_version":"v1","fw_tag":"first ota v1","fw_url":"otaserver.asd/payload.bin"}
+'''

@@ -1,1 +1,3 @@
-void advanced_ota_example_task(void *pvParameter);
+void advanced_ota_example_task(char *url);
+void ota_event_handler(void *arg, esp_event_base_t event_base,
+                              int32_t event_id, void *event_data);

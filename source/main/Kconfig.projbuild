@@ -1,11 +1,5 @@
 menu "Example Configuration"
 
-    config EXAMPLE_FIRMWARE_UPGRADE_URL
-        string "Firmware Upgrade URL"
-        default "https://ota_server.asd/payload.bin"
-        help
-            URL of server which hosts the firmware image.
-
     config EXAMPLE_FIRMWARE_UPGRADE_URL_FROM_STDIN
         bool
         default y if EXAMPLE_FIRMWARE_UPGRADE_URL = "FROM_STDIN"
