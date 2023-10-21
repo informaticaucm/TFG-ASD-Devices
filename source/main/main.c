@@ -29,6 +29,10 @@
 static const char *TAG = "advanced_https_ota_example";
 /* Event handler for catching system events */
 
+void build_ota_status_report(char *state, char *buffer, int buffer_size)
+{
+    // {"current_fw_title": "myFirmware", "current_fw_version": "1.2.3", "fw_state": "UPDATED"}
+}
 
 void mqtt_listener(char *topic, char *msg)
 {
@@ -45,15 +49,19 @@ void mqtt_listener(char *topic, char *msg)
 
     if (strcmp(topic, "v1/devices/me/attributes") == 0)
     {
-        char ota_url[70];
+        char fw_url[70];
 
-        int err = json_obj_get_string(&jctx, "fw_url", ota_url, sizeof(ota_url));
+        int err = json_obj_get_string(&jctx, "fw_url", fw_url, sizeof(fw_url));
 
         if (err == OS_SUCCESS)
         {
-            ESP_LOGI(TAG, "installing new firmware from: %s", ota_url);
-            advanced_ota_example_task(ota_url);
-        }else{
+            ESP_LOGI(TAG, "installing new firmware from: %s", fw_url);
+            advanced_ota_example_task(fw_url);
+
+            mqtt_send_ota_status_report("DOWNLOADING");
+        }
+        else
+        {
             ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
         }
     }
@@ -62,7 +70,16 @@ void mqtt_listener(char *topic, char *msg)
 void app_main(void)
 {
 
-    ESP_LOGI(TAG, "OTA example app_main start newererer version");
+    // switch (esp_reset_reason()) // https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/misc_system_api.html#_CPPv418esp_reset_reason_t
+    // {
+    // case /* constant-expression */:
+    //     /* code */
+    //     break;
+
+    // default:
+    //     break;
+    // }
+
     // Initialize NVS.
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -78,42 +95,33 @@ void app_main(void)
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-
     ESP_ERROR_CHECK(esp_event_handler_register(ESP_HTTPS_OTA_EVENT, ESP_EVENT_ANY_ID, &ota_event_handler, NULL));
-    /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
-     * Read "Establishing Wi-Fi or Ethernet Connection" section in
-     * examples/protocols/README.md for more information about this function.
-     */
     ESP_ERROR_CHECK(example_connect());
 
-#if defined(CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE)
-    /**
-     * We are treating successful WiFi connection as a checkpoint to cancel rollback
-     * process and mark newly updated firmware image as active. For production cases,
-     * please tune the checkpoint behavior per end application requirement.
-     */
+    mqtt_init(mqtt_listener);
+
     const esp_partition_t *running = esp_ota_get_running_partition();
     esp_ota_img_states_t ota_state;
     if (esp_ota_get_state_partition(running, &ota_state) == ESP_OK)
     {
         if (ota_state == ESP_OTA_IMG_PENDING_VERIFY)
         {
-            if (esp_ota_mark_app_valid_cancel_rollback() == ESP_OK)
+            // TODO selfcheck
+            if (true)
             {
-                ESP_LOGI(TAG, "App is valid, rollback cancelled successfully");
+                mqtt_send_ota_status_report("UPDATED");
+                esp_ota_mark_app_valid_cancel_rollback();
             }
             else
             {
-                ESP_LOGE(TAG, "Failed to cancel rollback");
+                mqtt_send_ota_fail("new image caused a rollback");
+                esp_ota_mark_app_invalid_rollback_and_reboot();
             }
         }
     }
-#endif
 
     esp_wifi_set_ps(WIFI_PS_NONE);
 
-    mqtt_init(mqtt_listener);
-
-    mqtt_subscribe("v1/devices/me/attributes");
-    mqtt_send("v1/devices/me/telemetry", "{\"temperature\":30}");
+    mqtt_subscribe("v1/devices/me/attributes"); // check if it worked or needs retriying
+    mqtt_send("v1/devices/me/telemetry", "{\"online\":true}");
 }

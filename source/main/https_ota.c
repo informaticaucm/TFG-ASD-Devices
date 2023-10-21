@@ -13,6 +13,8 @@
 #include "nvs_flash.h"
 #include "protocol_examples_common.h"
 
+#include "mqtt_plugin.h"
+
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
 #endif
@@ -80,7 +82,6 @@ void advanced_ota_example_task(char *url)
 {
     ESP_LOGI(TAG, "Starting Advanced OTA example");
 
-
     esp_err_t ota_finish_err = ESP_OK;
     esp_http_client_config_t config = {
         .url = url,
@@ -139,21 +140,32 @@ void advanced_ota_example_task(char *url)
 
     if (esp_https_ota_is_complete_data_received(https_ota_handle) != true)
     {
+        mqtt_send_ota_fail("Complete data was not revieved");
         // the OTA image was not completely received and user can customise the response to this situation.
         ESP_LOGE(TAG, "Complete data was not received.");
     }
     else
     {
+        mqtt_send_ota_status_report("DOWNLOADED");
+
         ota_finish_err = esp_https_ota_finish(https_ota_handle);
         if ((err == ESP_OK) && (ota_finish_err == ESP_OK))
         {
+            mqtt_send_ota_status_report("VERIFIED");
+
             ESP_LOGI(TAG, "ESP_HTTPS_OTA upgrade successful. Rebooting ...");
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+            mqtt_send_ota_status_report("UPDATING");
+
             vTaskDelay(1000 / portTICK_PERIOD_MS);
 
             esp_restart();
         }
         else
         {
+            mqtt_send_ota_fail("downloaded data couldnt be verified");
+
             if (ota_finish_err == ESP_ERR_OTA_VALIDATE_FAILED)
             {
                 ESP_LOGE(TAG, "Image validation failed, image is corrupted");
@@ -167,12 +179,10 @@ ota_end:
     esp_https_ota_abort(https_ota_handle);
     ESP_LOGE(TAG, "ESP_HTTPS_OTA upgrade failed");
     vTaskDelete(NULL);
-
-    
 }
 
 void ota_event_handler(void *arg, esp_event_base_t event_base,
-                              int32_t event_id, void *event_data)
+                       int32_t event_id, void *event_data)
 {
     if (event_base == ESP_HTTPS_OTA_EVENT)
     {

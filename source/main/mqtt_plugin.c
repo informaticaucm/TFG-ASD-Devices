@@ -49,7 +49,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
 
-        char* topic_buff = alloca(event->topic_len + 1);
+        char *topic_buff = alloca(event->topic_len + 1);
         char *data_buff = alloca(event->data_len + 1);
 
         memcpy(topic_buff, event->topic, event->topic_len);
@@ -96,6 +96,22 @@ void mqtt_send(char *topic, char *msg)
     ESP_LOGI(TAG, "sending: %s to %s at %s", msg, topic, broker_url);
 
     esp_mqtt_client_publish(client, topic, msg, strlen(msg), mqtt_qos, 0);
+}
+
+void mqtt_send_ota_status_report(char *status)
+{
+    // {"current_fw_title": "myFirmware", "current_fw_version": "1.2.3", "fw_state": "UPDATED"}
+    char msg[100];
+    snprintf(msg, 100, "{\"fw_state\": \"%s\"}", status);
+    mqtt_send("v1/devices/me/telemetry", msg);
+}
+
+void mqtt_send_ota_fail(char *explanation)
+{
+    // {"fw_state": "FAILED", "fw_error":  "the human readable message about the cause of the error"}
+    char msg[100];
+    snprintf(msg, 100, "{\"fw_state\": \"FAILED\", \"fw_error\": \"%s\"}", explanation);
+    mqtt_send("v1/devices/me/telemetry", msg);
 }
 
 void mqtt_init(void (*callback)(char *, char *))

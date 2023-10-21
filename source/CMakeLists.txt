@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.16)
 set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/examples/common_components/protocol_examples_common)
 
 # Ive decided to use the git provided version
-# set(PROJECT_VER "0.0.2")
+set(PROJECT_VER "0.0.3")
 # string(TIMESTAMP PROJECT_VER "%s")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)

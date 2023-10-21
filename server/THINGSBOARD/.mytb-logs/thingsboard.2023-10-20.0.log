@@ -1,0 +1,39 @@
+2023-10-20 22:20:08,317 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 6.0.20.Final
+2023-10-20 22:20:08,366 [main] INFO  o.t.s.ThingsboardServerApplication - Starting ThingsboardServerApplication v3.6.0 using Java 11.0.18 on ce886037ac08 with PID 22 (/usr/share/thingsboard/bin/thingsboard.jar started by thingsboard in /)
+2023-10-20 22:20:08,368 [main] INFO  o.t.s.ThingsboardServerApplication - No active profile set, falling back to 1 default profile: "default"
+2023-10-20 22:20:11,664 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-20 22:20:11,665 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-20 22:20:12,250 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 572 ms. Found 53 JPA repository interfaces.
+2023-10-20 22:20:12,253 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-20 22:20:12,254 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-20 22:20:12,270 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 15 ms. Found 1 JPA repository interfaces.
+2023-10-20 22:20:12,274 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-20 22:20:12,275 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-20 22:20:12,289 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 12 ms. Found 1 JPA repository interfaces.
+2023-10-20 22:20:12,291 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2023-10-20 22:20:12,292 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-20 22:20:12,308 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 15 ms. Found 1 JPA repository interfaces.
+2023-10-20 22:20:13,119 [main] INFO  o.s.i.c.DefaultConfiguringBeanFactoryPostProcessor - No bean named 'errorChannel' has been explicitly defined. Therefore, a default PublishSubscribeChannel will be created.
+2023-10-20 22:20:13,146 [main] INFO  o.s.i.c.DefaultConfiguringBeanFactoryPostProcessor - No bean named 'integrationHeaderChannelRegistry' has been explicitly defined. Therefore, a default DefaultHeaderChannelRegistry will be created.
+2023-10-20 22:20:14,197 [main] INFO  o.t.s.q.d.DefaultTbServiceInfoProvider - Current Service ID: ce886037ac08
+2023-10-20 22:20:15,839 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-10-20 22:20:15,946 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2023-10-20 22:20:16,272 [main] INFO  o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-10-20 22:20:16,424 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-10-20 22:20:16,921 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-10-20 22:20:16,975 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.PostgreSQL10Dialect
+2023-10-20 22:20:19,671 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-10-20 22:20:19,713 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-10-20 22:20:25,584 [main] INFO  o.t.s.c.t.c.ssl.SslCredentialsConfig - HTTP Server SSL Credentials: Initializing SSL credentials.
+2023-10-20 22:20:26,262 [main] INFO  o.t.server.common.data.ResourceUtils - Reading resource data from file /cert/thingsboard.asd.pem
+2023-10-20 22:20:26,389 [main] INFO  o.t.server.common.data.ResourceUtils - Reading resource data from file /cert/thingsboard.asd-key.pem
+2023-10-20 22:20:26,950 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 9090 (https)
+2023-10-20 22:20:26,980 [main] INFO  o.a.coyote.http11.Http11NioProtocol - The ["https-jsse-nio-0.0.0.0-9090"] connector has been configured to support negotiation to [h2] via ALPN
+2023-10-20 22:20:26,981 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["https-jsse-nio-0.0.0.0-9090"]
+2023-10-20 22:20:26,983 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2023-10-20 22:20:26,984 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.73]
+2023-10-20 22:20:27,144 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-10-20 22:20:27,145 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 18712 ms
+2023-10-20 22:20:27,442 [main] INFO  o.t.s.d.a.CachedAttributesService - Going to use directExecutor for the local cache type caffeine
+2023-10-20 22:20:29,137 [main] INFO  o.t.s.s.a.DefaultTbApiUsageStateService - Starting api usage service.
+2023-10-20 22:20:29,139 [main] INFO  o.t.s.s.a.DefaultTbApiUsageStateService - Started api usage service.
