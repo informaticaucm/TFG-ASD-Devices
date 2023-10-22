@@ -10536,3 +10536,18 @@
 [2023-10-21T16:07:04.915+0000][4739.013s][info ][gc,marking    ] GC(100) Concurrent Cleanup for Next Mark
 [2023-10-21T16:07:04.917+0000][4739.015s][info ][gc,marking    ] GC(100) Concurrent Cleanup for Next Mark 1.492ms
 [2023-10-21T16:07:04.917+0000][4739.015s][info ][gc            ] GC(100) Concurrent Cycle 214.427ms
+[2023-10-21T16:08:10.926+0000][4805.025s][debug][safepoint     ] Safepoint synchronization initiated. (199 threads)
+[2023-10-21T16:08:10.935+0000][4805.034s][info ][safepoint     ] Application time: 66.0202427 seconds
+[2023-10-21T16:08:10.941+0000][4805.040s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-21T16:08:10.945+0000][4805.043s][info ][safepoint     ] Leaving safepoint region
+[2023-10-21T16:08:10.954+0000][4805.052s][info ][safepoint     ] Total time for which application threads were stopped: 0.0128200 seconds, Stopping threads took: 0.0032060 seconds
+[2023-10-21T16:08:21.962+0000][4816.061s][debug][safepoint     ] Safepoint synchronization initiated. (199 threads)
+[2023-10-21T16:08:21.963+0000][4816.061s][info ][safepoint     ] Application time: 11.0027140 seconds
+[2023-10-21T16:08:21.963+0000][4816.062s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-21T16:08:21.964+0000][4816.062s][info ][safepoint     ] Leaving safepoint region
+[2023-10-21T16:08:21.964+0000][4816.063s][info ][safepoint     ] Total time for which application threads were stopped: 0.0007596 seconds, Stopping threads took: 0.0003441 seconds
+[2023-10-21T16:08:23.965+0000][4818.063s][debug][safepoint     ] Safepoint synchronization initiated. (199 threads)
+[2023-10-21T16:08:23.965+0000][4818.064s][info ][safepoint     ] Application time: 2.0009659 seconds
+[2023-10-21T16:08:23.966+0000][4818.064s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-21T16:08:23.966+0000][4818.065s][info ][safepoint     ] Leaving safepoint region
+[2023-10-21T16:08:23.967+0000][4818.065s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010319 seconds, Stopping threads took: 0.0004711 seconds

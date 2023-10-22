@@ -1,0 +1,3 @@
+tut: https://esp32tutorials.com/esp32-cam-esp-idf-live-streaming-web-server/
+
+el tutorial dice de poner los drivers de la camera en la carpeta global de componentes, parece que en windows o en mi version de esp-idf no funciona eso sin mas configuracion. asi que es mas facil poner el driver en una carptea que se llame componets en el mismo proyecto como se enseña [aqui](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-system.html#example-project)
