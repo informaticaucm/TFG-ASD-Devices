@@ -21,6 +21,13 @@ Se ha experimentado con la forma de extraer la MAC del equipo para identificarse
 * Integración de notificaciones mqtt en el proceso de OTA, usando el broker del hub IOT que se decida usar en adelante.
 * Esbozar el enrolment de máquinas recién falseadas usando el hub IOT
 
+## Hitos del segundo sprint 23-10-2023
+Se ha selecionado ThingsBoard
+Se ha diseñado la red, con DNS y DHCP
+Se han resuelto las comunicaciones SMQTT con thingsboard
+Se ha completado el primer prototipo completo de OTA
+Se han comenzado los intentos de lectura de QR con el 
+
 
 # Cheat sheat
 

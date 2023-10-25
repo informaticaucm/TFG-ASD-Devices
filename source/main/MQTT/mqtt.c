@@ -18,7 +18,9 @@
 #include "esp_ota_ops.h"
 #include <sys/param.h>
 
-static const char *TAG = "mtqq_plugin";
+#include "mqtt.h"
+
+static const char *TAG = "mqtt";
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 

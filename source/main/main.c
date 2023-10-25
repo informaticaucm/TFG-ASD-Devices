@@ -22,12 +22,11 @@
 #include "esp_efuse.h"
 #endif
 
-#if CONFIG_EXAMPLE_CONNECT_WIFI
 #include "esp_wifi.h"
-#endif
 
-static const char *TAG = "advanced_https_ota_example";
-/* Event handler for catching system events */
+struct Camera_init
+
+static const char *TAG = "tfgsegumientodocente";
 
 void build_ota_status_report(char *state, char *buffer, int buffer_size)
 {

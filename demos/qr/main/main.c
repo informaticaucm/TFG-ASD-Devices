@@ -129,7 +129,7 @@ void app_main()
                 struct quirc_data data;
                 quirc_decode_error_t err;
 
-                quirc_extract(qr, i, &code);
+                 quirc_extract(qr, i, &code);
 
             
                 /* Decoding stage */
