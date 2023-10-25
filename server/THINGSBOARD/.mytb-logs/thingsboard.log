@@ -477,3 +477,6 @@
 2023-10-25 22:06:26,924 [TB-Scheduling-8] WARN  o.t.s.d.s.i.s.SqlPartitioningRepository - Failed to parse table name: notification_rule
 2023-10-25 22:06:26,925 [TB-Scheduling-8] WARN  o.t.s.d.s.i.s.SqlPartitioningRepository - Failed to parse table name: notification_request
 2023-10-25 22:06:33,605 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [Attributes] queueSize [0] totalAdded [1] totalSaved [1] totalFailed [0]
+2023-10-25 22:07:03,793 [TB-Scheduling-5] INFO  o.t.s.s.queue.TbCoreConsumerStats - Core Stats: totalMsgs = [1] sessionEvents = [0] getAttr = [0] subToAttr = [0] subToRpc = [0] toDevRpc = [0] subInfo = [1] claimDevice = [0] deviceState = [0] subMsgs = [0] coreNfs = [0] edgeNfs = [0] deviceActivity = [0] 
+2023-10-25 22:07:03,793 [TB-Scheduling-2] INFO  o.t.s.c.t.s.DefaultTransportService - Transport Stats: openConnections [1]
+2023-10-25 22:07:13,811 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [11] totalSaved [11] totalFailed [0]
