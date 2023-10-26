@@ -98,6 +98,11 @@ void mqtt_send(char *topic, char *msg)
     esp_mqtt_client_publish(client, topic, msg, strlen(msg), mqtt_qos, 0);
 }
 
+void mqtt_send_telemetry(char *msg)
+{
+    mqtt_send("v1/devices/me/telemetry", msg);
+}
+
 void mqtt_send_ota_status_report(OTAState status)
 {
     // {"current_fw_title": "myFirmware", "current_fw_version": "1.2.3", "fw_state": "UPDATED"}
@@ -112,7 +117,7 @@ void mqtt_send_ota_status_report(OTAState status)
 
     char msg[100];
     snprintf(msg, 100, "{\"fw_state\": \"%s\"}", to_string[status]);
-    mqtt_send("v1/devices/me/telemetry", msg);
+    mqtt_send_telemetry(msg);
 }
 
 void mqtt_send_ota_fail(char *explanation)
@@ -120,7 +125,7 @@ void mqtt_send_ota_fail(char *explanation)
     // {"fw_state": "FAILED", "fw_error":  "the human readable message about the cause of the error"}
     char msg[100];
     snprintf(msg, 100, "{\"fw_state\": \"FAILED\", \"fw_error\": \"%s\"}", explanation);
-    mqtt_send("v1/devices/me/telemetry", msg);
+    mqtt_send_telemetry(msg);
 }
 
 struct MQTTTaskConf
@@ -151,11 +156,12 @@ void mqtt_task(void *arg)
         case OTA_failure:
             mqtt_send_ota_fail(msg->failure_msg);
         case OTA_state_update:
-            mqtt_send_ota_status_report(msg->ota_state) break;
+            mqtt_send_ota_status_report(msg->ota_state);
+            break;
         case found_TUI_qr:
+            mqtt_send_telemetry("{qr_code: \"blah blah\"}"); // TODO send read qr through mqtt
             break;
         case start:
-
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
                     .address.uri = arg->broker_url,
