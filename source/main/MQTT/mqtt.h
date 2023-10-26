@@ -1,12 +1,44 @@
-struct MQTTConf
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+
+enum MQTTCommand
 {
-    char *broker_url;
-    char *device_id;
-    void (*callback)(char *, char *);
+    OTA_failure,
+        OTA_state_update,
+    found_TUI_qr,
+    start,
 };
 
-void mqtt_send(char *topic, char *msg);
-void mqtt_subscribe(char *topic);
-void mqtt_init(MQTTConf conf);
-void mqtt_send_ota_status_report(char *status);
-void mqtt_send_ota_fail(char *explanation);
+enum OTAState
+{
+    DOWNLOADING,
+    DOWNLOADED,
+    VERIFIED,
+    UPDATING,
+    UPDATED,
+};
+
+struct MQTTMsg
+{
+    MQTTCommand command;
+    // OTA_failure
+    char *failure_msg;
+    // OTA_state_update
+    OTA_STATE ota_state;
+    // found_TUI_qr
+    char *TUI_qr;
+    // start
+    char *broker_url;
+}
+
+struct MQTTConf
+{
+    QueueHandle_t qr_to_mqtt_queue;
+    QueueHandle_t mqtt_to_ota_queue;
+    QueueHandle_t ota_to_mqtt_queue;
+    QueueHandle_t mqtt_to_screen_queue;
+    QueueHandle_t starter_to_mqtt_queue;
+};
+
+void mqtt_start(MQTTConf conf);

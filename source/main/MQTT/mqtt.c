@@ -24,8 +24,6 @@ static const char *TAG = "mqtt";
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
-void (*data_callback)(char *, char *);
-
 esp_mqtt_client_handle_t client = 0;
 
 // mosquitto_pub -d -q 1 -h thingsboard.asd -p 1883 -t v1/devices/me/telemetry -u c9YTwKgDDaaMMA5oVv6z -m "{temperature:25}"
@@ -100,11 +98,20 @@ void mqtt_send(char *topic, char *msg)
     esp_mqtt_client_publish(client, topic, msg, strlen(msg), mqtt_qos, 0);
 }
 
-void mqtt_send_ota_status_report(char *status)
+void mqtt_send_ota_status_report(OTAState status)
 {
     // {"current_fw_title": "myFirmware", "current_fw_version": "1.2.3", "fw_state": "UPDATED"}
+
+    char *to_string[] = {
+        "DOWNLOADING",
+        "DOWNLOADED",
+        "VERIFIED",
+        "UPDATING",
+        "UPDATED",
+    }
+
     char msg[100];
-    snprintf(msg, 100, "{\"fw_state\": \"%s\"}", status);
+    snprintf(msg, 100, "{\"fw_state\": \"%s\"}", to_string[status]);
     mqtt_send("v1/devices/me/telemetry", msg);
 }
 
@@ -116,23 +123,68 @@ void mqtt_send_ota_fail(char *explanation)
     mqtt_send("v1/devices/me/telemetry", msg);
 }
 
-void mqtt_init(void (*callback)(char *, char *))
+struct MQTTTaskConf
 {
-    data_callback = callback;
-    const esp_mqtt_client_config_t mqtt_cfg = {
-        .broker = {
-            .address.uri = broker_url,
-            .verification.certificate = (const char *)server_cert_pem_start},
-        .credentials = {
-            .username = device_id,
-        }};
-    while (client == 0)
-    {
-        client = esp_mqtt_client_init(&mqtt_cfg);
-        ESP_LOGI(TAG, "client: %d", (int)client);
-    }
+    QueueHandle_t qr_to_mqtt_queue;
+    QueueHandle_t mqtt_to_ota_queue;
+    QueueHandle_t ota_to_mqtt_queue;
+    QueueHandle_t mqtt_to_screen_queue;
+    QueueHandle_t starter_to_mqtt_queue;
+};
 
-    /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
-    ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL));
-    ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+void mqtt_task(void *arg)
+{
+    MQTTTaskConf conf = (MQTTTaskConf *)arg;
+
+    while (1)
+    {
+        MQTTMsg *msg;
+        if (xQueueReceive(conf.qr_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS &&
+            xQueueReceive(conf.ota_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS &&
+            xQueueReceive(conf.starter_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS)
+        {
+            continue;
+        }
+
+        switch (msg->command)
+        {
+        case OTA_failure:
+            mqtt_send_ota_fail(msg->failure_msg);
+        case OTA_state_update:
+            mqtt_send_ota_status_report(msg->ota_state) break;
+        case found_TUI_qr:
+            break;
+        case start:
+
+            const esp_mqtt_client_config_t mqtt_cfg = {
+                .broker = {
+                    .address.uri = arg->broker_url,
+                    .verification.certificate = (const char *)server_cert_pem_start},
+                .credentials = {
+                    .username = device_id,
+                }};
+
+            client = esp_mqtt_client_init(&mqtt_cfg);
+            ESP_LOGI(TAG, "client: %d", (int)client);
+
+            /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
+            ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL));
+            ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+            break;
+        }
+
+        free(msg);
+    }
+}
+
+void mqtt_start(MQTTConf conf)
+{
+
+    MQTTTaskConf *arg = malloc(sizeof(MQTTTaskConf));
+    arg->qr_to_mqtt_queue = conf.qr_to_mqtt_queue;
+    arg->mqtt_to_ota_queue = conf.mqtt_to_ota_queue;
+    arg->ota_to_mqtt_queue = conf.ota_to_mqtt_queue;
+    arg->mqtt_to_screen_queue = conf.mqtt_to_screen_queue;
+    arg->starter_to_mqtt_queue = conf.starter_to_mqtt_queue;
+    xTaskCreatePinnedToCore(&mqtt_task, "MQTT Task", 35000, arg, 1, NULL, 0);
 }

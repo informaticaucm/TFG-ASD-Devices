@@ -2,48 +2,19 @@
 
 skinparam componentStyle rectangle
 
-    [Main]
+   
 
-    [Camera]
-
-    [QR]
-    [Barcode]
-    [Bluetooth]
-    [Finger]
-
-    [MQTT]
-    [Starter]
-
-    [Screen]
-    [OTA]
-
-    [Camera] -[#red]> [QR]
-    [QR] -[#red]> [Starter] : config QR read
-    [Starter] -[#red]> Screen : display start
+    [Camera] -> [QR]
+    [QR] -up-> [Starter] : config QR read
+    [Starter] -> [Screen] : display start
 
 
-    [Camera] --> [Barcode]
-    [QR] --> [MQTT] : TUI
-    [Barcode] --> [MQTT] : TUI
-    [Bluetooth] --> [MQTT]
-    [Finger] --> [MQTT]
-    [MQTT] --> [Screen] : display OTAC
-    [MQTT] --> [Screen] : display Feedback
-    [MQTT] --> [Screen] : display Current Activity Info
-    [MQTT] --> [OTA]
+    [QR] -> [MQTT] : TUI
+    [MQTT] -up-> [Screen] : OTAC / Feedback / idle info
+    [MQTT] --> [OTA] : command
+    [OTA] --> [MQTT] : state updates
+    [OTA] --> [Screen] : state updates
 
-    [Main] .> [Starter]
-    [Main] .> [Camera]
-    [Main] .> [QR]
-    [Main] .> [Screen]
-
-    [Starter] ..> [Finger]
-    [Starter] ..> [Barcode]
-    [Starter] ..> [MQTT]
-    [Starter] ..> [OTA]
-    [Starter] ..> [Bluetooth]
-
-
-
+    [Starter] --> [MQTT] : configure and start
 
 @enduml

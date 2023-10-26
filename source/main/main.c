@@ -13,8 +13,12 @@
 #include "nvs_flash.h"
 #include "protocol_examples_common.h"
 
-#include "https_ota.h"
-#include "mqtt_plugin.h"
+#include "Camera/camera.h"
+#include "MQTT/mqtt.h"
+#include "OTA/ota.h"
+#include "QR/qr.h"
+#include "Screen/screen.h"
+#include "Starter/starter.h"
 
 #include "json_parser.h"
 
@@ -23,8 +27,6 @@
 #endif
 
 #include "esp_wifi.h"
-
-struct Camera_init
 
 static const char *TAG = "tfgsegumientodocente";
 
@@ -69,16 +71,6 @@ void mqtt_listener(char *topic, char *msg)
 void app_main(void)
 {
 
-    // switch (esp_reset_reason()) // https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/misc_system_api.html#_CPPv418esp_reset_reason_t
-    // {
-    // case /* constant-expression */:
-    //     /* code */
-    //     break;
-
-    // default:
-    //     break;
-    // }
-
     // Initialize NVS.
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -121,6 +113,85 @@ void app_main(void)
 
     esp_wifi_set_ps(WIFI_PS_NONE);
 
-    mqtt_subscribe("v1/devices/me/attributes"); // check if it worked or needs retriying
-    mqtt_send("v1/devices/me/telemetry", "{\"online\":true}");
+    // build queues
+    QueueHandle_t cam_to_qr_queue = xQueueCreate(1, sizeof(camera_fb_t *));
+    QueueHandle_t qr_to_starter_queue = xQueueCreate(1, sizeof(StarterMsg *));
+    QueueHandle_t starter_to_screen_queue = xQueueCreate(1, sizeof(ScreenMsg *));
+    QueueHandle_t qr_to_mqtt_queue = xQueueCreate(1, sizeof(MQTTMsg *));
+    QueueHandle_t mqtt_to_screen_queue = xQueueCreate(1, sizeof(ScreenMsg *));
+    QueueHandle_t mqtt_to_ota_queue = xQueueCreate(1, sizeof(OTAMsg *));
+    QueueHandle_t ota_to_mqtt_queue = xQueueCreate(1, sizeof(MQTTMsg *));
+    QueueHandle_t ota_to_screen_queue = xQueueCreate(1, sizeof(ScreenMsg *));
+
+    assert(cam_to_qr_queue);
+
+    // Initialize the camera
+    {
+        camera_config_t camera_config = BSP_CAMERA_DEFAULT_CONFIG;
+        camera_config.frame_size = CAM_FRAME_SIZE;
+
+        CameraConf cam_conf = {
+            .cam_to_qr_queue = cam_to_qr_queue,
+            .camera_config = camera_config,
+        }
+
+        camera_start(cam_conf);
+    }
+
+    // Initialize QR
+    {
+        QRConf qr_conf = {
+            .cam_to_qr_queue = cam_to_qr_queue,
+            .qr_to_starter_queue = qr_to_starter_queue,
+            .qr_to_mqtt_queue = qr_to_mqtt_queue,
+        };
+
+        qr_start(qr_conf)
+    }
+
+    // Initialize MQTT
+    {
+        MQTTConf mqtt_conf = {
+            .qr_to_mqtt_queue = qr_to_mqtt_queue,
+            .mqtt_to_ota_queue = mqtt_to_ota_queue,
+            .ota_to_mqtt_queue = ota_to_mqtt_queue,
+            .mqtt_to_screen_queue = mqtt_to_screen_queue,
+            .starter_to_mqtt_queue = starter_to_mqtt_queue,
+        };
+        mqtt_start(mqtt_conf)
+    }
+
+    // Initialize OTA
+    {
+        OTAConf ota_conf{
+            .ota_to_mqtt_queue = ota_to_mqtt_queue,
+            .mqtt_to_ota_queue = mqtt_to_ota_queue,
+            .ota_to_screen_queue = ota_to_screen_queue,
+        };
+        ota_start(ota_conf);
+    }
+
+    // Initialize Screen
+    {
+        ScreenConf screen_conf = {
+            .starter_to_screen_queue = starter_to_screen_queue,
+            .mqtt_to_screen_queue = mqtt_to_screen_queue,
+            .ota_to_sceen_queue = ota_to_sceen_queue,
+        };
+        screen_start(screen_conf);
+    }
+
+    // Initialize Starter
+    {
+
+        StarterConf starter_conf = {
+            .starter_to_screen_queue = starter_to_screen_queue,
+            .qr_to_starter_queue = qr_to_starter_queue,
+            .starter_to_mqtt_queue = starter_to_mqtt_queue,
+        };
+        start_starter(starter_conf);
+    }
+
+    // mqtt_subscribe("v1/devices/me/attributes"); // check if it worked or needs retriying
+    // mqtt_send("v1/devices/me/telemetry", "{\"online\":true}");
 }

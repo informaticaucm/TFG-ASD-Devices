@@ -5316,3 +5316,303 @@
 [2023-10-25T22:07:13.004+0000][2212.131s][info ][safepoint     ] Entering safepoint region: Cleanup
 [2023-10-25T22:07:13.004+0000][2212.132s][info ][safepoint     ] Leaving safepoint region
 [2023-10-25T22:07:13.005+0000][2212.132s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011711 seconds, Stopping threads took: 0.0004958 seconds
+[2023-10-25T22:07:14.005+0000][2213.133s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:14.016+0000][2213.143s][info ][safepoint     ] Application time: 1.0103195 seconds
+[2023-10-25T22:07:14.016+0000][2213.144s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:14.017+0000][2213.145s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:14.018+0000][2213.146s][info ][safepoint     ] Total time for which application threads were stopped: 0.0020460 seconds, Stopping threads took: 0.0005585 seconds
+[2023-10-25T22:07:15.019+0000][2214.147s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:15.020+0000][2214.148s][info ][safepoint     ] Application time: 1.0015295 seconds
+[2023-10-25T22:07:15.021+0000][2214.149s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:15.022+0000][2214.150s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:15.022+0000][2214.150s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012264 seconds, Stopping threads took: 0.0005411 seconds
+[2023-10-25T22:07:16.023+0000][2215.151s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:16.024+0000][2215.152s][info ][safepoint     ] Application time: 1.0009150 seconds
+[2023-10-25T22:07:16.025+0000][2215.152s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:16.025+0000][2215.153s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:16.026+0000][2215.154s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012576 seconds, Stopping threads took: 0.0004848 seconds
+[2023-10-25T22:07:17.026+0000][2216.154s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:17.030+0000][2216.158s][info ][safepoint     ] Application time: 1.0041184 seconds
+[2023-10-25T22:07:17.036+0000][2216.164s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:17.045+0000][2216.173s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:17.048+0000][2216.176s][info ][safepoint     ] Total time for which application threads were stopped: 0.0118586 seconds, Stopping threads took: 0.0084117 seconds
+[2023-10-25T22:07:18.054+0000][2217.181s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:18.054+0000][2217.182s][info ][safepoint     ] Application time: 1.0009177 seconds
+[2023-10-25T22:07:18.055+0000][2217.183s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:18.055+0000][2217.183s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:18.056+0000][2217.184s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012285 seconds, Stopping threads took: 0.0004639 seconds
+[2023-10-25T22:07:19.057+0000][2218.184s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:19.057+0000][2218.185s][info ][safepoint     ] Application time: 1.0007857 seconds
+[2023-10-25T22:07:19.058+0000][2218.186s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:19.059+0000][2218.186s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:19.059+0000][2218.187s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012440 seconds, Stopping threads took: 0.0005611 seconds
+[2023-10-25T22:07:20.060+0000][2219.188s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:20.061+0000][2219.188s][info ][safepoint     ] Application time: 1.0009152 seconds
+[2023-10-25T22:07:20.061+0000][2219.189s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:20.062+0000][2219.190s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:20.062+0000][2219.190s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012305 seconds, Stopping threads took: 0.0005353 seconds
+[2023-10-25T22:07:21.063+0000][2220.191s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:21.064+0000][2220.191s][info ][safepoint     ] Application time: 1.0007887 seconds
+[2023-10-25T22:07:21.064+0000][2220.192s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:21.065+0000][2220.193s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:21.065+0000][2220.193s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012385 seconds, Stopping threads took: 0.0005550 seconds
+[2023-10-25T22:07:22.066+0000][2221.194s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:22.067+0000][2221.195s][info ][safepoint     ] Application time: 1.0009220 seconds
+[2023-10-25T22:07:22.067+0000][2221.195s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:22.068+0000][2221.196s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:22.069+0000][2221.197s][info ][safepoint     ] Total time for which application threads were stopped: 0.0014475 seconds, Stopping threads took: 0.0006530 seconds
+[2023-10-25T22:07:23.070+0000][2222.197s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:23.070+0000][2222.198s][info ][safepoint     ] Application time: 1.0011237 seconds
+[2023-10-25T22:07:23.071+0000][2222.199s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:23.072+0000][2222.200s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:23.073+0000][2222.200s][info ][safepoint     ] Total time for which application threads were stopped: 0.0014481 seconds, Stopping threads took: 0.0006606 seconds
+[2023-10-25T22:07:24.074+0000][2223.202s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:24.074+0000][2223.202s][info ][safepoint     ] Application time: 1.0007778 seconds
+[2023-10-25T22:07:24.075+0000][2223.203s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:24.075+0000][2223.203s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:24.076+0000][2223.204s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011082 seconds, Stopping threads took: 0.0004979 seconds
+[2023-10-25T22:07:25.076+0000][2224.204s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:25.077+0000][2224.205s][info ][safepoint     ] Application time: 1.0005986 seconds
+[2023-10-25T22:07:25.077+0000][2224.205s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:25.078+0000][2224.206s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:25.078+0000][2224.206s][info ][safepoint     ] Total time for which application threads were stopped: 0.0009952 seconds, Stopping threads took: 0.0004442 seconds
+[2023-10-25T22:07:26.079+0000][2225.207s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:26.081+0000][2225.209s][info ][safepoint     ] Application time: 1.0020618 seconds
+[2023-10-25T22:07:26.081+0000][2225.209s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:26.082+0000][2225.210s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:26.082+0000][2225.210s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010460 seconds, Stopping threads took: 0.0004670 seconds
+[2023-10-25T22:07:27.083+0000][2226.211s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:27.084+0000][2226.211s][info ][safepoint     ] Application time: 1.0009373 seconds
+[2023-10-25T22:07:27.085+0000][2226.213s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:27.086+0000][2226.214s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:27.087+0000][2226.214s][info ][safepoint     ] Total time for which application threads were stopped: 0.0017160 seconds, Stopping threads took: 0.0009669 seconds
+[2023-10-25T22:07:28.087+0000][2227.215s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:28.088+0000][2227.216s][info ][safepoint     ] Application time: 1.0012174 seconds
+[2023-10-25T22:07:28.089+0000][2227.217s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:28.089+0000][2227.217s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:28.090+0000][2227.218s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011943 seconds, Stopping threads took: 0.0005111 seconds
+[2023-10-25T22:07:29.091+0000][2228.219s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:29.092+0000][2228.219s][info ][safepoint     ] Application time: 1.0010423 seconds
+[2023-10-25T22:07:29.092+0000][2228.220s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:29.093+0000][2228.221s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:29.093+0000][2228.221s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011436 seconds, Stopping threads took: 0.0005356 seconds
+[2023-10-25T22:07:30.094+0000][2229.222s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:30.098+0000][2229.225s][info ][safepoint     ] Application time: 1.0036219 seconds
+[2023-10-25T22:07:30.100+0000][2229.228s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:30.104+0000][2229.232s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:30.108+0000][2229.236s][info ][safepoint     ] Total time for which application threads were stopped: 0.0086762 seconds, Stopping threads took: 0.0038146 seconds
+[2023-10-25T22:07:31.110+0000][2230.238s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:31.111+0000][2230.239s][info ][safepoint     ] Application time: 1.0011088 seconds
+[2023-10-25T22:07:31.112+0000][2230.240s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:31.113+0000][2230.241s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:31.113+0000][2230.241s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012027 seconds, Stopping threads took: 0.0006594 seconds
+[2023-10-25T22:07:32.114+0000][2231.242s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:32.117+0000][2231.244s][info ][safepoint     ] Application time: 1.0029315 seconds
+[2023-10-25T22:07:32.124+0000][2231.252s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:32.125+0000][2231.252s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:32.129+0000][2231.257s][info ][safepoint     ] Total time for which application threads were stopped: 0.0050110 seconds, Stopping threads took: 0.0007164 seconds
+[2023-10-25T22:07:33.132+0000][2232.259s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:33.132+0000][2232.260s][info ][safepoint     ] Application time: 1.0011071 seconds
+[2023-10-25T22:07:33.133+0000][2232.261s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:33.134+0000][2232.262s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:33.134+0000][2232.262s][info ][safepoint     ] Total time for which application threads were stopped: 0.0014020 seconds, Stopping threads took: 0.0007586 seconds
+[2023-10-25T22:07:34.135+0000][2233.263s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:34.136+0000][2233.263s][info ][safepoint     ] Application time: 1.0007821 seconds
+[2023-10-25T22:07:34.136+0000][2233.264s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:34.137+0000][2233.265s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:34.137+0000][2233.265s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011582 seconds, Stopping threads took: 0.0004986 seconds
+[2023-10-25T22:07:35.138+0000][2234.266s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:35.139+0000][2234.266s][info ][safepoint     ] Application time: 1.0008486 seconds
+[2023-10-25T22:07:35.139+0000][2234.267s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:35.140+0000][2234.267s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:35.140+0000][2234.268s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010357 seconds, Stopping threads took: 0.0004808 seconds
+[2023-10-25T22:07:36.141+0000][2235.268s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:36.141+0000][2235.269s][info ][safepoint     ] Application time: 1.0008666 seconds
+[2023-10-25T22:07:36.142+0000][2235.270s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:36.142+0000][2235.270s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:36.143+0000][2235.270s][info ][safepoint     ] Total time for which application threads were stopped: 0.0009568 seconds, Stopping threads took: 0.0004068 seconds
+[2023-10-25T22:07:37.143+0000][2236.271s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:37.144+0000][2236.272s][info ][safepoint     ] Application time: 1.0007753 seconds
+[2023-10-25T22:07:37.145+0000][2236.272s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:37.145+0000][2236.273s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:37.146+0000][2236.274s][info ][safepoint     ] Total time for which application threads were stopped: 0.0013149 seconds, Stopping threads took: 0.0005742 seconds
+[2023-10-25T22:07:38.146+0000][2237.274s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:38.147+0000][2237.275s][info ][safepoint     ] Application time: 1.0007796 seconds
+[2023-10-25T22:07:38.147+0000][2237.275s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:38.148+0000][2237.276s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:38.149+0000][2237.276s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010773 seconds, Stopping threads took: 0.0004488 seconds
+[2023-10-25T22:07:39.149+0000][2238.277s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:39.150+0000][2238.278s][info ][safepoint     ] Application time: 1.0009095 seconds
+[2023-10-25T22:07:39.150+0000][2238.278s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:39.151+0000][2238.279s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:39.152+0000][2238.279s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012892 seconds, Stopping threads took: 0.0006053 seconds
+[2023-10-25T22:07:40.152+0000][2239.280s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:40.153+0000][2239.281s][info ][safepoint     ] Application time: 1.0012950 seconds
+[2023-10-25T22:07:40.155+0000][2239.282s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:40.156+0000][2239.284s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:40.156+0000][2239.284s][info ][safepoint     ] Total time for which application threads were stopped: 0.0017391 seconds, Stopping threads took: 0.0010544 seconds
+[2023-10-25T22:07:41.157+0000][2240.285s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:41.158+0000][2240.285s][info ][safepoint     ] Application time: 1.0009168 seconds
+[2023-10-25T22:07:41.158+0000][2240.286s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:41.159+0000][2240.287s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:41.159+0000][2240.287s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011973 seconds, Stopping threads took: 0.0005406 seconds
+[2023-10-25T22:07:42.160+0000][2241.288s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:42.161+0000][2241.288s][info ][safepoint     ] Application time: 1.0007023 seconds
+[2023-10-25T22:07:42.161+0000][2241.289s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:42.162+0000][2241.289s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:42.162+0000][2241.290s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010825 seconds, Stopping threads took: 0.0005222 seconds
+[2023-10-25T22:07:43.162+0000][2242.290s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:43.163+0000][2242.291s][info ][safepoint     ] Application time: 1.0008489 seconds
+[2023-10-25T22:07:43.164+0000][2242.291s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:43.164+0000][2242.292s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:43.165+0000][2242.292s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010667 seconds, Stopping threads took: 0.0005649 seconds
+[2023-10-25T22:07:44.165+0000][2243.293s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:44.166+0000][2243.294s][info ][safepoint     ] Application time: 1.0008024 seconds
+[2023-10-25T22:07:44.166+0000][2243.294s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:44.167+0000][2243.295s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:44.167+0000][2243.295s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011121 seconds, Stopping threads took: 0.0004584 seconds
+[2023-10-25T22:07:45.168+0000][2244.296s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:45.169+0000][2244.296s][info ][safepoint     ] Application time: 1.0006235 seconds
+[2023-10-25T22:07:45.169+0000][2244.297s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:45.170+0000][2244.297s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:45.170+0000][2244.298s][info ][safepoint     ] Total time for which application threads were stopped: 0.0009645 seconds, Stopping threads took: 0.0004760 seconds
+[2023-10-25T22:07:46.171+0000][2245.298s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:46.171+0000][2245.299s][info ][safepoint     ] Application time: 1.0011384 seconds
+[2023-10-25T22:07:46.172+0000][2245.300s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:46.173+0000][2245.301s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:46.173+0000][2245.301s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011939 seconds, Stopping threads took: 0.0005156 seconds
+[2023-10-25T22:07:47.174+0000][2246.302s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:47.174+0000][2246.302s][info ][safepoint     ] Application time: 1.0006905 seconds
+[2023-10-25T22:07:47.175+0000][2246.303s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:47.175+0000][2246.303s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:47.176+0000][2246.304s][info ][safepoint     ] Total time for which application threads were stopped: 0.0009440 seconds, Stopping threads took: 0.0004351 seconds
+[2023-10-25T22:07:48.176+0000][2247.304s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:48.181+0000][2247.309s][info ][safepoint     ] Application time: 1.0048604 seconds
+[2023-10-25T22:07:48.184+0000][2247.312s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:48.186+0000][2247.314s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:48.191+0000][2247.319s][info ][safepoint     ] Total time for which application threads were stopped: 0.0072189 seconds, Stopping threads took: 0.0022265 seconds
+[2023-10-25T22:07:49.195+0000][2248.322s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:49.195+0000][2248.323s][info ][safepoint     ] Application time: 1.0008632 seconds
+[2023-10-25T22:07:49.196+0000][2248.324s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:49.197+0000][2248.324s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:49.197+0000][2248.325s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012958 seconds, Stopping threads took: 0.0006941 seconds
+[2023-10-25T22:07:50.198+0000][2249.325s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:50.198+0000][2249.326s][info ][safepoint     ] Application time: 1.0007890 seconds
+[2023-10-25T22:07:50.199+0000][2249.327s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:50.199+0000][2249.327s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:50.200+0000][2249.328s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010460 seconds, Stopping threads took: 0.0003757 seconds
+[2023-10-25T22:07:51.200+0000][2250.328s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:51.201+0000][2250.329s][info ][safepoint     ] Application time: 1.0005999 seconds
+[2023-10-25T22:07:51.201+0000][2250.329s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:51.202+0000][2250.330s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:51.202+0000][2250.330s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010117 seconds, Stopping threads took: 0.0004516 seconds
+[2023-10-25T22:07:52.203+0000][2251.330s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:52.204+0000][2251.331s][info ][safepoint     ] Application time: 1.0009275 seconds
+[2023-10-25T22:07:52.204+0000][2251.332s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:52.205+0000][2251.333s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:52.206+0000][2251.333s][info ][safepoint     ] Total time for which application threads were stopped: 0.0013744 seconds, Stopping threads took: 0.0005627 seconds
+[2023-10-25T22:07:53.206+0000][2252.334s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:53.207+0000][2252.335s][info ][safepoint     ] Application time: 1.0008044 seconds
+[2023-10-25T22:07:53.208+0000][2252.335s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:53.209+0000][2252.336s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:53.209+0000][2252.337s][info ][safepoint     ] Total time for which application threads were stopped: 0.0015041 seconds, Stopping threads took: 0.0006465 seconds
+[2023-10-25T22:07:54.210+0000][2253.338s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:54.211+0000][2253.339s][info ][safepoint     ] Application time: 1.0012317 seconds
+[2023-10-25T22:07:54.212+0000][2253.340s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:54.213+0000][2253.341s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:54.213+0000][2253.341s][info ][safepoint     ] Total time for which application threads were stopped: 0.0014348 seconds, Stopping threads took: 0.0006234 seconds
+[2023-10-25T22:07:55.214+0000][2254.342s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:55.215+0000][2254.342s][info ][safepoint     ] Application time: 1.0005774 seconds
+[2023-10-25T22:07:55.215+0000][2254.343s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:55.215+0000][2254.343s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:55.216+0000][2254.343s][info ][safepoint     ] Total time for which application threads were stopped: 0.0008037 seconds, Stopping threads took: 0.0003236 seconds
+[2023-10-25T22:07:56.216+0000][2255.344s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:56.217+0000][2255.345s][info ][safepoint     ] Application time: 1.0007183 seconds
+[2023-10-25T22:07:56.217+0000][2255.345s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:56.218+0000][2255.346s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:56.218+0000][2255.346s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010728 seconds, Stopping threads took: 0.0004247 seconds
+[2023-10-25T22:07:57.219+0000][2256.347s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:57.219+0000][2256.347s][info ][safepoint     ] Application time: 1.0008185 seconds
+[2023-10-25T22:07:57.220+0000][2256.348s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:57.221+0000][2256.348s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:57.221+0000][2256.349s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011855 seconds, Stopping threads took: 0.0004994 seconds
+[2023-10-25T22:07:58.222+0000][2257.350s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:58.222+0000][2257.350s][info ][safepoint     ] Application time: 1.0008351 seconds
+[2023-10-25T22:07:58.223+0000][2257.351s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:58.224+0000][2257.351s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:58.224+0000][2257.352s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012315 seconds, Stopping threads took: 0.0005384 seconds
+[2023-10-25T22:07:59.225+0000][2258.353s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:07:59.225+0000][2258.353s][info ][safepoint     ] Application time: 1.0008168 seconds
+[2023-10-25T22:07:59.226+0000][2258.354s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:07:59.227+0000][2258.355s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:07:59.227+0000][2258.355s][info ][safepoint     ] Total time for which application threads were stopped: 0.0013048 seconds, Stopping threads took: 0.0005299 seconds
+[2023-10-25T22:08:00.228+0000][2259.356s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:00.229+0000][2259.356s][info ][safepoint     ] Application time: 1.0008815 seconds
+[2023-10-25T22:08:00.229+0000][2259.357s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:00.230+0000][2259.358s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:00.230+0000][2259.358s][info ][safepoint     ] Total time for which application threads were stopped: 0.0012525 seconds, Stopping threads took: 0.0005271 seconds
+[2023-10-25T22:08:01.231+0000][2260.359s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:01.232+0000][2260.360s][info ][safepoint     ] Application time: 1.0011486 seconds
+[2023-10-25T22:08:01.233+0000][2260.361s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:01.234+0000][2260.362s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:01.235+0000][2260.362s][info ][safepoint     ] Total time for which application threads were stopped: 0.0016353 seconds, Stopping threads took: 0.0007341 seconds
+[2023-10-25T22:08:02.235+0000][2261.363s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:02.236+0000][2261.364s][info ][safepoint     ] Application time: 1.0006201 seconds
+[2023-10-25T22:08:02.236+0000][2261.364s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:02.237+0000][2261.365s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:02.237+0000][2261.365s][info ][safepoint     ] Total time for which application threads were stopped: 0.0010609 seconds, Stopping threads took: 0.0004435 seconds
+[2023-10-25T22:08:03.238+0000][2262.366s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:03.239+0000][2262.366s][info ][safepoint     ] Application time: 1.0008781 seconds
+[2023-10-25T22:08:03.239+0000][2262.367s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:03.240+0000][2262.368s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:03.240+0000][2262.368s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011748 seconds, Stopping threads took: 0.0004529 seconds
+[2023-10-25T22:08:04.241+0000][2263.369s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:04.242+0000][2263.369s][info ][safepoint     ] Application time: 1.0010173 seconds
+[2023-10-25T22:08:04.242+0000][2263.370s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:04.243+0000][2263.371s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:04.244+0000][2263.372s][info ][safepoint     ] Total time for which application threads were stopped: 0.0015238 seconds, Stopping threads took: 0.0006301 seconds
+[2023-10-25T22:08:05.244+0000][2264.372s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:05.245+0000][2264.373s][info ][safepoint     ] Application time: 1.0011627 seconds
+[2023-10-25T22:08:05.246+0000][2264.374s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:05.247+0000][2264.375s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:05.248+0000][2264.376s][info ][safepoint     ] Total time for which application threads were stopped: 0.0017626 seconds, Stopping threads took: 0.0007658 seconds
+[2023-10-25T22:08:06.249+0000][2265.377s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:06.250+0000][2265.378s][info ][safepoint     ] Application time: 1.0019229 seconds
+[2023-10-25T22:08:06.252+0000][2265.380s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:06.253+0000][2265.381s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:06.254+0000][2265.382s][info ][safepoint     ] Total time for which application threads were stopped: 0.0026034 seconds, Stopping threads took: 0.0005148 seconds
+[2023-10-25T22:08:07.255+0000][2266.383s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:07.256+0000][2266.384s][info ][safepoint     ] Application time: 1.0005877 seconds
+[2023-10-25T22:08:07.256+0000][2266.384s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:07.257+0000][2266.385s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:07.258+0000][2266.386s][info ][safepoint     ] Total time for which application threads were stopped: 0.0015538 seconds, Stopping threads took: 0.0004107 seconds
+[2023-10-25T22:08:08.258+0000][2267.386s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:08.259+0000][2267.387s][info ][safepoint     ] Application time: 1.0005196 seconds
+[2023-10-25T22:08:08.259+0000][2267.387s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:08.260+0000][2267.387s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:08.260+0000][2267.388s][info ][safepoint     ] Total time for which application threads were stopped: 0.0007915 seconds, Stopping threads took: 0.0003156 seconds
+[2023-10-25T22:08:09.260+0000][2268.388s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:09.261+0000][2268.389s][info ][safepoint     ] Application time: 1.0008969 seconds
+[2023-10-25T22:08:09.262+0000][2268.389s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:09.263+0000][2268.390s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:09.263+0000][2268.391s][info ][safepoint     ] Total time for which application threads were stopped: 0.0013651 seconds, Stopping threads took: 0.0007049 seconds
+[2023-10-25T22:08:10.264+0000][2269.391s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:10.264+0000][2269.392s][info ][safepoint     ] Application time: 1.0007555 seconds
+[2023-10-25T22:08:10.265+0000][2269.393s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:10.265+0000][2269.393s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:10.266+0000][2269.394s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011499 seconds, Stopping threads took: 0.0005379 seconds
+[2023-10-25T22:08:11.266+0000][2270.394s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:11.267+0000][2270.395s][info ][safepoint     ] Application time: 1.0005460 seconds
+[2023-10-25T22:08:11.267+0000][2270.395s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:11.268+0000][2270.395s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:11.268+0000][2270.396s][info ][safepoint     ] Total time for which application threads were stopped: 0.0007771 seconds, Stopping threads took: 0.0003052 seconds
+[2023-10-25T22:08:12.268+0000][2271.396s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:12.269+0000][2271.397s][info ][safepoint     ] Application time: 1.0010851 seconds
+[2023-10-25T22:08:12.270+0000][2271.398s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:12.271+0000][2271.399s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:12.272+0000][2271.399s][info ][safepoint     ] Total time for which application threads were stopped: 0.0016327 seconds, Stopping threads took: 0.0008409 seconds
+[2023-10-25T22:08:13.272+0000][2272.400s][debug][safepoint     ] Safepoint synchronization initiated. (170 threads)
+[2023-10-25T22:08:13.273+0000][2272.401s][info ][safepoint     ] Application time: 1.0012174 seconds
+[2023-10-25T22:08:13.274+0000][2272.402s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-10-25T22:08:13.275+0000][2272.403s][info ][safepoint     ] Leaving safepoint region
+[2023-10-25T22:08:13.276+0000][2272.404s][info ][safepoint     ] Total time for which application threads were stopped: 0.0016522 seconds, Stopping threads took: 0.0006226 seconds

@@ -1,3 +1,17 @@
-void advanced_ota_example_task(char *url);
-void ota_event_handler(void *arg, esp_event_base_t event_base,
-                              int32_t event_id, void *event_data);
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+
+struct OTAMsg
+{
+    char *url;
+};
+
+struct OTAConf
+{
+    QueueHandle_t ota_to_mqtt_queue;
+    QueueHandle_t mqtt_to_ota_queue;
+    QueueHandle_t ota_to_screen_queue;
+};
+
+void ota_start(OTAConf conf);

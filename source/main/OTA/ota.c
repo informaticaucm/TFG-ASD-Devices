@@ -13,7 +13,7 @@
 #include "nvs_flash.h"
 #include "protocol_examples_common.h"
 
-#include "mqtt_plugin.h"
+#include "ota.h"
 
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
