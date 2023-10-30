@@ -70,6 +70,12 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 8.3.10
-manifest_hash: 7514729b542aebf56e7cabba0681d60448dc7ab44d1e0a046571459b6e692b64
+  protocol_examples_common:
+    component_hash: null
+    source:
+      path: C:\Users\Jaime\esp\esp-idf\examples\common_components\protocol_examples_common
+      type: local
+    version: '*'
+manifest_hash: 04047b79780e7ae3b150fe85117bdb525d054eb7f2ba9aba40f4398d31c6579d
 target: esp32s3
 version: 1.0.0

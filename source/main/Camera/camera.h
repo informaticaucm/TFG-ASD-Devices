@@ -9,4 +9,4 @@ struct CameraConf
     camera_config_t camera_config;
 };
 
-void camera_start(struct CameraConf conf);
+void camera_start(struct CameraConf *conf);

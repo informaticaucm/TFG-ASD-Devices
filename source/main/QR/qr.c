@@ -1,14 +1,12 @@
 #include "qr.h"
+#include "../Starter/starter.h"
+#include "../MQTT/mqtt.h"
 
 #include <stdio.h>
 #include <sys/param.h>
 #include "esp_err.h"
 #include "esp_log.h"
-#include "esp_lcd_panel_io.h"
-#include "esp_lcd_panel_vendor.h"
-#include "esp_lcd_panel_ops.h"
 #include "esp_timer.h"
-#include "esp_vfs_fat.h"
 #include "esp_heap_caps.h"
 #include "driver/spi_master.h"
 #include "driver/sdmmc_host.h"
@@ -22,9 +20,43 @@
 #include "esp_camera.h"
 #include "src/misc/lv_color.h"
 #include "qrcode_classifier.h"
+
 #include "../common.h"
 
-static void ota_task(void *arg)
+#define TAG "qr"
+
+// Helper functions to convert an RGB565 image to grayscale
+typedef union
+{
+    uint16_t val;
+    struct
+    {
+        uint16_t b : 5;
+        uint16_t g : 6;
+        uint16_t r : 5;
+    };
+} rgb565_t;
+
+static uint8_t rgb565_to_grayscale(const uint8_t *img)
+{
+    uint16_t *img_16 = (uint16_t *)img;
+    rgb565_t rgb = {.val = __builtin_bswap16(*img_16)};
+    uint16_t val = (rgb.r * 8 + rgb.g * 4 + rgb.b * 8) / 3;
+    return (uint8_t)MIN(255, val);
+}
+
+static void rgb565_to_grayscale_buf(const uint8_t *src, uint8_t *dst, int qr_width, int qr_height)
+{
+    for (size_t y = 0; y < qr_height; y++)
+    {
+        for (size_t x = 0; x < qr_width; x++)
+        {
+            dst[y * qr_width + x] = rgb565_to_grayscale(&src[(y * qr_width + x) * 2]);
+        }
+    }
+}
+
+static void qr_task(void *arg)
 {
     struct quirc *qr = quirc_new();
     assert(qr);
@@ -37,19 +69,21 @@ static void ota_task(void *arg)
         return;
     }
 
-    QueueHandle_t input_queue = (QueueHandle_t)arg;
+    struct QRConf *conf = arg;
     int frame = 0;
     ESP_LOGI(TAG, "Processing task ready");
-    while (true)
+    while (1)
     {
         camera_fb_t *pic;
         uint8_t *qr_buf = quirc_begin(qr, NULL, NULL);
 
         // Get the next frame from the queue
-        int res = xQueueReceive(input_queue, &pic, portMAX_DELAY);
-        assert(res == pdPASS);
+        int res = xQueueReceive(conf->cam_to_qr_queue, &pic, 0);
+        if (res != pdPASS)
+        {
+            continue;
+        }
 
-        int64_t t_start = esp_timer_get_time();
         // Convert the frame to grayscale. We could have asked the camera for a grayscale frame,
         // but then the image on the display would be grayscale too.
         rgb565_to_grayscale_buf(pic->buf, qr_buf, qr_width, qr_height);
@@ -60,13 +94,8 @@ static void ota_task(void *arg)
         // Process the frame. This step find the corners of the QR code (capstones)
         quirc_end(qr);
         ++frame;
-        int64_t t_end_find = esp_timer_get_time();
         int count = quirc_count(qr);
         quirc_decode_error_t err = QUIRC_ERROR_DATA_UNDERFLOW;
-        int time_find_ms = (int)(t_end_find - t_start) / 1000;
-        ESP_LOGI(TAG, "QR count: %d   Heap: %d  Stack free: %d  time: %d ms",
-                 count, heap_caps_get_free_size(MALLOC_CAP_DEFAULT),
-                 uxTaskGetStackHighWaterMark(NULL), time_find_ms);
 
         // If a QR code was detected, try to decode it:
         for (int i = 0; i < count; i++)
@@ -79,9 +108,6 @@ static void ota_task(void *arg)
 
             // Decode the raw data. This step also performs error correction.
             err = quirc_decode(&code, &qr_data);
-            int64_t t_end = esp_timer_get_time();
-            int time_decode_ms = (int)(t_end - t_end_find) / 1000;
-            ESP_LOGI(TAG, "Decoded in %d ms", time_decode_ms);
             if (err != 0)
             {
                 ESP_LOGE(TAG, "QR err: %d", err);
@@ -90,39 +116,17 @@ static void ota_task(void *arg)
             {
                 // Indicate that we have successfully decoded something by blinking an LED
                 bsp_led_set(BSP_LED_GREEN, true);
+                ESP_LOGI(TAG, "Processing task ready");
 
-                if (strstr((const char *)qr_data.payload, "COLOR:") != NULL)
-                {
-                    // If the QR code contains a color string, fill the display with the same color
-                    int r = 0, g = 0, b = 0;
-                    sscanf((const char *)qr_data.payload, "COLOR:%02x%02x%02x", &r, &g, &b);
-                    ESP_LOGI(TAG, "QR code: COLOR(%d, %d, %d)", r, g, b);
-                    display_set_color(r, g, b);
-                }
-                else
-                {
-                    ESP_LOGI(TAG, "QR code: %d bytes: '%s'", qr_data.payload_len, qr_data.payload);
-                    // Otherwise, use the rules defined in qrclass.txt to find the image to display,
-                    // based on the kind of data in the QR code.
-                    const char *filename = classifier_get_pic_from_qrcode_data((const char *)qr_data.payload);
-                    if (filename == NULL)
-                    {
-                        ESP_LOGI(TAG, "Classifier returned NULL");
-                    }
-                    else
-                    {
-                        ESP_LOGI(TAG, "Classified as '%s'", filename);
-                        // The classifier should return the image file name to display.
-                        display_set_icon(filename);
-                    }
-                }
+                ESP_LOGI(TAG, "the contents were: %s", qr_data.payload);
+
                 bsp_led_set(BSP_LED_GREEN, false);
             }
         }
     }
 }
 
-void qr_start(QRConf conf)
+void qr_start(struct QRConf *conf)
 {
-    xTaskCreate(&ota_task, "QR task", 35000, &conf, 1, NULL);
+    xTaskCreate(&qr_task, "QR task", 35000, conf, 1, NULL);
 }

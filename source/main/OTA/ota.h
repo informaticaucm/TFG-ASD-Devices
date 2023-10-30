@@ -1,7 +1,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
-#include "common.h"
+#include "../common.h"
 
 struct OTAMsg
 {
@@ -15,4 +15,4 @@ struct OTAConf
     QueueHandle_t ota_to_screen_queue;
 };
 
-void ota_start(struct OTAConf conf);
+void ota_start(struct OTAConf *conf);

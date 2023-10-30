@@ -96,7 +96,7 @@ static void main_task(void *arg)
     assert(processing_queue);
 
     // The processing task will be running QR code detection and recognition
-    xTaskCreatePinnedToCore(&processing_task, "processing", 35000, processing_queue, 1, NULL, 0);
+    xTaskCreatePinnedToCore(&processing_task, "processing", 35000, processing_queue, 1, NULL, 1);
     ESP_LOGI(TAG, "Processing task started");
 
     // The main loop to get frames from the camera

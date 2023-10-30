@@ -7,6 +7,8 @@ dependencies:
   lvgl/lvgl: "*"
   espressif/esp_lvgl_port: "*"
   espressif/quirc: "==1.2.0"
+  protocol_examples_common:
+    path: ${IDF_PATH}/examples/common_components/protocol_examples_common
   idf:
     version: ">=5.0"
   # # Put list of dependencies here

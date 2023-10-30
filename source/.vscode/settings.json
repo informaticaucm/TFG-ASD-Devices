@@ -14,6 +14,20 @@
     "format": "c",
     "json_parser.h": "c",
     "semphr.h": "c",
-    "common.h": "c"
+    "common.h": "c",
+    "mqtt.h": "c",
+    "future": "c",
+    "regex": "c",
+    "system_error": "c",
+    "iosfwd": "c",
+    "xlocbuf": "c",
+    "esp_event.h": "c",
+    "esp_camera.h": "c",
+    "nvs_flash.h": "c",
+    "esp_log.h": "c",
+    "stddef.h": "c",
+    "starter.h": "c",
+    "qrcode_classifier.h": "c",
+    "lv_color.h": "c"
   }
 }

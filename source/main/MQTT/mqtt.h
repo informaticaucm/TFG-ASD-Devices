@@ -24,7 +24,7 @@ struct MQTTMsg
 {
     enum MQTTCommand command;
     // OTA_failure
-    char failure_msg[100];
+    char* failure_msg;
     // OTA_state_update
     enum OTAState ota_state;
     // found_TUI_qr
@@ -41,6 +41,7 @@ struct MQTTConf
     QueueHandle_t mqtt_to_screen_queue;
     QueueHandle_t starter_to_mqtt_queue;
     char broker_url[URL_SIZE];
+    int send_updated_mqtt_on_start;
 };
 
-void mqtt_start(struct MQTTConf conf);
+void mqtt_start(struct MQTTConf *conf);

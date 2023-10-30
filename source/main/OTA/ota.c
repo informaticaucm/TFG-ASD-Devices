@@ -14,6 +14,7 @@
 #include "protocol_examples_common.h"
 
 #include "ota.h"
+#include "../MQTT/mqtt.h"
 
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
@@ -28,6 +29,24 @@ extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
 #define OTA_URL_SIZE 256
+
+void comand_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
+{
+    struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
+    msg->command = OTA_state_update;
+    msg->ota_state = OTA_state;
+
+    xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
+}
+
+void comand_ota_fail(char *error, struct OTAConf *conf)
+{
+    struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
+    msg->command = OTA_failure;
+    msg->failure_msg = error;
+
+    xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
+}
 
 static esp_err_t validate_image_header(esp_app_desc_t *new_app_info)
 {
@@ -78,15 +97,9 @@ static esp_err_t _http_client_init_cb(esp_http_client_handle_t http_client)
     return err;
 }
 
-void ota_routine(char *url, OTAConf *conf)
+void ota_routine(char *url, struct OTAConf *conf)
 {
-    ESP_LOGI(TAG, "Starting OTA");
-    MQTTMsg msg * = malloc(sizeof(MQTTMsg));
-    *msg = {
-        .command = OTA_state_update,
-        .ota_state = DOWNLOADING};
-
-    int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, pdMS_TO_TICKS(1000));
+    comand_ota_state(DOWNLOADING, conf);
 
     esp_err_t ota_finish_err = ESP_OK;
     esp_http_client_config_t config = {
@@ -101,8 +114,8 @@ void ota_routine(char *url, OTAConf *conf)
     esp_https_ota_config_t ota_config = {
         .http_config = &config,
         .http_client_init_cb = _http_client_init_cb, // Register a callback to be invoked after esp_http_client is initialized
-        .partial_http_download = true,
-        .max_http_request_size = CONFIG_EXAMPLE_HTTP_REQUEST_SIZE,
+        // .partial_http_download = true,
+        // .max_http_request_size = 1024,
     };
 
     esp_https_ota_handle_t https_ota_handle = NULL;
@@ -129,6 +142,7 @@ void ota_routine(char *url, OTAConf *conf)
 
     while (1)
     {
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
         err = esp_https_ota_perform(https_ota_handle);
         if (err != ESP_ERR_HTTPS_OTA_IN_PROGRESS)
         {
@@ -142,45 +156,24 @@ void ota_routine(char *url, OTAConf *conf)
 
     if (esp_https_ota_is_complete_data_received(https_ota_handle) != true)
     {
-        MQTTMsg msg * = malloc(sizeof(MQTTMsg));
-        *msg = {
-            .command = OTA_failure,
-            .failure_msg = "Complete data was not revieved"};
-
-        int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, portMAX_DELAY);
+        comand_ota_fail("Complete data was not revieved", conf);
 
         // the OTA image was not completely received and user can customise the response to this situation.
         ESP_LOGE(TAG, "Complete data was not received.");
     }
     else
     {
-        MQTTMsg msg * = malloc(sizeof(MQTTMsg));
-        *msg = {
-            .command = OTA_state_update,
-            .ota_state = DOWNLOADED};
-
-        int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, portMAX_DELAY);
+        comand_ota_state(DOWNLOADED, conf);
 
         ota_finish_err = esp_https_ota_finish(https_ota_handle);
         if ((err == ESP_OK) && (ota_finish_err == ESP_OK))
         {
-
-            MQTTMsg msg * = malloc(sizeof(MQTTMsg));
-            *msg = {
-                .command = OTA_state_update,
-                .ota_state = VERIFIED};
-
-            int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, portMAX_DELAY);
+            comand_ota_state(VERIFIED, conf);
 
             ESP_LOGI(TAG, "ESP_HTTPS_OTA upgrade successful. Rebooting ...");
             vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-            MQTTMsg msg * = malloc(sizeof(MQTTMsg));
-            *msg = {
-                .command = OTA_state_update,
-                .ota_state = UPDATING};
-
-            int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, portMAX_DELAY);
+            comand_ota_state(UPDATING, conf);
 
             vTaskDelay(1000 / portTICK_PERIOD_MS);
 
@@ -188,12 +181,7 @@ void ota_routine(char *url, OTAConf *conf)
         }
         else
         {
-            MQTTMsg msg * = malloc(sizeof(MQTTMsg));
-            *msg = {
-                .command = OTA_failure,
-                .failure_msg = "downloaded data couldnt be verified"};
-
-            int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, portMAX_DELAY);
+            comand_ota_fail("downloaded data couldnt be verified", conf);
 
             if (ota_finish_err == ESP_ERR_OTA_VALIDATE_FAILED)
             {
@@ -250,20 +238,24 @@ void ota_event_handler(void *arg, esp_event_base_t event_base,
 
 void ota_task(void *arg)
 {
-    OTAConf *conf = (OTAConf *)arg;
+    struct OTAConf *conf = arg;
     while (1)
     {
-        OTAMsg *msg;
+        struct OTAMsg *msg;
 
-        if (xQueueReceive(conf.ota_to_mqtt_queue, &msg, portMAX_DELAY) == pdPASS)
+        int res = xQueueReceive(conf->ota_to_mqtt_queue, &msg, 0);
+        if (res != pdPASS)
         {
-            ota_routine(msg->url, conf);
-            free(msg)
+            continue;
         }
+
+        ota_routine(msg->url, conf);
+        free(msg);
     }
 }
 
-void ota_start(OTAConf ota_conf)
+void ota_start(struct OTAConf *ota_conf)
 {
-    xTaskCreate(&ota_task, "OTA task", 35000, &ota_conf, 1, NULL);
+    ESP_ERROR_CHECK(esp_event_handler_register(ESP_HTTPS_OTA_EVENT, ESP_EVENT_ANY_ID, &ota_event_handler, NULL));
+    xTaskCreate(&ota_task, "OTA task", 35000, ota_conf, 1, NULL);
 }

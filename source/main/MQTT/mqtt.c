@@ -18,6 +18,7 @@
 #include <sys/param.h>
 
 #include "mqtt.h"
+#include "../OTA/ota.h"
 #include "json_parser.h"
 
 static const char *TAG = "mqtt";
@@ -43,18 +44,14 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
     if (strcmp(topic, "v1/devices/me/attributes") == 0)
     {
-        struct OTAMsg ota_msg;
-        int err = json_obj_get_string(&jctx, "fw_url", ota_msg->url, sizeof(ota_msg->url));
+        struct OTAMsg *ota_msg = malloc(sizeof(struct OTAMsg));
+        int err = json_obj_get_string(&jctx, "fw_url", ota_msg->url, URL_SIZE);
 
         if (err == OS_SUCCESS)
         {
-            ESP_LOGI(TAG, "installing new firmware from: %s", fw_url);
+            ESP_LOGI(TAG, "installing new firmware from: %s", ota_msg->url);
 
-            int res = xQueueSend(conf->mqtt_to_ota_queue, ota_msg, pdMS_TO_TICKS(10));
-            if (res == pdFAIL)
-            {
-                esp_camera_fb_return(pic);
-            }
+            xQueueSend(conf->mqtt_to_ota_queue, ota_msg, 0);
         }
         else
         {
@@ -161,8 +158,8 @@ void mqtt_send_ota_status_report(enum OTAState status)
 void mqtt_send_ota_fail(char *explanation)
 {
     // {"fw_state": "FAILED", "fw_error":  "the human readable message about the cause of the error"}
-    char msg[100];
-    snprintf(msg, 100, "{\"fw_state\": \"FAILED\", \"fw_error\": \"%s\"}", explanation);
+    char msg[150];
+    snprintf(msg, 150, "{\"fw_state\": \"FAILED\", \"fw_error\": \"%s\"}", explanation);
     mqtt_send_telemetry(msg);
 }
 
@@ -173,9 +170,9 @@ void mqtt_task(void *arg)
     while (1)
     {
         struct MQTTMsg *msg;
-        if (xQueueReceive(conf->qr_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS &&
-            xQueueReceive(conf->ota_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS &&
-            xQueueReceive(conf->starter_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS)
+        if (xQueueReceive(conf->qr_to_mqtt_queue, &msg, 0) != pdPASS &&
+            xQueueReceive(conf->ota_to_mqtt_queue, &msg, 0) != pdPASS &&
+            xQueueReceive(conf->starter_to_mqtt_queue, &msg, 0) != pdPASS)
         {
             continue;
         }
@@ -184,6 +181,7 @@ void mqtt_task(void *arg)
         {
         case OTA_failure:
             mqtt_send_ota_fail(msg->failure_msg);
+            break;
         case OTA_state_update:
             mqtt_send_ota_status_report(msg->ota_state);
             break;
@@ -206,6 +204,11 @@ void mqtt_task(void *arg)
             ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
             ESP_ERROR_CHECK(esp_mqtt_client_start(client));
 
+            if (conf->send_updated_mqtt_on_start)
+            {
+                mqtt_send_ota_status_report(UPDATED);
+            }
+
             memcpy(&conf->broker_url, &msg->broker_url, URL_SIZE);
 
             break;
@@ -215,8 +218,8 @@ void mqtt_task(void *arg)
     }
 }
 
-void mqtt_start(struct MQTTConf conf)
+void mqtt_start(struct MQTTConf *conf)
 {
 
-    xTaskCreate(&mqtt_task, "MQTT Task", 35000, &conf, 1, NULL);
+    xTaskCreate(&mqtt_task, "MQTT Task", 35000, conf, 1, NULL);
 }

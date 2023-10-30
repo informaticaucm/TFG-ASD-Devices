@@ -9,4 +9,4 @@ struct QRConf
     QueueHandle_t qr_to_starter_queue;
 };
 
-void qr_start(struct QRConf conf);
+void qr_start(struct QRConf *conf);
