@@ -15,6 +15,7 @@
 
 #include "ota.h"
 #include "../MQTT/mqtt.h"
+#include "../common.h"
 
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
@@ -24,7 +25,7 @@
 #include "esp_wifi.h"
 #endif
 
-static const char *TAG = "advanced_https_ota_example";
+static const char *TAG = "ota";
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
@@ -114,7 +115,7 @@ void ota_routine(char *url, struct OTAConf *conf)
     esp_https_ota_config_t ota_config = {
         .http_config = &config,
         .http_client_init_cb = _http_client_init_cb, // Register a callback to be invoked after esp_http_client is initialized
-        // .partial_http_download = true,
+        // .partial_http_download = false,
         // .max_http_request_size = 1024,
     };
 
@@ -139,20 +140,30 @@ void ota_routine(char *url, struct OTAConf *conf)
         ESP_LOGE(TAG, "image header verification failed");
         goto ota_end;
     }
+    ESP_LOGI(TAG, "image header is OK");
 
     while (1)
     {
+        ESP_LOGI(TAG, "A"); // why not printing????????????????????????????????????????????????????????????????????????
+
         vTaskDelay(1000 / portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "B");
+
         err = esp_https_ota_perform(https_ota_handle);
+        ESP_LOGI(TAG, "C");
+
         if (err != ESP_ERR_HTTPS_OTA_IN_PROGRESS)
         {
             break;
         }
+        ESP_LOGI(TAG, "D");
+
         // esp_https_ota_perform returns after every read operation which gives user the ability to
         // monitor the status of OTA upgrade by calling esp_https_ota_get_image_len_read, which gives length of image
         // data read so far.
         ESP_LOGD(TAG, "Image bytes read: %d", esp_https_ota_get_image_len_read(https_ota_handle));
     }
+    ESP_LOGI(TAG, "out of download loop");
 
     if (esp_https_ota_is_complete_data_received(https_ota_handle) != true)
     {
@@ -241,9 +252,12 @@ void ota_task(void *arg)
     struct OTAConf *conf = arg;
     while (1)
     {
+        vTaskDelay(TASK_DELAY);
+        // ESP_LOGI(TAG, "tick");
+
         struct OTAMsg *msg;
 
-        int res = xQueueReceive(conf->ota_to_mqtt_queue, &msg, 0);
+        int res = xQueueReceive(conf->mqtt_to_ota_queue, &msg, 0);
         if (res != pdPASS)
         {
             continue;
@@ -257,5 +271,10 @@ void ota_task(void *arg)
 void ota_start(struct OTAConf *ota_conf)
 {
     ESP_ERROR_CHECK(esp_event_handler_register(ESP_HTTPS_OTA_EVENT, ESP_EVENT_ANY_ID, &ota_event_handler, NULL));
-    xTaskCreate(&ota_task, "OTA task", 35000, ota_conf, 1, NULL);
+
+    int err = xTaskCreate(&ota_task, "OTA task", 30000, ota_conf, 1, NULL);
+    if (err != pdPASS)
+    {
+        ESP_LOGE(TAG, "Problem on task start");
+    }
 }

@@ -74,6 +74,9 @@ static void qr_task(void *arg)
     ESP_LOGI(TAG, "Processing task ready");
     while (1)
     {
+        vTaskDelay(TASK_DELAY);
+        // ESP_LOGI(TAG, "tick");
+
         camera_fb_t *pic;
         uint8_t *qr_buf = quirc_begin(qr, NULL, NULL);
 
@@ -110,7 +113,7 @@ static void qr_task(void *arg)
             err = quirc_decode(&code, &qr_data);
             if (err != 0)
             {
-                ESP_LOGE(TAG, "QR err: %d", err);
+                ESP_LOGE(TAG, "QR err: %s", quirc_strerror(err));
             }
             else
             {
@@ -128,5 +131,9 @@ static void qr_task(void *arg)
 
 void qr_start(struct QRConf *conf)
 {
-    xTaskCreate(&qr_task, "QR task", 35000, conf, 1, NULL);
+    int err = xTaskCreate(&qr_task, "QR task", 35000, conf, 1, NULL);
+    if (err != pdPASS)
+    {
+        ESP_LOGE(TAG, "Problem on task start");
+    }
 }

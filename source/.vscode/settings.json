@@ -28,6 +28,7 @@
     "stddef.h": "c",
     "starter.h": "c",
     "qrcode_classifier.h": "c",
-    "lv_color.h": "c"
+    "lv_color.h": "c",
+    "task.h": "c"
   }
 }

@@ -58,10 +58,10 @@ void app_main(void)
 {
 
     bsp_i2c_init();
-    // bsp_leds_init();
+    bsp_leds_init();
     // bsp_display_start();
     // bsp_display_backlight_on();
-    // bsp_led_set(BSP_LED_GREEN, false);
+    bsp_led_set(BSP_LED_GREEN, false);
 
     // Initialize NVS.
     esp_err_t err = nvs_flash_init();
@@ -153,6 +153,7 @@ void app_main(void)
     mqtt_conf->mqtt_to_screen_queue = mqtt_to_screen_queue;
     mqtt_conf->starter_to_mqtt_queue = starter_to_mqtt_queue;
     mqtt_conf->send_updated_mqtt_on_start = send_updated_mqtt_on_start;
+
     mqtt_start(mqtt_conf);
     ESP_LOGI(TAG, "mqtt started");
 
@@ -163,7 +164,6 @@ void app_main(void)
     ota_conf->ota_to_mqtt_queue = ota_to_mqtt_queue;
     ota_conf->mqtt_to_ota_queue = mqtt_to_ota_queue;
     ota_conf->ota_to_screen_queue = ota_to_screen_queue;
-
     ota_start(ota_conf);
     ESP_LOGI(TAG, "ota started");
 
@@ -186,6 +186,12 @@ void app_main(void)
 
     start_starter(starter_conf);
     ESP_LOGI(TAG, "starter started");
+
+    struct MQTTMsg *jump_start_msg = malloc(sizeof(struct MQTTMsg));
+    jump_start_msg->command = start;
+    strcpy(&(jump_start_msg->broker_url), "mqtts://thingsboard.asd:8883");
+
+    xQueueSend(starter_to_mqtt_queue, &jump_start_msg, 0);
 
     // mqtt_subscribe("v1/devices/me/attributes"); // check if it worked or needs retriying
     // mqtt_send("v1/devices/me/telemetry", "{\"online\":true}");

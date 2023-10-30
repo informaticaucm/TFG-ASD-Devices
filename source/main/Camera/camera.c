@@ -1,7 +1,7 @@
 #include "camera.h"
 #include "../QR/qr.h"
 #include "esp_log.h"
-
+#include "../common.h"
 #define TAG "camera"
 
 void camera_task(void *arg)
@@ -10,6 +10,9 @@ void camera_task(void *arg)
 
     while (1)
     {
+        vTaskDelay(TASK_DELAY);
+        // ESP_LOGI(TAG, "tick");
+
         camera_fb_t *pic = esp_camera_fb_get();
         if (pic == NULL)
         {
@@ -36,6 +39,9 @@ void camera_start(struct CameraConf *conf)
     sensor_t *s = esp_camera_sensor_get();
     s->set_vflip(s, 1);
     ESP_LOGI(TAG, "Camera Init done");
-
-    xTaskCreate(&camera_task, "Camera Task", 35000, conf, 1, NULL);
+    int err = xTaskCreate(&camera_task, "Camera Task", 10000, conf, 1, NULL);
+    if (err != pdPASS)
+    {
+        ESP_LOGE(TAG, "Problem on task start");
+    }
 }

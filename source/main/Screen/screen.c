@@ -1,19 +1,27 @@
 #include "screen.h"
 #include "bsp/esp-bsp.h"
+#include "../common.h"
+#include "esp_log.h"
+
+#define TAG "screen"
 
 void screen_task(void *conf)
 {
-    // while (1)
-    // {
-    // vTaskDelay(1000 / portTICK_PERIOD_MS);
-    //     if (bsp_display_lock(10))
-    //     {
-    //         bsp_display_unlock();
-    //     }
-    // }
+    while (1)
+    {
+        vTaskDelay(TASK_DELAY);
+        //     if (bsp_display_lock(10))
+        //     {
+        //         bsp_display_unlock();
+        //     }
+    }
 }
 
 void screen_start(struct ScreenConf *conf)
 {
-    xTaskCreate(&screen_task, "Screen task", 35000, conf, 1, NULL);
+    int err = xTaskCreate(&screen_task, "Screen task", 10000, conf, 1, NULL);
+    if (err != pdPASS)
+    {
+        ESP_LOGE(TAG, "Problem on task start");
+    }
 }

@@ -16,6 +16,7 @@
 #include "esp_tls.h"
 #include "esp_ota_ops.h"
 #include <sys/param.h>
+#include "../common.h"
 
 #include "mqtt.h"
 #include "../OTA/ota.h"
@@ -51,7 +52,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         {
             ESP_LOGI(TAG, "installing new firmware from: %s", ota_msg->url);
 
-            xQueueSend(conf->mqtt_to_ota_queue, ota_msg, 0);
+            xQueueSend(conf->mqtt_to_ota_queue, &ota_msg, 0);
         }
         else
         {
@@ -169,6 +170,10 @@ void mqtt_task(void *arg)
 
     while (1)
     {
+        vTaskDelay(TASK_DELAY);
+
+        // ESP_LOGI(TAG, "tick");
+
         struct MQTTMsg *msg;
         if (xQueueReceive(conf->qr_to_mqtt_queue, &msg, 0) != pdPASS &&
             xQueueReceive(conf->ota_to_mqtt_queue, &msg, 0) != pdPASS &&
@@ -176,6 +181,8 @@ void mqtt_task(void *arg)
         {
             continue;
         }
+
+        ESP_LOGI(TAG, "a message was recieved at mqtt module");
 
         switch (msg->command)
         {
@@ -209,6 +216,9 @@ void mqtt_task(void *arg)
                 mqtt_send_ota_status_report(UPDATED);
             }
 
+            mqtt_send_telemetry("{online:\"true\"}");
+            mqtt_subscribe("v1/devices/me/attributes");
+
             memcpy(&conf->broker_url, &msg->broker_url, URL_SIZE);
 
             break;
@@ -220,6 +230,10 @@ void mqtt_task(void *arg)
 
 void mqtt_start(struct MQTTConf *conf)
 {
-
-    xTaskCreate(&mqtt_task, "MQTT Task", 35000, conf, 1, NULL);
+    int err = xTaskCreate(&mqtt_task, "MQTT Task", 10000, conf, 1, NULL);
+    if (err != pdPASS)
+    {
+        ESP_LOGE(TAG, "Problem on task start");
+    }
+    
 }
