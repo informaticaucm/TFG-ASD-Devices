@@ -2,7 +2,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
-enum Command
+enum ScreenCommand
 {
     DrawQr,
     DisplayWarning,
@@ -12,8 +12,8 @@ enum Command
 
 struct ScreenMsg
 {
-    Command comand;
-    char *data;
+    enum ScreenCommand comand;
+    char data[100];
 };
 
 struct ScreenConf{
@@ -21,3 +21,5 @@ struct ScreenConf{
     QueueHandle_t mqtt_to_screen_queue;
     QueueHandle_t ota_to_sceen_queue;
 };
+
+void screen_start(struct ScreenConf)

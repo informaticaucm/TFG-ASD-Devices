@@ -1,6 +1,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "../common.h"
 
 enum MQTTCommand
 {
@@ -21,16 +22,16 @@ enum OTAState
 
 struct MQTTMsg
 {
-    MQTTCommand command;
+    enum MQTTCommand command;
     // OTA_failure
-    char *failure_msg;
+    char failure_msg[100];
     // OTA_state_update
-    OTA_STATE ota_state;
+    enum OTAState ota_state;
     // found_TUI_qr
-    char *TUI_qr;
+    char TUI_qr[URL_SIZE];
     // start
-    char *broker_url;
-}
+    char broker_url[URL_SIZE];
+};
 
 struct MQTTConf
 {
@@ -39,6 +40,7 @@ struct MQTTConf
     QueueHandle_t ota_to_mqtt_queue;
     QueueHandle_t mqtt_to_screen_queue;
     QueueHandle_t starter_to_mqtt_queue;
+    char broker_url[URL_SIZE];
 };
 
-void mqtt_start(MQTTConf conf);
+void mqtt_start(struct MQTTConf conf);

@@ -11,6 +11,9 @@
     "*.amm": "scala",
     "*.njk": "nunjucks",
     "complex": "c",
-    "format": "c"
+    "format": "c",
+    "json_parser.h": "c",
+    "semphr.h": "c",
+    "common.h": "c"
   }
 }

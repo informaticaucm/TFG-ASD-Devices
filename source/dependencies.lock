@@ -1,4 +1,46 @@
 dependencies:
+  espressif/button:
+    component_hash: e162e6c8fc670ae297dca5ec75037966c1d69a1509f0b2048a883a7c54fb7aba
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 2.5.6
+  espressif/cmake_utilities:
+    component_hash: c3f351bed6fdb3d91bee6076740cb13d22e2c7bfcdd78969a65b46943885bbd4
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 0.5.2
+  espressif/esp-dsp:
+    component_hash: a9a1e516033ce2ea63e6286cc227d8ecb87769d628dcc6394b4e024311ac64b9
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.3.0
+  espressif/esp32-camera:
+    component_hash: 7e60dc75e1e7b44fc06a931a1dcd3bab5ce49d04098fb2021753f6d987982db9
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 2.0.5
+  espressif/esp32_s3_eye:
+    component_hash: fda68686a02b9b2883b70ca141fdfb7af34802fd13e6ad5ad9ec79bc128cacf8
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 3.0.2~1
+  espressif/esp_codec_dev:
+    component_hash: bfa92c177f836be5847e4a4248349267614500e1e0728c4939e51a73746b8918
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.0.3
+  espressif/esp_lvgl_port:
+    component_hash: 11100917e7bc3166b56c6519b61d63b623db9abc8470e5d20439b3b2492477df
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.3.0
   espressif/jsmn:
     component_hash: d80350c41bbaa827c98a25b6072df00884e72f54885996fab4a4f0aebce6b6c3
     source:
@@ -11,11 +53,23 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.0.3
+  espressif/quirc:
+    component_hash: 3be250a06364f0d71a7903b66ac93084d2ce3998c2e75a168b9f1f0621dd6218
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.2.0
   idf:
     component_hash: null
     source:
       type: idf
     version: 5.1.1
-manifest_hash: 9da4de877309c40573b56a7448b70e8596448d36080924ab902bb62e02ac4912
+  lvgl/lvgl:
+    component_hash: 51022b16bce6ee90f54a8bd21cd6d497d886916899b577b1bebb9125b91e23fc
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 8.3.10
+manifest_hash: 7514729b542aebf56e7cabba0681d60448dc7ab44d1e0a046571459b6e692b64
 target: esp32s3
 version: 1.0.0

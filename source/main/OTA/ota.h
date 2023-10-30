@@ -1,10 +1,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "common.h"
 
 struct OTAMsg
 {
-    char *url;
+    char url[URL_SIZE];
 };
 
 struct OTAConf
@@ -14,4 +15,4 @@ struct OTAConf
     QueueHandle_t ota_to_screen_queue;
 };
 
-void ota_start(OTAConf conf);
+void ota_start(struct OTAConf conf);

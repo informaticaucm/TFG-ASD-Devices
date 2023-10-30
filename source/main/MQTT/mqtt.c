@@ -18,6 +18,7 @@
 #include <sys/param.h>
 
 #include "mqtt.h"
+#include "json_parser.h"
 
 static const char *TAG = "mqtt";
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
@@ -27,7 +28,7 @@ esp_mqtt_client_handle_t client = 0;
 
 // mosquitto_pub -d -q 1 -h thingsboard.asd -p 1883 -t v1/devices/me/telemetry -u c9YTwKgDDaaMMA5oVv6z -m "{temperature:25}"
 
-void mqtt_listener(char *topic, char *msg, MQTTTaskConf *conf)
+void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 {
 
     ESP_LOGI(TAG, "topic %s", topic);
@@ -42,24 +43,18 @@ void mqtt_listener(char *topic, char *msg, MQTTTaskConf *conf)
 
     if (strcmp(topic, "v1/devices/me/attributes") == 0)
     {
-        char fw_url[70];
-
-        int err = json_obj_get_string(&jctx, "fw_url", fw_url, sizeof(fw_url));
+        struct OTAMsg ota_msg;
+        int err = json_obj_get_string(&jctx, "fw_url", ota_msg->url, sizeof(ota_msg->url));
 
         if (err == OS_SUCCESS)
         {
             ESP_LOGI(TAG, "installing new firmware from: %s", fw_url);
-
-            OTAMsg ota_msg = {
-                .url = fw_url,
-            }
 
             int res = xQueueSend(conf->mqtt_to_ota_queue, ota_msg, pdMS_TO_TICKS(10));
             if (res == pdFAIL)
             {
                 esp_camera_fb_return(pic);
             }
-
         }
         else
         {
@@ -73,7 +68,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32, base, event_id);
     esp_mqtt_event_handle_t event = event_data;
 
-    MQTTTaskConf conf = (MQTTTaskConf *)handler_args;
+    struct MQTTConf *conf = handler_args;
 
     switch ((esp_mqtt_event_id_t)event_id)
     {
@@ -129,14 +124,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 void mqtt_subscribe(char *topic)
 {
-    ESP_LOGI(TAG, "subscribing to: %s at %s", topic, broker_url);
+    ESP_LOGI(TAG, "subscribing to: %s", topic);
 
     esp_mqtt_client_subscribe(client, topic, mqtt_qos);
 }
 
 void mqtt_send(char *topic, char *msg)
 {
-    ESP_LOGI(TAG, "sending: %s to %s at %s", msg, topic, broker_url);
+    ESP_LOGI(TAG, "sending: %s to %s", msg, topic);
 
     esp_mqtt_client_publish(client, topic, msg, strlen(msg), mqtt_qos, 0);
 }
@@ -146,7 +141,7 @@ void mqtt_send_telemetry(char *msg)
     mqtt_send("v1/devices/me/telemetry", msg);
 }
 
-void mqtt_send_ota_status_report(OTAState status)
+void mqtt_send_ota_status_report(enum OTAState status)
 {
     // {"current_fw_title": "myFirmware", "current_fw_version": "1.2.3", "fw_state": "UPDATED"}
 
@@ -156,7 +151,7 @@ void mqtt_send_ota_status_report(OTAState status)
         "VERIFIED",
         "UPDATING",
         "UPDATED",
-    }
+    };
 
     char msg[100];
     snprintf(msg, 100, "{\"fw_state\": \"%s\"}", to_string[status]);
@@ -171,25 +166,16 @@ void mqtt_send_ota_fail(char *explanation)
     mqtt_send_telemetry(msg);
 }
 
-struct MQTTTaskConf
-{
-    QueueHandle_t qr_to_mqtt_queue;
-    QueueHandle_t mqtt_to_ota_queue;
-    QueueHandle_t ota_to_mqtt_queue;
-    QueueHandle_t mqtt_to_screen_queue;
-    QueueHandle_t starter_to_mqtt_queue;
-};
-
 void mqtt_task(void *arg)
 {
-    MQTTTaskConf conf = (MQTTTaskConf *)arg;
+    struct MQTTConf *conf = arg;
 
     while (1)
     {
-        MQTTMsg *msg;
-        if (xQueueReceive(conf.qr_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS &&
-            xQueueReceive(conf.ota_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS &&
-            xQueueReceive(conf.starter_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS)
+        struct MQTTMsg *msg;
+        if (xQueueReceive(conf->qr_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS &&
+            xQueueReceive(conf->ota_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS &&
+            xQueueReceive(conf->starter_to_mqtt_queue, &msg, pdMS_TO_TICKS(10)) != pdPASS)
         {
             continue;
         }
@@ -207,7 +193,7 @@ void mqtt_task(void *arg)
         case start:
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
-                    .address.uri = arg->broker_url,
+                    .address.uri = msg->broker_url,
                     .verification.certificate = (const char *)server_cert_pem_start},
                 .credentials = {
                     .username = device_id,
@@ -219,6 +205,9 @@ void mqtt_task(void *arg)
             /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
             ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
             ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+
+            memcpy(&conf->broker_url, &msg->broker_url, URL_SIZE);
+
             break;
         }
 
@@ -226,14 +215,8 @@ void mqtt_task(void *arg)
     }
 }
 
-void mqtt_start(MQTTConf conf)
+void mqtt_start(struct MQTTConf conf)
 {
 
-    MQTTTaskConf *arg = malloc(sizeof(MQTTTaskConf));
-    arg->qr_to_mqtt_queue = conf.qr_to_mqtt_queue;
-    arg->mqtt_to_ota_queue = conf.mqtt_to_ota_queue;
-    arg->ota_to_mqtt_queue = conf.ota_to_mqtt_queue;
-    arg->mqtt_to_screen_queue = conf.mqtt_to_screen_queue;
-    arg->starter_to_mqtt_queue = conf.starter_to_mqtt_queue;
-    xTaskCreate(&mqtt_task, "MQTT Task", 35000, arg, 1, NULL);
+    xTaskCreate(&mqtt_task, "MQTT Task", 35000, &conf, 1, NULL);
 }
