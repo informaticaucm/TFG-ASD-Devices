@@ -2,19 +2,17 @@
 
 skinparam componentStyle rectangle
 
-   
-
-    [Camera] -> [QR]
-    [QR] -up-> [Starter] : config QR read
-    [Starter] -> [Screen] : display start
+[Camera] -> [QR]
+[QR] -up-> [Starter] : config QR read
+[Starter] -> [Screen] : display start
 
 
-    [QR] -> [MQTT] : TUI
-    [MQTT] -up-> [Screen] : OTAC / Feedback / idle info
-    [MQTT] --> [OTA] : command
-    [OTA] --> [MQTT] : state updates
-    [OTA] --> [Screen] : state updates
+[QR] -> [MQTT] : TUI
+[MQTT] -up-> [Screen] : OTAC / Feedback / idle info
+[MQTT] --> [OTA] : command
+[OTA] --> [MQTT] : state updates
+[OTA] --> [Screen] : state updates
 
-    [Starter] --> [MQTT] : configure and start
+[Starter] --> [MQTT] : configure and start
 
 @enduml

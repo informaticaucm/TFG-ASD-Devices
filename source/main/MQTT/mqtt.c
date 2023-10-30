@@ -1,4 +1,3 @@
-#define broker_url "mqtts://thingsboard.asd:8883"
 #define device_id "c9YTwKgDDaaMMA5oVv6z"
 #define mqtt_qos 2
 
@@ -28,10 +27,54 @@ esp_mqtt_client_handle_t client = 0;
 
 // mosquitto_pub -d -q 1 -h thingsboard.asd -p 1883 -t v1/devices/me/telemetry -u c9YTwKgDDaaMMA5oVv6z -m "{temperature:25}"
 
+void mqtt_listener(char *topic, char *msg, MQTTTaskConf *conf)
+{
+
+    ESP_LOGI(TAG, "topic %s", topic);
+    ESP_LOGI(TAG, "msg %s", msg);
+
+    jparse_ctx_t jctx;
+    int err = json_parse_start(&jctx, msg, strlen(msg));
+    if (err != OS_SUCCESS)
+    {
+        ESP_LOGE(TAG, "ERROR ON JSON PARSE: %d", err);
+    }
+
+    if (strcmp(topic, "v1/devices/me/attributes") == 0)
+    {
+        char fw_url[70];
+
+        int err = json_obj_get_string(&jctx, "fw_url", fw_url, sizeof(fw_url));
+
+        if (err == OS_SUCCESS)
+        {
+            ESP_LOGI(TAG, "installing new firmware from: %s", fw_url);
+
+            OTAMsg ota_msg = {
+                .url = fw_url,
+            }
+
+            int res = xQueueSend(conf->mqtt_to_ota_queue, ota_msg, pdMS_TO_TICKS(10));
+            if (res == pdFAIL)
+            {
+                esp_camera_fb_return(pic);
+            }
+
+        }
+        else
+        {
+            ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
+        }
+    }
+}
+
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32, base, event_id);
     esp_mqtt_event_handle_t event = event_data;
+
+    MQTTTaskConf conf = (MQTTTaskConf *)handler_args;
+
     switch ((esp_mqtt_event_id_t)event_id)
     {
 
@@ -57,7 +100,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         topic_buff[event->topic_len] = 0;
         data_buff[event->data_len] = 0;
 
-        data_callback(topic_buff, data_buff);
+        mqtt_listener(topic_buff, data_buff, conf);
 
         break;
     case MQTT_EVENT_ERROR:
@@ -174,7 +217,7 @@ void mqtt_task(void *arg)
             ESP_LOGI(TAG, "client: %d", (int)client);
 
             /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
-            ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL));
+            ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
             ESP_ERROR_CHECK(esp_mqtt_client_start(client));
             break;
         }
@@ -192,5 +235,5 @@ void mqtt_start(MQTTConf conf)
     arg->ota_to_mqtt_queue = conf.ota_to_mqtt_queue;
     arg->mqtt_to_screen_queue = conf.mqtt_to_screen_queue;
     arg->starter_to_mqtt_queue = conf.starter_to_mqtt_queue;
-    xTaskCreatePinnedToCore(&mqtt_task, "MQTT Task", 35000, arg, 1, NULL, 0);
+    xTaskCreate(&mqtt_task, "MQTT Task", 35000, arg, 1, NULL);
 }

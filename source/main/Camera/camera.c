@@ -16,7 +16,7 @@ void camera_start(CameraConf conf)
     CamTaskConf *arg = malloc(sizeof(CamTaskConf));
     arg->cam_to_qr_queue = conf.cam_to_qr_queue;
 
-    xTaskCreatePinnedToCore(&camera_task, "Camera Task", 35000, arg, 1, NULL, 0);
+    xTaskCreate(&camera_task, "Camera Task", 35000, arg, 1, NULL);
 }
 
 void camera_task(void *arg)

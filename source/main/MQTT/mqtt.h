@@ -5,7 +5,7 @@
 enum MQTTCommand
 {
     OTA_failure,
-        OTA_state_update,
+    OTA_state_update,
     found_TUI_qr,
     start,
 };

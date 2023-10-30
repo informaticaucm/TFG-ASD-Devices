@@ -35,38 +35,7 @@ void build_ota_status_report(char *state, char *buffer, int buffer_size)
     // {"current_fw_title": "myFirmware", "current_fw_version": "1.2.3", "fw_state": "UPDATED"}
 }
 
-void mqtt_listener(char *topic, char *msg)
-{
 
-    ESP_LOGI(TAG, "topic %s", topic);
-    ESP_LOGI(TAG, "msg %s", msg);
-
-    jparse_ctx_t jctx;
-    int err = json_parse_start(&jctx, msg, strlen(msg));
-    if (err != OS_SUCCESS)
-    {
-        ESP_LOGE(TAG, "ERROR ON JSON PARSE: %d", err);
-    }
-
-    if (strcmp(topic, "v1/devices/me/attributes") == 0)
-    {
-        char fw_url[70];
-
-        int err = json_obj_get_string(&jctx, "fw_url", fw_url, sizeof(fw_url));
-
-        if (err == OS_SUCCESS)
-        {
-            ESP_LOGI(TAG, "installing new firmware from: %s", fw_url);
-            advanced_ota_example_task(fw_url);
-
-            mqtt_send_ota_status_report("DOWNLOADING");
-        }
-        else
-        {
-            ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
-        }
-    }
-}
 
 void app_main(void)
 {
