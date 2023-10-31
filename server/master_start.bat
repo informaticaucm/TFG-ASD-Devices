@@ -47,9 +47,12 @@ if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 :: host network service
 sc config HNS start= disabled
 sc stop HNS
+pause
+
 :: internet shared access
 sc config SharedAccess start= disabled
 sc stop HNS
+pause
 
 CMD /C npx kill-port 53
 CMD /C npx kill-port 443

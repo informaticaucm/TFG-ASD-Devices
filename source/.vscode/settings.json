@@ -1,7 +1,7 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
   "idf.portWin": "COM7",
-  "idf.flashType": "UART",
+  "idf.flashType": "JTAG",
   "idf.adapterTargetName": "esp32s3",
   "idf.openOcdConfigs": [
     "board/esp32s3-bridge.cfg"
@@ -29,6 +29,7 @@
     "starter.h": "c",
     "qrcode_classifier.h": "c",
     "lv_color.h": "c",
-    "task.h": "c"
+    "task.h": "c",
+    "xlocale": "c"
   }
 }

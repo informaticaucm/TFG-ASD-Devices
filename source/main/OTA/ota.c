@@ -35,7 +35,7 @@ void comand_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
 {
     struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
     msg->command = OTA_state_update;
-    msg->ota_state = OTA_state;
+    msg->data.ota_state_update.ota_state = OTA_state;
 
     xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
 }
@@ -44,7 +44,7 @@ void comand_ota_fail(char *error, struct OTAConf *conf)
 {
     struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
     msg->command = OTA_failure;
-    msg->failure_msg = error;
+    msg->data.ota_failure.failure_msg = error;
 
     xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
 }
@@ -144,24 +144,20 @@ void ota_routine(char *url, struct OTAConf *conf)
 
     while (1)
     {
-        ESP_LOGI(TAG, "A"); // why not printing????????????????????????????????????????????????????????????????????????
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        ESP_LOGI(TAG, "B");
+        vTaskDelay(1);
 
         err = esp_https_ota_perform(https_ota_handle);
-        ESP_LOGI(TAG, "C");
 
         if (err != ESP_ERR_HTTPS_OTA_IN_PROGRESS)
         {
             break;
         }
-        ESP_LOGI(TAG, "D");
 
         // esp_https_ota_perform returns after every read operation which gives user the ability to
         // monitor the status of OTA upgrade by calling esp_https_ota_get_image_len_read, which gives length of image
         // data read so far.
-        ESP_LOGD(TAG, "Image bytes read: %d", esp_https_ota_get_image_len_read(https_ota_handle));
+        ESP_LOGI(TAG, "Image bytes read: %f", (float)esp_https_ota_get_image_len_read(https_ota_handle) / (float)esp_https_ota_get_image_size(https_ota_handle));
     }
     ESP_LOGI(TAG, "out of download loop");
 

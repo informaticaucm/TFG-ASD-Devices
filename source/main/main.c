@@ -59,8 +59,7 @@ void app_main(void)
 
     bsp_i2c_init();
     bsp_leds_init();
-    // bsp_display_start();
-    // bsp_display_backlight_on();
+  
     bsp_led_set(BSP_LED_GREEN, false);
 
     // Initialize NVS.
@@ -104,7 +103,7 @@ void app_main(void)
     esp_wifi_set_ps(WIFI_PS_NONE);
 
     // build queues
-    QueueHandle_t cam_to_qr_queue = xQueueCreate(10, sizeof(camera_fb_t *));
+    QueueHandle_t cam_to_qr_queue = xQueueCreate(1, sizeof(camera_fb_t *));
     QueueHandle_t qr_to_starter_queue = xQueueCreate(10, sizeof(struct StarterMsg *));
     QueueHandle_t starter_to_screen_queue = xQueueCreate(10, sizeof(struct ScreenMsg *));
     QueueHandle_t qr_to_mqtt_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
@@ -189,7 +188,7 @@ void app_main(void)
 
     struct MQTTMsg *jump_start_msg = malloc(sizeof(struct MQTTMsg));
     jump_start_msg->command = start;
-    strcpy(&(jump_start_msg->broker_url), "mqtts://thingsboard.asd:8883");
+    strcpy(&(jump_start_msg->data.start.broker_url), "mqtts://thingsboard.asd:8883");
 
     xQueueSend(starter_to_mqtt_queue, &jump_start_msg, 0);
 

@@ -187,10 +187,10 @@ void mqtt_task(void *arg)
         switch (msg->command)
         {
         case OTA_failure:
-            mqtt_send_ota_fail(msg->failure_msg);
+            mqtt_send_ota_fail(msg->data.ota_failure.failure_msg);
             break;
         case OTA_state_update:
-            mqtt_send_ota_status_report(msg->ota_state);
+            mqtt_send_ota_status_report(msg->data.ota_state_update.ota_state);
             break;
         case found_TUI_qr:
             mqtt_send_telemetry("{qr_code: \"blah blah\"}"); // TODO send read qr through mqtt
@@ -198,7 +198,7 @@ void mqtt_task(void *arg)
         case start:
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
-                    .address.uri = msg->broker_url,
+                    .address.uri = msg->data.start.broker_url,
                     .verification.certificate = (const char *)server_cert_pem_start},
                 .credentials = {
                     .username = device_id,
@@ -219,7 +219,7 @@ void mqtt_task(void *arg)
             mqtt_send_telemetry("{online:\"true\"}");
             mqtt_subscribe("v1/devices/me/attributes");
 
-            memcpy(&conf->broker_url, &msg->broker_url, URL_SIZE);
+            // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
 
             break;
         }
@@ -235,5 +235,4 @@ void mqtt_start(struct MQTTConf *conf)
     {
         ESP_LOGE(TAG, "Problem on task start");
     }
-    
 }

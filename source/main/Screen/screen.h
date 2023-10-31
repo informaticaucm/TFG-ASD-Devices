@@ -8,15 +8,26 @@ enum ScreenCommand
     DisplayWarning,
     DisplayInfo,
     DisplayError,
+    DisplayProgress,
+    DisplayProcessing,
 };
 
 struct ScreenMsg
 {
     enum ScreenCommand comand;
-    char data[100];
+    union
+    {
+        char text[100];
+        struct
+        {
+            char text[90];
+            float progress;
+        } progress;
+    } data;
 };
 
-struct ScreenConf{
+struct ScreenConf
+{
     QueueHandle_t starter_to_screen_queue;
     QueueHandle_t mqtt_to_screen_queue;
     QueueHandle_t ota_to_screen_queue;
