@@ -42,10 +42,10 @@ void screen_task(void *arg)
             continue;
         }
 
-        if (bsp_display_lock(10))
-        {
-            bsp_display_unlock();
-        }
+        // if (bsp_display_lock(10))
+        // {
+        //     bsp_display_unlock();
+        // }
 
         free(msg);
     }
@@ -54,9 +54,6 @@ void screen_task(void *arg)
 void screen_start(struct ScreenConf *conf)
 {
 
-    heap_caps_print_heap_info(MALLOC_CAP_DMA);
-
-    bsp_display_start();
     bsp_display_backlight_on();
 
     bsp_display_lock(0);
@@ -69,11 +66,10 @@ void screen_start(struct ScreenConf *conf)
     lv_obj_align(label1, LV_ALIGN_CENTER, 0, -30);
     bsp_display_unlock();
 
-    ESP_LOGI(TAG, "screen start created canvas successfuly");
-
-    int err = xTaskCreate(&screen_task, "Screen task", 35000, conf, 1, NULL);
+    int err = xTaskCreate(&screen_task, "Screen task", 1000, conf, 1, NULL);
     if (err != pdPASS)
     {
-        ESP_LOGE(TAG, "Problem on task start");
+        ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));
+        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
     }
 }

@@ -271,6 +271,7 @@ void ota_start(struct OTAConf *ota_conf)
     int err = xTaskCreate(&ota_task, "OTA task", 30000, ota_conf, 1, NULL);
     if (err != pdPASS)
     {
-        ESP_LOGE(TAG, "Problem on task start");
+        ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));
+        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
     }
 }

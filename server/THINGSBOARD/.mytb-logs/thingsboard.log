@@ -2289,3 +2289,6 @@
 2023-10-31 13:01:10,245 [TB-Scheduling-3] INFO  o.t.s.c.t.s.DefaultTransportService - Transport Stats: openConnections [0]
 2023-10-31 13:01:18,894 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [11] totalSaved [11] totalFailed [0]
 2023-10-31 13:01:19,033 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [11] totalSaved [11] totalFailed [0]
+2023-10-31 13:02:10,247 [TB-Scheduling-5] INFO  o.t.s.c.t.s.DefaultTransportService - Transport Stats: openConnections [0]
+2023-10-31 13:02:18,894 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [11] totalSaved [11] totalFailed [0]
+2023-10-31 13:02:19,032 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [11] totalSaved [11] totalFailed [0]

@@ -134,6 +134,7 @@ void qr_start(struct QRConf *conf)
     int err = xTaskCreate(&qr_task, "QR task", 35000, conf, 1, NULL);
     if (err != pdPASS)
     {
-        ESP_LOGE(TAG, "Problem on task start");
+        ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));
+        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
     }
 }

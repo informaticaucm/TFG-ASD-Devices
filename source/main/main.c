@@ -58,6 +58,7 @@ void app_main(void)
 {
 
     bsp_i2c_init();
+    bsp_display_start();
     bsp_leds_init();
   
     bsp_led_set(BSP_LED_GREEN, false);
