@@ -1,0 +1,1 @@
+openocd.exe -f C:\Users\Jaime\.espressif\tools\openocd-esp32\v0.12.0-esp32-20230419\openocd-esp32\share\openocd\scripts\board\esp32s3-builtin.cfg

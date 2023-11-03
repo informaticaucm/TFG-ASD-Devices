@@ -131,7 +131,7 @@ static void qr_task(void *arg)
 
 void qr_start(struct QRConf *conf)
 {
-    int err = xTaskCreate(&qr_task, "QR task", 35000, conf, 1, NULL);
+    int err = xTaskCreate(&qr_task, "QR task", 30000, conf, 1, NULL);
     if (err != pdPASS)
     {
         ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));

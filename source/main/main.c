@@ -58,9 +58,17 @@ void app_main(void)
 {
 
     bsp_i2c_init();
-    bsp_display_start();
+    bsp_display_cfg_t cfg = {
+        .lvgl_port_cfg = {
+            .task_priority = 0,
+            .task_stack = 4096,
+            .task_affinity = -1,
+            .timer_period_ms = TASK_DELAY,
+            .task_max_sleep_ms = TASK_DELAY * 10,
+        }};
+    bsp_display_start_with_config(&cfg);
     bsp_leds_init();
-  
+
     bsp_led_set(BSP_LED_GREEN, false);
 
     // Initialize NVS.
@@ -124,17 +132,6 @@ void app_main(void)
     assert(starter_to_mqtt_queue);
     assert(cam_to_qr_queue);
 
-    // Initialize the camera
-
-    camera_config_t camera_config = BSP_CAMERA_DEFAULT_CONFIG;
-    camera_config.frame_size = CAM_FRAME_SIZE;
-
-    struct CameraConf *cam_conf = malloc(sizeof(struct CameraConf));
-    cam_conf->cam_to_qr_queue = cam_to_qr_queue;
-    cam_conf->camera_config = camera_config;
-    camera_start(cam_conf);
-    ESP_LOGI(TAG, "cam started");
-
     // Initialize QR
 
     struct QRConf *qr_conf = malloc(sizeof(struct QRConf));
@@ -153,9 +150,19 @@ void app_main(void)
     mqtt_conf->mqtt_to_screen_queue = mqtt_to_screen_queue;
     mqtt_conf->starter_to_mqtt_queue = starter_to_mqtt_queue;
     mqtt_conf->send_updated_mqtt_on_start = send_updated_mqtt_on_start;
-
     mqtt_start(mqtt_conf);
     ESP_LOGI(TAG, "mqtt started");
+
+    // Initialize the camera
+
+    camera_config_t camera_config = BSP_CAMERA_DEFAULT_CONFIG;
+    camera_config.frame_size = CAM_FRAME_SIZE;
+
+    struct CameraConf *cam_conf = malloc(sizeof(struct CameraConf));
+    cam_conf->cam_to_qr_queue = cam_to_qr_queue;
+    cam_conf->camera_config = camera_config;
+    camera_start(cam_conf);
+    ESP_LOGI(TAG, "cam started");
 
     // Initialize OTA
 
