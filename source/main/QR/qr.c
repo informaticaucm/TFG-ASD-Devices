@@ -58,18 +58,14 @@ static void rgb565_to_grayscale_buf(const uint8_t *src, uint8_t *dst, int qr_wid
 
 static void qr_task(void *arg)
 {
-    struct quirc *qr = quirc_new();
+    struct QRConf *conf = arg;
+
+    
+    struct quirc *qr = conf->qr;
     assert(qr);
 
-    int qr_width = IMG_WIDTH;
-    int qr_height = IMG_HEIGHT;
-    if (quirc_resize(qr, qr_height, qr_height) < 0)
-    {
-        ESP_LOGE(TAG, "Failed to allocate QR buffer");
-        return;
-    }
+   
 
-    struct QRConf *conf = arg;
     int frame = 0;
     ESP_LOGI(TAG, "Processing task ready");
     while (1)
@@ -89,7 +85,7 @@ static void qr_task(void *arg)
 
         // Convert the frame to grayscale. We could have asked the camera for a grayscale frame,
         // but then the image on the display would be grayscale too.
-        rgb565_to_grayscale_buf(pic->buf, qr_buf, qr_width, qr_height);
+        rgb565_to_grayscale_buf(pic->buf, qr_buf, IMG_WIDTH, IMG_HEIGHT);
 
         // Return the frame buffer to the camera driver ASAP to avoid DMA errors
         esp_camera_fb_return(pic);
@@ -131,10 +127,15 @@ static void qr_task(void *arg)
 
 void qr_start(struct QRConf *conf)
 {
-    int err = xTaskCreate(&qr_task, "QR task", 30000, conf, 1, NULL);
+
+ 
+   
+    heap_caps_print_heap_info(0x00000804);
+    ESP_LOGE(TAG, "single largest posible allocation: %d", heap_caps_get_largest_free_block(0x00000804));
+
+    int err = xTaskCreate(&qr_task, "QR task", 11000, conf, 1, NULL);
     if (err != pdPASS)
     {
         ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));
-        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
     }
 }

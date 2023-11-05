@@ -40,6 +40,9 @@
 #include "Screen/screen.h"
 #include "Starter/starter.h"
 
+#include "quirc.h"
+#include "quirc_internal.h"
+
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
 #endif
@@ -57,6 +60,12 @@ void build_ota_status_report(char *state, char *buffer, int buffer_size)
 void app_main(void)
 {
 
+    heap_caps_print_heap_info(0x00001800);
+    ESP_LOGE(TAG, "single largest posible allocation at startup: %d", heap_caps_get_largest_free_block(0x00001800));
+
+    heap_caps_print_heap_info(0x00000804);
+    ESP_LOGE(TAG, "single largest posible allocation at startup: %d", heap_caps_get_largest_free_block(0x00000804));
+
     bsp_i2c_init();
     bsp_display_cfg_t cfg = {
         .lvgl_port_cfg = {
@@ -64,12 +73,14 @@ void app_main(void)
             .task_stack = 4096,
             .task_affinity = -1,
             .timer_period_ms = TASK_DELAY,
-            .task_max_sleep_ms = TASK_DELAY * 10,
+            .task_max_sleep_ms = TASK_DELAY * 2,
         }};
     bsp_display_start_with_config(&cfg);
     bsp_leds_init();
 
     bsp_led_set(BSP_LED_GREEN, false);
+
+   
 
     // Initialize NVS.
     esp_err_t err = nvs_flash_init();
@@ -134,10 +145,23 @@ void app_main(void)
 
     // Initialize QR
 
+    struct quirc *qr = quirc_new();
+
+    heap_caps_print_heap_info(0x00001800);
+    ESP_LOGE(TAG, "single largest posible allocation: %d", heap_caps_get_largest_free_block(0x00001800));
+
+    if (quirc_resize(qr, IMG_WIDTH, IMG_HEIGHT) < 0)
+    {
+        ESP_LOGE(TAG, "Failed to allocate QR buffer");
+        return;
+    }
+
     struct QRConf *qr_conf = malloc(sizeof(struct QRConf));
     qr_conf->cam_to_qr_queue = cam_to_qr_queue;
     qr_conf->qr_to_starter_queue = qr_to_starter_queue;
     qr_conf->qr_to_mqtt_queue = qr_to_mqtt_queue;
+    qr_conf->qr = qr;
+
     qr_start(qr_conf);
     ESP_LOGI(TAG, "qr started");
 

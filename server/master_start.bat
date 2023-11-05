@@ -54,8 +54,8 @@ sc config SharedAccess start= disabled
 sc stop HNS
 pause
 
-CMD /C npx kill-port 53
-CMD /C npx kill-port 443
+@REM CMD /C npx kill-port 53
+@REM CMD /C npx kill-port 443
 
 
 cd DNS

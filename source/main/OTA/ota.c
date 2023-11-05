@@ -268,7 +268,7 @@ void ota_start(struct OTAConf *ota_conf)
 {
     ESP_ERROR_CHECK(esp_event_handler_register(ESP_HTTPS_OTA_EVENT, ESP_EVENT_ANY_ID, &ota_event_handler, NULL));
 
-    int err = xTaskCreate(&ota_task, "OTA task", 30000, ota_conf, 1, NULL);
+    int err = xTaskCreate(&ota_task, "OTA task", 10000, ota_conf, 1, NULL);
     if (err != pdPASS)
     {
         ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));
