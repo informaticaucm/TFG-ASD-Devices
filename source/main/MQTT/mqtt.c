@@ -52,7 +52,11 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         {
             ESP_LOGI(TAG, "installing new firmware from: %s", ota_msg->url);
 
-            xQueueSend(conf->mqtt_to_ota_queue, &ota_msg, 0);
+            int res = xQueueSend(conf->mqtt_to_ota_queue, &ota_msg, 0);
+            if (res != pdTRUE)
+            {
+                free(ota_msg);
+            }
         }
         else
         {
@@ -230,7 +234,7 @@ void mqtt_task(void *arg)
 
 void mqtt_start(struct MQTTConf *conf)
 {
-    TaskHandle_t handle = jTaskCreate(&mqtt_task, "MQTT Task", 5000, conf, 1);
+    TaskHandle_t handle = jTaskCreate(&mqtt_task, "MQTT Task", 30000, conf, 1, MALLOC_CAP_SPIRAM);
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start");

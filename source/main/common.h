@@ -13,10 +13,10 @@
 #define URL_SIZE 100
 #define TASK_DELAY 100
 
-#define jTaskCreate xTaskCreatePS
+#define jTaskCreate xTaskCreateCap
 
-TaskHandle_t xTaskCreatePS(TaskFunction_t pxTaskCode,
+TaskHandle_t xTaskCreateCap(TaskFunction_t pxTaskCode,
                            const char *const pcName,
                            const uint32_t ulStackDepth,
                            void *const pvParameters,
-                           UBaseType_t uxPriority); // creates a task using psram instead of internal
+                           UBaseType_t uxPriority, uint32_t caps); // creates a task using psram instead of internal

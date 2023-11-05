@@ -127,7 +127,7 @@ static void qr_task(void *arg)
 
 void qr_start(struct QRConf *conf)
 {
-    TaskHandle_t handle = jTaskCreate(&qr_task, "QR task", 50000, conf, 1);
+    TaskHandle_t handle = jTaskCreate(&qr_task, "QR task", 50000, conf, 1, MALLOC_CAP_SPIRAM);
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start");

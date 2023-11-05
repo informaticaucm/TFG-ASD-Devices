@@ -38,6 +38,8 @@
     "iterator": "c",
     "xhash": "c",
     "xtree": "c",
-    "xutility": "c"
-  }
+    "xutility": "c",
+    "esp_lcd_panel_ops.h": "c"
+  },
+  "C_Cpp.default.compilerPath": "cl.exe"
 }

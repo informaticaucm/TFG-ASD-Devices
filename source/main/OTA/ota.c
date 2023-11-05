@@ -12,9 +12,11 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "protocol_examples_common.h"
+#include "bsp/esp-bsp.h"
 
 #include "ota.h"
 #include "../MQTT/mqtt.h"
+#include "../Screen/screen.h"
 #include "../common.h"
 
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
@@ -31,22 +33,62 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
 #define OTA_URL_SIZE 256
 
-void comand_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
+void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
 {
-    struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
-    msg->command = OTA_state_update;
-    msg->data.ota_state_update.ota_state = OTA_state;
+    {
+        struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
+        msg->command = OTA_state_update;
+        msg->data.ota_state_update.ota_state = OTA_state;
 
-    xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
+        int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
+        if(res == pdFAIL){
+            free(msg);
+        }
+    }
+    {
+        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+        msg->command = DisplayProcessing;
+        char *ota_state_to_text[] = {
+            "ota state is DOWNLOADING",
+            "ota state is DOWNLOADED",
+            "ota state is VERIFIED",
+            "ota state is UPDATING",
+            "ota state is UPDATED",
+        };
+        strcpy(msg->data.text, ota_state_to_text[OTA_state]);
+
+        int res = xQueueSend(conf->ota_to_screen_queue, &msg, 0);
+        if (res == pdFAIL)
+        {
+            free(msg);
+        }
+    }
 }
 
-void comand_ota_fail(char *error, struct OTAConf *conf)
+void command_ota_fail(char *error, struct OTAConf *conf)
 {
-    struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
-    msg->command = OTA_failure;
-    msg->data.ota_failure.failure_msg = error;
+    {
+        struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
+        msg->command = OTA_failure;
+        msg->data.ota_failure.failure_msg = error;
 
-    xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
+        int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
+        if (res == pdFAIL)
+        {
+            free(msg);
+        }
+    }
+    {
+        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+        msg->command = DisplayError;
+        strcpy(msg->data.text, error);
+
+        int res = xQueueSend(conf->ota_to_screen_queue, &msg, 0);
+        if (res == pdFAIL)
+        {
+            free(msg);
+        }
+    }
 }
 
 static esp_err_t validate_image_header(esp_app_desc_t *new_app_info)
@@ -100,7 +142,9 @@ static esp_err_t _http_client_init_cb(esp_http_client_handle_t http_client)
 
 void ota_routine(char *url, struct OTAConf *conf)
 {
-    comand_ota_state(DOWNLOADING, conf);
+    // esp_camera_deinit();
+    // bsp_i2c_deinit();
+    command_ota_state(DOWNLOADING, conf);
 
     esp_err_t ota_finish_err = ESP_OK;
     esp_http_client_config_t config = {
@@ -157,30 +201,48 @@ void ota_routine(char *url, struct OTAConf *conf)
         // esp_https_ota_perform returns after every read operation which gives user the ability to
         // monitor the status of OTA upgrade by calling esp_https_ota_get_image_len_read, which gives length of image
         // data read so far.
-        ESP_LOGI(TAG, "Image bytes read: %f", (float)esp_https_ota_get_image_len_read(https_ota_handle) / (float)esp_https_ota_get_image_size(https_ota_handle));
+        float progress = (float)esp_https_ota_get_image_len_read(https_ota_handle) / (float)esp_https_ota_get_image_size(https_ota_handle);
+
+        // heap_caps_print_heap_info(0x00000008);
+        // ESP_LOGI("xTaskCreateCap", "single largest posible allocation: %d", heap_caps_get_largest_free_block(0x00000008));
+
+        ESP_LOGI(TAG, "Image bytes read: %f", progress);
+
+        {
+            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+            msg->command = DisplayProgress;
+            strcpy(msg->data.progress.text, "descargando:");
+            msg->data.progress.progress = progress;
+
+            int res = xQueueSend(conf->ota_to_screen_queue, &msg, 0);
+            if (res != pdTRUE)
+            {
+                free(msg);
+            }
+        }
     }
     ESP_LOGI(TAG, "out of download loop");
 
     if (esp_https_ota_is_complete_data_received(https_ota_handle) != true)
     {
-        comand_ota_fail("Complete data was not revieved", conf);
+        command_ota_fail("Complete data was not revieved", conf);
 
         // the OTA image was not completely received and user can customise the response to this situation.
         ESP_LOGE(TAG, "Complete data was not received.");
     }
     else
     {
-        comand_ota_state(DOWNLOADED, conf);
+        command_ota_state(DOWNLOADED, conf);
 
         ota_finish_err = esp_https_ota_finish(https_ota_handle);
         if ((err == ESP_OK) && (ota_finish_err == ESP_OK))
         {
-            comand_ota_state(VERIFIED, conf);
+            command_ota_state(VERIFIED, conf);
 
             ESP_LOGI(TAG, "ESP_HTTPS_OTA upgrade successful. Rebooting ...");
             vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-            comand_ota_state(UPDATING, conf);
+            command_ota_state(UPDATING, conf);
 
             vTaskDelay(1000 / portTICK_PERIOD_MS);
 
@@ -188,7 +250,7 @@ void ota_routine(char *url, struct OTAConf *conf)
         }
         else
         {
-            comand_ota_fail("downloaded data couldnt be verified", conf);
+            command_ota_fail("downloaded data couldnt be verified", conf);
 
             if (ota_finish_err == ESP_ERR_OTA_VALIDATE_FAILED)
             {
@@ -201,6 +263,9 @@ void ota_routine(char *url, struct OTAConf *conf)
 
 ota_end:
     esp_https_ota_abort(https_ota_handle);
+    // esp_camera_init(conf->cam_conf);
+    // bsp_i2c_init();
+
     ESP_LOGE(TAG, "ESP_HTTPS_OTA upgrade failed");
     return;
 }
@@ -268,10 +333,10 @@ void ota_start(struct OTAConf *ota_conf)
 {
     ESP_ERROR_CHECK(esp_event_handler_register(ESP_HTTPS_OTA_EVENT, ESP_EVENT_ANY_ID, &ota_event_handler, NULL));
 
-    TaskHandle_t handle = jTaskCreate(&ota_task, "OTA task", 60000, ota_conf, 1);
-    if (handle == NULL)
+    TaskHandle_t handler = jTaskCreate(&ota_task, "OTA task", 9000, ota_conf, 1, MALLOC_CAP_8BIT); // los ota deben ocurrir en un stack interno
+    if (handler == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start");
-        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
+        heap_caps_print_heap_info(MALLOC_CAP_8BIT);
     }
 }

@@ -14,7 +14,7 @@ enum ScreenCommand
 
 struct ScreenMsg
 {
-    enum ScreenCommand comand;
+    enum ScreenCommand command;
     union
     {
         char text[100];

@@ -35,11 +35,11 @@ void camera_task(void *arg)
 void camera_start(struct CameraConf *conf)
 {
 
-    ESP_ERROR_CHECK(esp_camera_init(&conf->camera_config));
+    ESP_ERROR_CHECK(esp_camera_init(conf->camera_config));
     sensor_t *s = esp_camera_sensor_get();
     s->set_vflip(s, 1);
     ESP_LOGI(TAG, "Camera Init done");
-    TaskHandle_t handle = jTaskCreate(&camera_task, "Camera Task", 5000, conf, 1);
+    TaskHandle_t handle = jTaskCreate(&camera_task, "Camera Task", 5000, conf, 1, MALLOC_CAP_SPIRAM);
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start");

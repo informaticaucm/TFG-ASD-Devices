@@ -35,12 +35,6 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.0.3
-  espressif/esp_lvgl_port:
-    component_hash: 11100917e7bc3166b56c6519b61d63b623db9abc8470e5d20439b3b2492477df
-    source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 1.3.0
   espressif/jsmn:
     component_hash: d80350c41bbaa827c98a25b6072df00884e72f54885996fab4a4f0aebce6b6c3
     source:
@@ -53,6 +47,12 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.0.3
+  espressif__esp_lvgl_port:
+    component_hash: null
+    source:
+      path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\espressif__esp_lvgl_port
+      type: local
+    version: 1.3.0
   espressif__quirc:
     component_hash: null
     source:
@@ -76,6 +76,6 @@ dependencies:
       path: C:\Users\Jaime\esp\esp-idf\examples\common_components\protocol_examples_common
       type: local
     version: '*'
-manifest_hash: 40515ebd0761f2553ff0513f87262d64fa3e838eb492cb2411eb1d7c15a4e2eb
+manifest_hash: 7858c7790a3e5f36905a2e6c4099226905cf7376899542f745c89d17d90c9630
 target: esp32s3
 version: 1.0.0

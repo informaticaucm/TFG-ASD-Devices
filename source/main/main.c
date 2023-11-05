@@ -6,7 +6,6 @@
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_timer.h"
-#include "esp_vfs_fat.h"
 #include "esp_heap_caps.h"
 #include "driver/spi_master.h"
 #include "driver/sdmmc_host.h"
@@ -39,7 +38,6 @@
 #include "Screen/screen.h"
 #include "Starter/starter.h"
 
-
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
 #endif
@@ -67,7 +65,7 @@ void app_main(void)
     bsp_display_cfg_t cfg = {
         .lvgl_port_cfg = {
             .task_priority = 0,
-            .task_stack = 4096,
+            .task_stack = 30000,
             .task_affinity = -1,
             .timer_period_ms = TASK_DELAY,
             .task_max_sleep_ms = TASK_DELAY * 2,
@@ -125,7 +123,7 @@ void app_main(void)
     QueueHandle_t mqtt_to_screen_queue = xQueueCreate(10, sizeof(struct ScreenMsg *));
     QueueHandle_t mqtt_to_ota_queue = xQueueCreate(10, sizeof(struct OTAMsg *));
     QueueHandle_t ota_to_mqtt_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
-    QueueHandle_t ota_to_screen_queue = xQueueCreate(10, sizeof(struct ScreenMsg *));
+    QueueHandle_t ota_to_screen_queue = xQueueCreate(1, sizeof(struct ScreenMsg *));
     QueueHandle_t starter_to_mqtt_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
     assert(cam_to_qr_queue);
     assert(qr_to_starter_queue);
@@ -141,9 +139,9 @@ void app_main(void)
     // Initialize QR
 
     struct quirc *qr = quirc_new();
-  
+
     quirc_resize(qr, IMG_WIDTH, IMG_HEIGHT);
-  
+
     struct QRConf *qr_conf = malloc(sizeof(struct QRConf));
     qr_conf->cam_to_qr_queue = cam_to_qr_queue;
     qr_conf->qr_to_starter_queue = qr_to_starter_queue;
@@ -167,8 +165,12 @@ void app_main(void)
 
     // Initialize the camera
 
-    camera_config_t camera_config = BSP_CAMERA_DEFAULT_CONFIG;
-    camera_config.frame_size = CAM_FRAME_SIZE;
+    camera_config_t *camera_config = malloc(sizeof(camera_config_t));
+    {
+        camera_config_t on_stack = BSP_CAMERA_DEFAULT_CONFIG;
+        memcpy(camera_config, &on_stack, sizeof(camera_config_t));
+    }
+    camera_config->frame_size = CAM_FRAME_SIZE;
 
     struct CameraConf *cam_conf = malloc(sizeof(struct CameraConf));
     cam_conf->cam_to_qr_queue = cam_to_qr_queue;
@@ -183,6 +185,7 @@ void app_main(void)
     ota_conf->ota_to_mqtt_queue = ota_to_mqtt_queue;
     ota_conf->mqtt_to_ota_queue = mqtt_to_ota_queue;
     ota_conf->ota_to_screen_queue = ota_to_screen_queue;
+    // ota_conf->cam_conf = camera_config;
     ota_start(ota_conf);
     ESP_LOGI(TAG, "ota started");
 
