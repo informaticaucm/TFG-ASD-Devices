@@ -24,11 +24,11 @@ dependencies:
       type: service
     version: 2.0.5
   espressif/esp32_s3_eye:
-    component_hash: fda68686a02b9b2883b70ca141fdfb7af34802fd13e6ad5ad9ec79bc128cacf8
+    component_hash: fbff55f61008a4abd192fc98607c14b81f36f2ebe3d7d830e9a0c411250b7407
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 3.0.2~1
+    version: 3.0.3
   espressif/esp_codec_dev:
     component_hash: bfa92c177f836be5847e4a4248349267614500e1e0728c4939e51a73746b8918
     source:
@@ -53,11 +53,11 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.0.3
-  espressif/quirc:
-    component_hash: 3be250a06364f0d71a7903b66ac93084d2ce3998c2e75a168b9f1f0621dd6218
+  espressif__quirc:
+    component_hash: null
     source:
-      service_url: https://api.components.espressif.com/
-      type: service
+      path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\espressif__quirc
+      type: local
     version: 1.2.0
   idf:
     component_hash: null
@@ -76,6 +76,6 @@ dependencies:
       path: C:\Users\Jaime\esp\esp-idf\examples\common_components\protocol_examples_common
       type: local
     version: '*'
-manifest_hash: 04047b79780e7ae3b150fe85117bdb525d054eb7f2ba9aba40f4398d31c6579d
+manifest_hash: 40515ebd0761f2553ff0513f87262d64fa3e838eb492cb2411eb1d7c15a4e2eb
 target: esp32s3
 version: 1.0.0

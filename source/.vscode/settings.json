@@ -33,6 +33,11 @@
     "xlocale": "c",
     "esp_heap_caps.h": "c",
     "charconv": "c",
-    "xmemory": "c"
+    "xmemory": "c",
+    "algorithm": "c",
+    "iterator": "c",
+    "xhash": "c",
+    "xtree": "c",
+    "xutility": "c"
   }
 }

@@ -19,7 +19,6 @@
 #include "quirc_internal.h"
 #include "esp_camera.h"
 #include "src/misc/lv_color.h"
-#include "qrcode_classifier.h"
 
 #include "../common.h"
 
@@ -61,13 +60,14 @@ static void qr_task(void *arg)
     struct QRConf *conf = arg;
 
     struct quirc *qr = conf->qr;
-    assert(qr);
+
 
     int frame = 0;
     ESP_LOGI(TAG, "Processing task ready");
     while (1)
     {
         vTaskDelay(TASK_DELAY);
+
         // ESP_LOGI(TAG, "tick");
 
         camera_fb_t *pic;
@@ -88,6 +88,9 @@ static void qr_task(void *arg)
         esp_camera_fb_return(pic);
 
         // Process the frame. This step find the corners of the QR code (capstones)
+        // ESP_LOGE("D", "%p : %p at %d", (void *)qr, (void *)qr->flood_fill_vars, (int)((void *)&(qr->flood_fill_vars) - (void *)qr));
+        // ESP_LOGE("define log", "%d %d %d", QUIRC_MAX_REGIONS, QUIRC_MAX_CAPSTONES, QUIRC_MAX_GRIDS);
+
         quirc_end(qr);
         ++frame;
         int count = quirc_count(qr);
@@ -124,8 +127,6 @@ static void qr_task(void *arg)
 
 void qr_start(struct QRConf *conf)
 {
-
-
     TaskHandle_t handle = jTaskCreate(&qr_task, "QR task", 50000, conf, 1);
     if (handle == NULL)
     {

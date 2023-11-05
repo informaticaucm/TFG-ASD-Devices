@@ -17,7 +17,6 @@
 #include "quirc.h"
 #include "quirc_internal.h"
 #include "src/misc/lv_color.h"
-#include "qrcode_classifier.h"
 
 #include "screen.h"
 #include "bsp/esp-bsp.h"
