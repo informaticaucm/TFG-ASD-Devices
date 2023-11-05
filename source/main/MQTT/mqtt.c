@@ -230,10 +230,10 @@ void mqtt_task(void *arg)
 
 void mqtt_start(struct MQTTConf *conf)
 {
-    int err = xTaskCreate(&mqtt_task, "MQTT Task", 5000, conf, 1, NULL);
-    if (err != pdPASS)
+    TaskHandle_t handle = jTaskCreate(&mqtt_task, "MQTT Task", 5000, conf, 1);
+    if (handle == NULL)
     {
-        ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Problem on task start");
         heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
     }
 }

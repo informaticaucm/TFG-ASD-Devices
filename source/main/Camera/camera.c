@@ -39,10 +39,10 @@ void camera_start(struct CameraConf *conf)
     sensor_t *s = esp_camera_sensor_get();
     s->set_vflip(s, 1);
     ESP_LOGI(TAG, "Camera Init done");
-    int err = xTaskCreate(&camera_task, "Camera Task", 5000, conf, 1, NULL);
-    if (err != pdPASS)
+    TaskHandle_t handle = jTaskCreate(&camera_task, "Camera Task", 5000, conf, 1);
+    if (handle == NULL)
     {
-        ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Problem on task start");
         heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
     }
 }

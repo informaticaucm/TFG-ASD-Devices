@@ -61,15 +61,15 @@ void screen_start(struct ScreenConf *conf)
     lv_obj_t *label1 = lv_label_create(lv_scr_act());
     lv_label_set_recolor(label1, true); /*Enable re-coloring by commands in the text*/
     lv_label_set_text(label1, "#0000ff Re-color# #ff00ff words# #ff0000 of a# label "
-                              "and  wrap long text automatically.");
+                              "and wrap long text automatically.");
     lv_obj_set_width(label1, 150);
     lv_obj_align(label1, LV_ALIGN_CENTER, 0, -30);
     bsp_display_unlock();
 
-    int err = xTaskCreate(&screen_task, "Screen task", 1000, conf, 1, NULL);
-    if (err != pdPASS)
+    TaskHandle_t handle = jTaskCreate(&screen_task, "Screen task", 1000, conf, 1);
+    if (handle == NULL)
     {
-        ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Problem on task start ");
         heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
     }
 }

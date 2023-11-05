@@ -60,11 +60,8 @@ static void qr_task(void *arg)
 {
     struct QRConf *conf = arg;
 
-    
     struct quirc *qr = conf->qr;
     assert(qr);
-
-   
 
     int frame = 0;
     ESP_LOGI(TAG, "Processing task ready");
@@ -128,14 +125,10 @@ static void qr_task(void *arg)
 void qr_start(struct QRConf *conf)
 {
 
- 
-   
-    heap_caps_print_heap_info(0x00000804);
-    ESP_LOGE(TAG, "single largest posible allocation: %d", heap_caps_get_largest_free_block(0x00000804));
 
-    int err = xTaskCreate(&qr_task, "QR task", 11000, conf, 1, NULL);
-    if (err != pdPASS)
+    TaskHandle_t handle = jTaskCreate(&qr_task, "QR task", 50000, conf, 1);
+    if (handle == NULL)
     {
-        ESP_LOGE(TAG, "Problem on task start %s ", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Problem on task start");
     }
 }

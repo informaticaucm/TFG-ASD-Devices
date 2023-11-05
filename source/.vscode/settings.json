@@ -30,6 +30,9 @@
     "qrcode_classifier.h": "c",
     "lv_color.h": "c",
     "task.h": "c",
-    "xlocale": "c"
+    "xlocale": "c",
+    "esp_heap_caps.h": "c",
+    "charconv": "c",
+    "xmemory": "c"
   }
 }

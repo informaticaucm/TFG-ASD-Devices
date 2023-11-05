@@ -63,8 +63,8 @@ void app_main(void)
     heap_caps_print_heap_info(0x00001800);
     ESP_LOGE(TAG, "single largest posible allocation at startup: %d", heap_caps_get_largest_free_block(0x00001800));
 
-    heap_caps_print_heap_info(0x00000804);
-    ESP_LOGE(TAG, "single largest posible allocation at startup: %d", heap_caps_get_largest_free_block(0x00000804));
+    heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
+    ESP_LOGE(TAG, "single largest posible allocation at startup at psram: %d", heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM));
 
     bsp_i2c_init();
     bsp_display_cfg_t cfg = {
@@ -79,8 +79,6 @@ void app_main(void)
     bsp_leds_init();
 
     bsp_led_set(BSP_LED_GREEN, false);
-
-   
 
     // Initialize NVS.
     esp_err_t err = nvs_flash_init();
@@ -145,15 +143,105 @@ void app_main(void)
 
     // Initialize QR
 
-    struct quirc *qr = quirc_new();
+    struct quirc *qr;
+    { // modded quirc_new
+        qr = heap_caps_malloc(sizeof(*qr), MALLOC_CAP_SPIRAM);
+        memset(qr, 0, sizeof(*qr));
+    }
 
-    heap_caps_print_heap_info(0x00001800);
-    ESP_LOGE(TAG, "single largest posible allocation: %d", heap_caps_get_largest_free_block(0x00001800));
+    { // modded quirc_resize  :  quirc_resize(qr, IMG_WIDTH, IMG_HEIGHT);
 
-    if (quirc_resize(qr, IMG_WIDTH, IMG_HEIGHT) < 0)
-    {
-        ESP_LOGE(TAG, "Failed to allocate QR buffer");
-        return;
+        struct quirc *q = qr;
+        int w = IMG_WIDTH;
+        int h = IMG_HEIGHT;
+
+        uint8_t *image = NULL;
+        quirc_pixel_t *pixels = NULL;
+        size_t num_vars;
+        size_t vars_byte_size;
+        struct quirc_flood_fill_vars *vars = NULL;
+
+        /*
+         * XXX: w and h should be size_t (or at least unsigned) as negatives
+         * values would not make much sense. The downside is that it would break
+         * both the API and ABI. Thus, at the moment, let's just do a sanity
+         * check.
+         */
+        if (w < 0 || h < 0)
+            ESP_LOGE("quirc_resize moded", "fail");
+
+        /*
+         * alloc a new buffer for q->image. We avoid realloc(3) because we want
+         * on failure to be leave `q` in a consistant, unmodified state.
+         */
+        image = heap_caps_malloc(w * h, MALLOC_CAP_SPIRAM); // og: calloc(w, h);
+        if (!image)
+            ESP_LOGE("quirc_resize moded", "fail");
+
+        /* compute the "old" (i.e. currently allocated) and the "new"
+           (i.e. requested) image dimensions */
+        size_t olddim = q->w * q->h;
+        size_t newdim = w * h;
+        size_t min = (olddim < newdim ? olddim : newdim);
+
+        /*
+         * copy the data into the new buffer, avoiding (a) to read beyond the
+         * old buffer when the new size is greater and (b) to write beyond the
+         * new buffer when the new size is smaller, hence the min computation.
+         */
+        (void)memcpy(image, q->image, min);
+
+        /* alloc a new buffer for q->pixels if needed */
+        if (!QUIRC_PIXEL_ALIAS_IMAGE)
+        {
+            pixels = heap_caps_malloc(newdim * sizeof(quirc_pixel_t), MALLOC_CAP_SPIRAM); // og: calloc(newdim, sizeof(quirc_pixel_t));
+            if (!pixels)
+                ESP_LOGE("quirc_resize moded", "fail");
+        }
+
+        /*
+         * alloc the work area for the flood filling logic.
+         *
+         * the size was chosen with the following assumptions and observations:
+         *
+         * - rings are the regions which requires the biggest work area.
+         * - they consumes the most when they are rotated by about 45 degree.
+         *   in that case, the necessary depth is about (2 * height_of_the_ring).
+         * - the maximum height of rings would be about 1/3 of the image height.
+         */
+
+        if ((size_t)h * 2 / 2 != h)
+        {
+            ESP_LOGE("quirc_resize moded", "fail");
+        }
+        num_vars = (size_t)h * 2 / 3;
+        if (num_vars == 0)
+        {
+            num_vars = 1;
+        }
+
+        vars_byte_size = sizeof(*vars) * num_vars;
+        if (vars_byte_size / sizeof(*vars) != num_vars)
+        {
+            ESP_LOGE("quirc_resize moded", "fail");
+        }
+        vars = malloc(vars_byte_size); // heap_caps_malloc(vars_byte_size, MALLOC_CAP_SPIRAM);
+        if (!vars)
+            ESP_LOGE("quirc_resize moded", "fail");
+
+        /* alloc succeeded, update `q` with the new size and buffers */
+        q->w = w;
+        q->h = h;
+        free(q->image);
+        q->image = image;
+        if (!QUIRC_PIXEL_ALIAS_IMAGE)
+        {
+            free(q->pixels);
+            q->pixels = pixels;
+        }
+        free(q->flood_fill_vars);
+        q->flood_fill_vars = vars;
+        q->num_flood_fill_vars = num_vars;
     }
 
     struct QRConf *qr_conf = malloc(sizeof(struct QRConf));
