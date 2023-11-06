@@ -20,3 +20,4 @@
 2023-11-06 00:01:34,197 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [1] totalSaved [1] totalFailed [0]
 2023-11-06 00:01:34,303 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [1] totalSaved [1] totalFailed [0]
 2023-11-06 00:01:44,196 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [16] totalSaved [16] totalFailed [0]
+2023-11-06 00:01:44,303 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [16] totalSaved [16] totalFailed [0]
