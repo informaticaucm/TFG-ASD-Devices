@@ -125,6 +125,9 @@ void app_main(void)
     QueueHandle_t ota_to_mqtt_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
     QueueHandle_t ota_to_screen_queue = xQueueCreate(1, sizeof(struct ScreenMsg *));
     QueueHandle_t starter_to_mqtt_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
+
+    QueueHandle_t qr_to_screen_demo_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
+
     assert(cam_to_qr_queue);
     assert(qr_to_starter_queue);
     assert(starter_to_screen_queue);
@@ -146,6 +149,7 @@ void app_main(void)
     qr_conf->cam_to_qr_queue = cam_to_qr_queue;
     qr_conf->qr_to_starter_queue = qr_to_starter_queue;
     qr_conf->qr_to_mqtt_queue = qr_to_mqtt_queue;
+    qr_conf->qr_to_screen_demo_queue = qr_to_screen_demo_queue;
     qr_conf->qr = qr;
 
     qr_start(qr_conf);
@@ -195,6 +199,7 @@ void app_main(void)
     screen_conf->starter_to_screen_queue = starter_to_screen_queue;
     screen_conf->mqtt_to_screen_queue = mqtt_to_screen_queue;
     screen_conf->ota_to_screen_queue = ota_to_screen_queue;
+    screen_conf->qr_to_screen_demo_queue = qr_to_screen_demo_queue;
 
     screen_start(screen_conf);
     ESP_LOGI(TAG, "screen started");

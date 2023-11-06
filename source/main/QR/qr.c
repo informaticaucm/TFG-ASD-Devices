@@ -1,6 +1,7 @@
 #include "qr.h"
 #include "../Starter/starter.h"
 #include "../MQTT/mqtt.h"
+#include "../Screen/screen.h"
 
 #include <stdio.h>
 #include <sys/param.h>
@@ -61,7 +62,6 @@ static void qr_task(void *arg)
 
     struct quirc *qr = conf->qr;
 
-
     int frame = 0;
     ESP_LOGI(TAG, "Processing task ready");
     while (1)
@@ -109,7 +109,7 @@ static void qr_task(void *arg)
             err = quirc_decode(&code, &qr_data);
             if (err != 0)
             {
-                ESP_LOGE(TAG, "QR err: %s", quirc_strerror(err));
+                ESP_LOGE(TAG, "QR err: %d, %s", err, quirc_strerror(err));
             }
             else
             {
@@ -118,6 +118,22 @@ static void qr_task(void *arg)
                 ESP_LOGI(TAG, "Processing task ready");
 
                 ESP_LOGI(TAG, "the contents were: %s", qr_data.payload);
+
+                {
+                    {
+                        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+                        msg->command = DisplayInfo;
+
+                        strcpy(msg->data.text, "qr read:");
+                        strcpy(msg->data.text + 8, (char *)qr_data.payload);
+
+                        int res = xQueueSend(conf->qr_to_screen_demo_queue, &msg, 0);
+                        if (res == pdFAIL)
+                        {
+                            free(msg);
+                        }
+                    }
+                }
 
                 bsp_led_set(BSP_LED_GREEN, false);
             }

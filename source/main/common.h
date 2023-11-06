@@ -11,7 +11,7 @@
 #define IMG_HEIGHT 240
 #define CAM_FRAME_SIZE FRAMESIZE_240X240
 #define URL_SIZE 100
-#define TASK_DELAY 100
+#define TASK_DELAY 30
 
 #define jTaskCreate xTaskCreateCap
 

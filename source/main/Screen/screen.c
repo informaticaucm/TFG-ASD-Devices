@@ -36,6 +36,7 @@ void screen_task(void *arg)
 
         if (xQueueReceive(conf->ota_to_screen_queue, &msg, 0) != pdPASS &&
             xQueueReceive(conf->mqtt_to_screen_queue, &msg, 0) != pdPASS &&
+            xQueueReceive(conf->qr_to_screen_demo_queue, &msg, 0) != pdPASS &&
             xQueueReceive(conf->starter_to_screen_queue, &msg, 0) != pdPASS)
         {
             continue;
