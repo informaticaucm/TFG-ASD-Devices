@@ -95,8 +95,18 @@ void app_main(void)
     const esp_partition_t *running = esp_ota_get_running_partition();
     esp_ota_img_states_t ota_state;
     int send_updated_mqtt_on_start = false;
+
     if (esp_ota_get_state_partition(running, &ota_state) == ESP_OK)
     {
+
+        const char *otaStateStr = ota_state == ESP_OTA_IMG_NEW              ? "ESP_OTA_IMG_NEW"
+                                  : ota_state == ESP_OTA_IMG_PENDING_VERIFY ? "ESP_OTA_IMG_PENDING_VERIFY"
+                                  : ota_state == ESP_OTA_IMG_VALID          ? "ESP_OTA_IMG_VALID"
+                                  : ota_state == ESP_OTA_IMG_INVALID        ? "ESP_OTA_IMG_INVALID"
+                                  : ota_state == ESP_OTA_IMG_ABORTED        ? "ESP_OTA_IMG_ABORTED"
+                                                                            : "ESP_OTA_IMG_UNDEFINED";
+        ESP_LOGE(TAG, "ota_state: %s", otaStateStr);
+
         if (ota_state == ESP_OTA_IMG_PENDING_VERIFY)
         {
             // TODO selfcheck
@@ -214,12 +224,21 @@ void app_main(void)
     start_starter(starter_conf);
     ESP_LOGI(TAG, "starter started");
 
-    struct MQTTMsg *jump_start_msg = malloc(sizeof(struct MQTTMsg));
-    jump_start_msg->command = start;
-    strcpy(&(jump_start_msg->data.start.broker_url), "mqtts://thingsboard.asd:8883");
+    {
+        struct MQTTMsg *jump_start_msg = malloc(sizeof(struct MQTTMsg));
+        jump_start_msg->command = start;
+        strcpy(&(jump_start_msg->data.start.broker_url), "mqtts://thingsboard.asd:8883");
 
-    xQueueSend(starter_to_mqtt_queue, &jump_start_msg, 0);
+        xQueueSend(starter_to_mqtt_queue, &jump_start_msg, 0);
+    }
 
+    {
+        struct ScreenMsg *jump_start_msg = malloc(sizeof(struct ScreenMsg));
+        jump_start_msg->command = DisplayInfo;
+        strcpy(&(jump_start_msg->data.text), "Inicio de sistema completado :)");
+
+        xQueueSend(starter_to_screen_queue, &jump_start_msg, 0);
+    }
     // mqtt_subscribe("v1/devices/me/attributes"); // check if it worked or needs retriying
     // mqtt_send("v1/devices/me/telemetry", "{\"online\":true}");
 }

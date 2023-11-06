@@ -215,6 +215,8 @@ void mqtt_task(void *arg)
             ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
             ESP_ERROR_CHECK(esp_mqtt_client_start(client));
 
+            ESP_LOGI(TAG, "conf->send_updated_mqtt_on_start:%d", conf->send_updated_mqtt_on_start);
+
             if (conf->send_updated_mqtt_on_start)
             {
                 mqtt_send_ota_status_report(UPDATED);

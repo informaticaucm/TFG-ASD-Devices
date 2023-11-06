@@ -25,13 +25,38 @@
 
 #define TAG "screen"
 
+int last_bar_progress = 0;
+
 void screen_task(void *arg)
 {
     struct ScreenConf *conf = arg;
 
+    static lv_style_t style_bar_bg;
+
+    lv_style_init(&style_bar_bg);
+    lv_style_set_border_color(&style_bar_bg, lv_palette_main(LV_PALETTE_BLUE));
+    lv_style_set_border_width(&style_bar_bg, 2);
+    lv_style_set_pad_all(&style_bar_bg, 6); /*To make the indicator smaller*/
+    lv_style_set_radius(&style_bar_bg, 6);
+    lv_style_set_anim_time(&style_bar_bg, 1000);
+
+    static lv_style_t style_bar_indic;
+
+    lv_style_init(&style_bar_indic);
+    lv_style_set_bg_opa(&style_bar_indic, LV_OPA_COVER);
+    lv_style_set_bg_color(&style_bar_indic, lv_palette_main(LV_PALETTE_ORANGE));
+    lv_style_set_radius(&style_bar_indic, 3);
+
+    static lv_style_t bg_style;
+    lv_style_set_bg_color(&bg_style, lv_color_make(0x00, 0x00, 0x00));
+    lv_obj_add_style(lv_scr_act(), &bg_style, LV_PART_MAIN);
+
+    static lv_style_t label_style;
+    lv_style_set_text_color(&label_style, lv_color_make(0xff, 0xff, 0xff));
+
     while (1)
     {
-        vTaskDelay(TASK_DELAY);
+        vTaskDelay(RT_TASK_DELAY);
         struct ScreenMsg *msg;
 
         if (xQueueReceive(conf->ota_to_screen_queue, &msg, 0) != pdPASS &&
@@ -48,32 +73,54 @@ void screen_task(void *arg)
         switch (msg->command)
         {
         case DisplayWarning:
+        {
+            lv_obj_t *lable = lv_label_create(lv_scr_act());
+            lv_label_set_text_fmt(lable, "Warning: %s", msg->data.text);
+            lv_obj_set_width(lable, 150);
+            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
+            break;
+        }
         case DisplayInfo:
+        {
+            lv_obj_t *lable = lv_label_create(lv_scr_act());
+            lv_label_set_text_fmt(lable, "Info: %s", msg->data.text);
+            lv_obj_set_width(lable, 150);
+            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
+
+            break;
+        }
         case DisplayError:
 
         {
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text(lable, msg->data.text);
+            lv_label_set_text_fmt(lable, "Error: %s", msg->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
+
             break;
         }
         case DisplayProgress:
-
         {
+
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text(lable, msg->data.progress.text);
+            lv_label_set_text_fmt(lable, "%s \n(%f%%)", msg->data.progress.text, msg->data.progress.progress * 100.);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, -30);
+            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
 
             lv_obj_t *bar = lv_bar_create(lv_scr_act());
             lv_obj_set_size(bar, 200, 20);
             lv_obj_align(bar, LV_ALIGN_CENTER, 0, 30);
+            lv_obj_add_style(bar, &style_bar_bg, 0);
+            lv_obj_add_style(bar, &style_bar_indic, LV_PART_INDICATOR);
 
             int bar_progress = (int)(msg->data.progress.progress * 100.);
-
-            ESP_LOGE("log", "bar_progress: %d from %f", bar_progress, msg->data.progress.progress);
-            lv_bar_set_value(bar, bar_progress, LV_ANIM_OFF);
+            lv_bar_set_value(bar, last_bar_progress, LV_ANIM_OFF);
+            last_bar_progress = bar_progress;
+            lv_bar_set_value(bar, bar_progress, LV_ANIM_ON);
             break;
         }
         case DisplayProcessing:
@@ -82,11 +129,14 @@ void screen_task(void *arg)
             lv_label_set_text(lable, msg->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, -30);
+            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
 
             lv_obj_t *gif = lv_label_create(lv_scr_act());
             lv_label_set_text(gif, "aqui un gif de carga precioso");
             lv_obj_set_width(gif, 150);
             lv_obj_align(gif, LV_ALIGN_CENTER, 0, 30);
+            lv_obj_add_style(gif, &label_style, LV_PART_MAIN);
+
             break;
         }
         default:

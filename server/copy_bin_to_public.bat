@@ -1,0 +1,1 @@
+copy C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\build\tfgsegumientodocente.bin C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\server\public\payload.bin
