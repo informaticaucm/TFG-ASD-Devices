@@ -124,8 +124,8 @@ static void qr_task(void *arg)
                         struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
                         msg->command = DisplayInfo;
 
-                        strcpy(msg->data.text, "qr read:");
-                        strcpy(msg->data.text + 8, (char *)qr_data.payload);
+                        strcpy(msg->data.text, "qr read: ");
+                        strcpy(msg->data.text + 9, (char *)qr_data.payload);
 
                         int res = xQueueSend(conf->qr_to_screen_demo_queue, &msg, 0);
                         if (res == pdFAIL)
