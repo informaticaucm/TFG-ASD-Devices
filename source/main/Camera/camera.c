@@ -1,17 +1,45 @@
 #include "camera.h"
 #include "../QR/qr.h"
+#include "../Screen/screen.h"
 #include "esp_log.h"
 #include "../common.h"
+#include "esp_timer.h"
+#include <string.h>
+
 #define TAG "camera"
+#define force_stream true
 
 void camera_task(void *arg)
 {
     struct CameraConf *conf = arg;
 
+    int stream_refresh_rate = 0;
+    int stream_end_time = 0;
+
     while (1)
     {
-        vTaskDelay(TASK_DELAY);
-        // ESP_LOGI(TAG, "tick");
+        if (stream_end_time > esp_timer_get_time() || force_stream)
+        {
+            vTaskDelay(stream_refresh_rate);
+        }
+        else
+        {
+            vTaskDelay(TASK_DELAY);
+        }
+
+        struct CameraMsg *msg;
+        if (xQueueReceive(conf->to_cam_queue, &msg, 0) == pdPASS)
+        {
+            switch (msg->command)
+            {
+            case StreamToScreen:
+                stream_refresh_rate = msg->data.stream.refreshRate;
+                stream_end_time = msg->data.stream.time;
+                break;
+            }
+
+            free(msg);
+        }
 
         camera_fb_t *pic = esp_camera_fb_get();
         if (pic == NULL)
@@ -19,11 +47,26 @@ void camera_task(void *arg)
             ESP_LOGE(TAG, "Get frame failed");
             continue;
         }
-        // Don't update the display if the display image was just updated
-        // (i.e. is still frozen)
 
-        // Send the frame to the processing task.
-        // Note the short delay — if the processing task is busy, simply drop the frame.
+        if (stream_end_time > esp_timer_get_time() || force_stream)
+        {
+
+            struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+            msg->command = DisplayImage;
+            msg->data.image.buf = jalloc(pic->len);
+            msg->data.image.height = pic->height;
+            msg->data.image.width = pic->width;
+
+            memcpy(msg->data.image.buf, pic->buf, pic->len);
+
+            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+            if (res != pdTRUE)
+            {
+                free(msg->data.image.buf);
+                free(msg);
+            }
+        }
+
         int res = xQueueSend(conf->to_qr_queue, &pic, 0);
         if (res == pdFAIL)
         {

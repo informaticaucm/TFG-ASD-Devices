@@ -15,10 +15,10 @@
 #define RT_TASK_DELAY 30
 
 #define jTaskCreate xTaskCreateCap
-#define jalloc malloc
+#define jalloc(x) heap_caps_malloc(x, MALLOC_CAP_SPIRAM);
 
 TaskHandle_t xTaskCreateCap(TaskFunction_t pxTaskCode,
-                           const char *const pcName,
-                           const uint32_t ulStackDepth,
-                           void *const pvParameters,
-                           UBaseType_t uxPriority, uint32_t caps); // creates a task using psram instead of internal
+                            const char *const pcName,
+                            const uint32_t ulStackDepth,
+                            void *const pvParameters,
+                            UBaseType_t uxPriority, uint32_t caps); // creates a task using psram instead of internal

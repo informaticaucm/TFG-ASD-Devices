@@ -1,6 +1,7 @@
 #include "qr.h"
 #include "../Starter/starter.h"
 #include "../MQTT/mqtt.h"
+#include "../Camera/camera.h"
 #include "../Screen/screen.h"
 
 #include <stdio.h>
@@ -111,6 +112,14 @@ static void qr_task(void *arg)
             if (err != 0)
             {
                 ESP_LOGE(TAG, "QR err: %d, %s", err, quirc_strerror(err));
+
+                {
+                    struct CameraMsg *msg = jalloc(sizeof(struct CameraMsg));
+
+                    msg->command = StreamToScreen;
+                    msg->data.stream.time = esp_timer_get_time() + 1000;
+                    msg->data.stream.refreshRate = 10;
+                }
             }
             else
             {
@@ -122,15 +131,15 @@ static void qr_task(void *arg)
 
                 // TODO decide qr meaning and send to Starter or MQTT modules
 
-                if (strncmp("reconf", qr_data.payload, 6) == 0)
+                if (strncmp("reconf", (char *)qr_data.payload, 6) == 0)
                 {
                     // reconf{"device_name":"DevicePrueba","mqtt_broker_url":"mqtts://thingsboard.asd:8883","provisioning_device_key":"o7l9pkujk2xgnixqlimv","provisioning_device_secret":"of8htwr0xmh65wjpz7qe","wifi_psw":"1234567890","wifi_ssid":"tfgseguimientodocente"}
-                    struct StarterMsg *msg = jalloc(sizeof(StarterMsg));
+                    struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
 
                     msg->command = QrInfo;
 
                     jparse_ctx_t jctx;
-                    json_parse_start(&jctx, qr_data.payload + 6, qr_data.payload_len - 6);
+                    json_parse_start(&jctx, (char *)(qr_data.payload + 6), qr_data.payload_len - 6);
                     json_obj_get_string(&jctx, "device_name", msg->data.qr.device_name, 21);
                     json_obj_get_string(&jctx, "mqtt_broker_url", msg->data.qr.mqtt_broker_url, 21);
                     json_obj_get_string(&jctx, "provisioning_device_key", msg->data.qr.provisioning_device_key, 21);
@@ -138,7 +147,7 @@ static void qr_task(void *arg)
                     json_obj_get_string(&jctx, "wifi_psw", msg->data.qr.wifi_psw, 21);
                     json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.wifi_ssid, 21);
 
-                    int res = xQueueSend(conf->to_ota_queue, &msg, 0);
+                    int res = xQueueSend(conf->to_starter_queue, &msg, 0);
                     if (res != pdTRUE)
                     {
                         free(msg);

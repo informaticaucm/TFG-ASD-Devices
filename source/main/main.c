@@ -26,7 +26,6 @@
 #include "esp_log.h"
 #include "nvs.h"
 #include "nvs_flash.h"
-#include "protocol_examples_common.h"
 #include "esp_camera.h"
 #include "esp_ota_ops.h"
 #include "json_parser.h"
@@ -78,9 +77,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
 
-    ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    ESP_ERROR_CHECK(example_connect());
 
     const esp_partition_t *running = esp_ota_get_running_partition();
     esp_ota_img_states_t ota_state;
@@ -120,6 +117,7 @@ void app_main(void)
     QueueHandle_t to_screen_queue = xQueueCreate(10, sizeof(struct ScreenMsg *));
     QueueHandle_t to_mqtt_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
     QueueHandle_t to_ota_queue = xQueueCreate(10, sizeof(struct OTAMsg *));
+    QueueHandle_t to_cam_queue = xQueueCreate(10, sizeof(struct OTAMsg *));
 
     assert(to_qr_queue);
     assert(to_starter_queue);
@@ -163,6 +161,8 @@ void app_main(void)
 
     struct CameraConf *cam_conf = malloc(sizeof(struct CameraConf));
     cam_conf->to_qr_queue = to_qr_queue;
+    cam_conf->to_cam_queue = to_cam_queue;
+    cam_conf->to_screen_queue = to_screen_queue;
     cam_conf->camera_config = camera_config;
     camera_start(cam_conf);
     ESP_LOGI(TAG, "cam started");
@@ -196,13 +196,13 @@ void app_main(void)
     start_starter(starter_conf);
     ESP_LOGI(TAG, "starter started");
 
-    {
-        struct MQTTMsg *jump_start_msg = malloc(sizeof(struct MQTTMsg));
-        jump_start_msg->command = start;
-        strcpy(&(jump_start_msg->data.start.broker_url), "mqtts://thingsboard.asd:8883");
+    // {
+    //     struct MQTTMsg *jump_start_msg = malloc(sizeof(struct MQTTMsg));
+    //     jump_start_msg->command = Start;
+    //     strcpy(&(jump_start_msg->data.start.broker_url), "mqtts://thingsboard.asd:8883");
 
-        xQueueSend(to_mqtt_queue, &jump_start_msg, 0);
-    }
+    //     xQueueSend(to_mqtt_queue, &jump_start_msg, 0);
+    // }
 
     {
         struct ScreenMsg *jump_start_msg = malloc(sizeof(struct ScreenMsg));

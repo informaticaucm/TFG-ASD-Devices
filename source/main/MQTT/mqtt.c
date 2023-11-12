@@ -45,23 +45,23 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
     if (strcmp(topic, "v1/devices/me/attributes") == 0)
     {
-        struct OTAMsg *ota_msg = malloc(sizeof(struct OTAMsg));
-        int err = json_obj_get_string(&jctx, "fw_url", ota_msg->url, URL_SIZE);
+        struct OTAMsg *msg = malloc(sizeof(struct OTAMsg));
+        int err = json_obj_get_string(&jctx, "fw_url", msg->url, URL_SIZE);
 
         if (err == OS_SUCCESS)
         {
-            ESP_LOGI(TAG, "installing new firmware from: %s", ota_msg->url);
+            ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
 
-            int res = xQueueSend(conf->to_ota_queue, &ota_msg, 0);
+            int res = xQueueSend(conf->to_ota_queue, &msg, 0);
             if (res != pdTRUE)
             {
-                free(ota_msg);
+                free(msg);
             }
         }
         else
         {
             ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
-            free(ota_msg);
+            free(msg);
         }
     }
     else if (strcmp(topic, "/provision/response") == 0)
@@ -73,11 +73,11 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         }*/
         struct StarterMsg *msg = malloc(sizeof(struct OTAMsg));
         msg->command = ProvisioningInfo;
-        int err = json_obj_get_string(&jctx, "credentialsValue", msg->access_tocken, 21);
+        int err = json_obj_get_string(&jctx, "credentialsValue", msg->data.provisioning.access_tocken, 21);
 
         if (err == OS_SUCCESS)
         {
-            ESP_LOGI(TAG, "access tocken is : %s", msg->access_tocken);
+            ESP_LOGI(TAG, "access tocken is : %s", msg->data.provisioning.access_tocken);
 
             int res = xQueueSend(conf->to_ota_queue, &msg, 0);
             if (res != pdTRUE)
@@ -224,67 +224,67 @@ void mqtt_task(void *arg)
             mqtt_send_telemetry("{qr_code: \"blah blah\"}"); // TODO send read qr through mqtt
             break;
         case DoProvisioning:
+        {
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
                     .address.uri = msg->data.provisioning.broker_url,
                     .verification.certificate = (const char *)server_cert_pem_start},
-            }
-        };
+            };
 
-        client = esp_mqtt_client_init(&mqtt_cfg);
-        ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
-        ESP_ERROR_CHECK(esp_mqtt_client_start(client));
-        mqtt_subscribe("/provision/response");
+            client = esp_mqtt_client_init(&mqtt_cfg);
+            ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
+            ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+            mqtt_subscribe("/provision/response");
 
-        /*{
-            "deviceName": "DEVICE_NAME",
-            "provisionDeviceKey": "PUT_PROVISION_KEY_HERE",
-            "provisionDeviceSecret": "PUT_PROVISION_SECRET_HERE"
-        }*/
+            /*{
+                "deviceName": "DEVICE_NAME",
+                "provisionDeviceKey": "PUT_PROVISION_KEY_HERE",
+                "provisionDeviceSecret": "PUT_PROVISION_SECRET_HERE"
+            }*/
 
-        char msg_buffer[200];
-        snprinf(msf_buffer, 200, "{"
-                                 "\"deviceName\": \"%s\","
-                                 "\"provisionDeviceKey\": \"%s\","
-                                 "\"provisionDeviceSecret\": \"%s\""
-                                 "}",
-                msg->data.provisioning.deviceName,
-                msg->data.provisioning.provision_device_key,
-                msg->data.provisioning.provision_device_secret);
-        mqtt_send("/provision/request", msg_buffer);
+            char msg_buffer[200];
+            snprintf(msg_buffer, 200, "{"
+                                      "\"deviceName\": \"%s\","
+                                      "\"provisionDeviceKey\": \"%s\","
+                                      "\"provisionDeviceSecret\": \"%s\""
+                                      "}",
+                     msg->data.provisioning.device_name,
+                     msg->data.provisioning.provisioning_device_key,
+                     msg->data.provisioning.provisioning_device_secret);
+            mqtt_send("/provision/request", msg_buffer);
 
-        // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
-
+            // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
+        }
         break;
-        break;
-    case Start:
-        const esp_mqtt_client_config_t mqtt_cfg = {
-            .broker = {
-                .address.uri = msg->data.start.broker_url,
-                .verification.certificate = (const char *)server_cert_pem_start},
-            .credentials = {
-                .username = msg->data.start.access_tocken,
-            }};
-
-        client = esp_mqtt_client_init(&mqtt_cfg);
-        ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
-        ESP_ERROR_CHECK(esp_mqtt_client_start(client));
-        mqtt_subscribe("v1/devices/me/attributes");
-
-        if (conf->send_updated_mqtt_on_start)
+        case Start:
         {
-            mqtt_send_ota_status_report(UPDATED);
+            const esp_mqtt_client_config_t mqtt_cfg = {
+                .broker = {
+                    .address.uri = msg->data.start.broker_url,
+                    .verification.certificate = (const char *)server_cert_pem_start},
+                .credentials = {
+                    .username = msg->data.start.access_tocken,
+                }};
+
+            client = esp_mqtt_client_init(&mqtt_cfg);
+            ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
+            ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+            mqtt_subscribe("v1/devices/me/attributes");
+
+            if (conf->send_updated_mqtt_on_start)
+            {
+                mqtt_send_ota_status_report(UPDATED);
+            }
+
+            mqtt_send_telemetry("{online:\"true\"}");
+
+            // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
+        }
+        break;
         }
 
-        mqtt_send_telemetry("{online:\"true\"}");
-
-        // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
-
-        break;
+        free(msg);
     }
-
-    free(msg);
-}
 }
 
 void mqtt_start(struct MQTTConf *conf)

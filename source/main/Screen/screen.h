@@ -11,6 +11,7 @@ enum ScreenCommand
     DisplayError,
     DisplayProgress,
     DisplayProcessing,
+    DisplayImage,
 };
 
 struct ScreenMsg
@@ -24,6 +25,12 @@ struct ScreenMsg
             char text[90];
             float progress;
         } progress;
+        struct
+        {
+            uint8_t *buf;
+            int width;
+            int height;
+        } image;
     } data;
 };
 

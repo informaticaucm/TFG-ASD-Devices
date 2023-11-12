@@ -5,10 +5,9 @@
 
 enum StarterCommand
 {
-    None,
     QrInfo,
     ProvisioningInfo,
-}
+};
 
 struct StarterMsg
 {

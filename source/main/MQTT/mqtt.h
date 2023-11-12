@@ -37,14 +37,14 @@ struct MQTTMsg
         struct
         {
             char broker_url[URL_SIZE];
-            char access_tocken[21]
+            char access_tocken[21];
         } start;
         struct
         {
             char broker_url[URL_SIZE];
             char device_name[50];
-            char provision_device_secret[21];
-            char provision_device_key[21];
+            char provisioning_device_secret[21];
+            char provisioning_device_key[21];
         } provisioning;
         struct
         {

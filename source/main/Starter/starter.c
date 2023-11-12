@@ -3,17 +3,19 @@
 #include "connect_wifi.h"
 #include "../nvs_plugin.h"
 #include "../MQTT/mqtt.h"
+#include "../Screen/screen.h"
 
 #define TAG "starter"
 
-int start_sequence(struct StarterConf *conf)
+void start_sequence(struct StarterConf *conf)
 {
     struct ConfigurationParameters parameters;
-    int err = nvs_get("starter_parameters", &parameters, sizeof(struct ConfigurationParameters));
+    int err = j_nvs_get("starter_parameters", &parameters, sizeof(struct ConfigurationParameters));
     if (err == ESP_ERR_NVS_NOT_FOUND)
     {
         struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
 
+        msg->command = DisplayWarning;
         strcpy(msg->data.text, "no starting configuration found");
 
         int res = xQueueSend(conf->to_screen_queue, &msg, 0);
@@ -22,11 +24,11 @@ int start_sequence(struct StarterConf *conf)
             free(msg);
         }
 
-        return 0;
+        return;
     }
     connect_wifi(parameters.wifi_ssid, parameters.wifi_psw);
 
-    if (parameters->provisioning_done)
+    if (parameters.provisioning_done)
     {
         {
             struct MQTTMsg *msg = jalloc(sizeof(msg));
@@ -48,8 +50,8 @@ int start_sequence(struct StarterConf *conf)
             msg->command = DoProvisioning;
             strcpy(msg->data.provisioning.broker_url, parameters.mqtt_broker_url);
             strcpy(msg->data.provisioning.device_name, parameters.provisioning.due.device_name);
-            strcpy(msg->data.provisioning.provision_device_secret, parameters.provisioning.due.provision_device_secret);
-            strcpy(msg->data.provisioning.provision_device_key, parameters.provisioning.due.provision_device_key);
+            strcpy(msg->data.provisioning.provisioning_device_secret, parameters.provisioning.due.provisioning_device_secret);
+            strcpy(msg->data.provisioning.provisioning_device_key, parameters.provisioning.due.provisioning_device_key);
 
             int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
             if (res == pdFAIL)
@@ -64,7 +66,7 @@ void starter_task(void *arg)
 {
     struct StarterConf *conf = arg;
 
-    int success = start_sequence(conf);
+    start_sequence(conf);
 
     while (1)
     {
@@ -82,30 +84,30 @@ void starter_task(void *arg)
         {
         case QrInfo:
             parameters.provisioning_done = false;
-            strcpy(parameters.wifi_ssid, msg.qr.wifi_ssid);
-            strcpy(parameters.wifi_psw, msg.qr.wifi_psw);
-            strcpy(parameters.mqtt_broker_url, msg.qr.mqtt_broker_url);
-            strcpy(parameters.provisioning.due.device_name, msg.qr.device_name);
-            strcpy(parameters.provisioning.due.provisioning_device_key, msg.qr.provisioning_device_key);
-            strcpy(parameters.provisioning.due.provisioning_device_secret, msg.qr.provisioning_device_secret);
+            strcpy(parameters.wifi_ssid, msg->data.qr.wifi_ssid);
+            strcpy(parameters.wifi_psw, msg->data.qr.wifi_psw);
+            strcpy(parameters.mqtt_broker_url, msg->data.qr.mqtt_broker_url);
+            strcpy(parameters.provisioning.due.device_name, msg->data.qr.device_name);
+            strcpy(parameters.provisioning.due.provisioning_device_key, msg->data.qr.provisioning_device_key);
+            strcpy(parameters.provisioning.due.provisioning_device_secret, msg->data.qr.provisioning_device_secret);
             break;
         case ProvisioningInfo:
-            nvs_get("starter_parameters", &parameters, sizeof(struct ConfigurationParameters));
+            j_nvs_get("starter_parameters", &parameters, sizeof(struct ConfigurationParameters));
             parameters.provisioning_done = true;
-            strcpy(parameters.provisioning.done.access_tocken, msg.provisioning.access_tocken);
+            strcpy(parameters.provisioning.done.access_tocken, msg->data.provisioning.access_tocken);
             break;
         }
-        nvs_set("starter_parameters", &parameters, sizeof(struct ConfigurationParameters))
-            esp_restart();
+        j_nvs_set("starter_parameters", &parameters, sizeof(struct ConfigurationParameters));
+        esp_restart();
     }
 }
 
 void start_starter(struct StarterConf *conf)
 {
-    TaskHandle_t handle = jTaskCreate(&starter_task, "Starter task", 50000, conf, 1, MALLOC_CAP_SPIRAM);
+    TaskHandle_t handle = jTaskCreate(&starter_task, "Starter task", 3000, conf, 1, MALLOC_CAP_INTERNAL);
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start ");
-        heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
+        heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
     }
 }

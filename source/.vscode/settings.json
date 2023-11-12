@@ -7,6 +7,7 @@
     "board/esp32s3-bridge.cfg"
   ],
   "files.associations": {
+    "*.embeddedhtml": "html",
     "*.cu": "cpp",
     "*.amm": "scala",
     "*.njk": "nunjucks",
@@ -39,7 +40,10 @@
     "xhash": "c",
     "xtree": "c",
     "xutility": "c",
-    "esp_lcd_panel_ops.h": "c"
+    "esp_lcd_panel_ops.h": "c",
+    "quirc_internal.h": "c",
+    "ctime": "c",
+    "xiosbase": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

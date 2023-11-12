@@ -33,8 +33,9 @@ void screen_task(void *arg)
 {
     struct ScreenConf *conf = arg;
 
-    current_state = malloc(sizeof(struct ScreenMsg));
+    current_state = jalloc(sizeof(struct ScreenMsg));
     current_state->command = Empty;
+    uint8_t *canvas_buf = jalloc(1);
 
     static lv_style_t style_bar_bg;
 
@@ -65,6 +66,10 @@ void screen_task(void *arg)
 
         if (xQueueReceive(conf->to_screen_queue, &msg, RT_TASK_DELAY) == pdPASS)
         {
+            if (current_state->command == DisplayImage)
+            {
+                free(current_state->data.image.buf);
+            }
             free(current_state);
             current_state = msg;
         }
@@ -170,6 +175,18 @@ void screen_task(void *arg)
             lv_qrcode_update(qr, msg->data.text, strlen(msg->data.text));
             lv_obj_center(qr);
 
+            break;
+        }
+        case DisplayImage:
+        {
+            lv_obj_t *image_canvas = lv_canvas_create(lv_scr_act());
+            lv_obj_center(image_canvas);
+            free(canvas_buf);
+            canvas_buf = jalloc(msg->data.image.width * msg->data.image.height * 2);
+            lv_canvas_set_buffer(image_canvas, canvas_buf, msg->data.image.width, msg->data.image.height, LV_IMG_CF_TRUE_COLOR);
+            // lv_canvas_fill_bg(image_canvas, lv_color_black(), LV_OPA_COVER);
+            lv_canvas_copy_buf(image_canvas, msg->data.image.buf, 0, 0, msg->data.image.width, msg->data.image.height);
+            lv_obj_invalidate(image_canvas);
             break;
         }
         }

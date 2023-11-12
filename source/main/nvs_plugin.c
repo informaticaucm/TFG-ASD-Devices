@@ -24,7 +24,7 @@ void init_nvs()
     inited = 1;
 }
 
-void nvs_set(char *key, char *buffer, int buffer_size)
+void j_nvs_set(char *key, void *buffer, int buffer_size)
 {
     init_nvs();
 
@@ -33,11 +33,12 @@ void nvs_set(char *key, char *buffer, int buffer_size)
     nvs_set_blob(my_handle, key, buffer, buffer_size);
     nvs_commit(my_handle);
 }
-int nvs_get(char *key, char *buffer, int buffer_size)
+int j_nvs_get(char *key, void *buffer, int buffer_size)
 {
     init_nvs();
 
     nvs_handle_t my_handle;
     nvs_open("storage", NVS_READWRITE, &my_handle);
-    return nvs_get_str(my_handle, key, buffer, &buffer_size);
+    size_t len = (size_t) buffer_size;
+    return nvs_get_str(my_handle, key, buffer, &len);
 }
