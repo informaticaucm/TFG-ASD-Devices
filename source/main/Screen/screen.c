@@ -27,9 +27,14 @@
 
 int last_bar_progress = 0;
 
+struct ScreenMsg *current_state;
+
 void screen_task(void *arg)
 {
     struct ScreenConf *conf = arg;
+
+    current_state = malloc(sizeof(struct ScreenMsg));
+    current_state->command = Empty;
 
     static lv_style_t style_bar_bg;
 
@@ -56,22 +61,35 @@ void screen_task(void *arg)
 
     while (1)
     {
-        vTaskDelay(RT_TASK_DELAY);
         struct ScreenMsg *msg;
 
-        if (xQueueReceive(conf->ota_to_screen_queue, &msg, 0) != pdPASS &&
-            xQueueReceive(conf->mqtt_to_screen_queue, &msg, 0) != pdPASS &&
-            xQueueReceive(conf->qr_to_screen_demo_queue, &msg, 0) != pdPASS &&
-            xQueueReceive(conf->starter_to_screen_queue, &msg, 0) != pdPASS)
+        if (xQueueReceive(conf->to_screen_queue, &msg, RT_TASK_DELAY) == pdPASS)
         {
-            continue;
+            free(current_state);
+            current_state = msg;
         }
+
         bsp_display_lock(0);
 
         lv_obj_clean(lv_scr_act());
 
+        // lv_obj_t *time = lv_label_create(lv_scr_act());
+        // lv_label_set_text_fmt(time, "time: %llds", esp_timer_get_time()/1000000);
+        // lv_obj_set_width(time, 150);
+        // lv_obj_align(time, LV_ALIGN_CENTER, 0, -90);
+        // lv_obj_add_style(time, &label_style, LV_PART_MAIN);
+
         switch (msg->command)
         {
+        case Empty:
+        {
+            lv_obj_t *lable = lv_label_create(lv_scr_act());
+            lv_label_set_text(lable, "Empty");
+            lv_obj_set_width(lable, 150);
+            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
+            break;
+        }
         case DisplayWarning:
         {
             lv_obj_t *lable = lv_label_create(lv_scr_act());
@@ -131,19 +149,31 @@ void screen_task(void *arg)
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, -30);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
 
-            lv_obj_t *gif = lv_label_create(lv_scr_act());
-            lv_label_set_text(gif, "aqui un gif de carga precioso");
-            lv_obj_set_width(gif, 150);
-            lv_obj_align(gif, LV_ALIGN_CENTER, 0, 30);
-            lv_obj_add_style(gif, &label_style, LV_PART_MAIN);
+            lv_obj_t *bar = lv_bar_create(lv_scr_act());
+            lv_obj_set_size(bar, 200, 20);
+            lv_obj_align(bar, LV_ALIGN_CENTER, 0, 30);
+            lv_obj_add_style(bar, &style_bar_bg, 0);
+            lv_obj_add_style(bar, &style_bar_indic, LV_PART_INDICATOR);
+
+            int bar_progress = esp_timer_get_time() / 10000 % 100;
+
+            lv_bar_set_value(bar, bar_progress, LV_ANIM_ON);
+            break;
 
             break;
         }
-        default:
+        case DrawQr:
+        {
+
+            lv_obj_t *qr = lv_qrcode_create(lv_scr_act(), 240, lv_color_black(), lv_color_white());
+            /*Set data*/
+            lv_qrcode_update(qr, msg->data.text, strlen(msg->data.text));
+            lv_obj_center(qr);
+
+            break;
+        }
         }
         bsp_display_unlock();
-
-        free(msg);
     }
 }
 

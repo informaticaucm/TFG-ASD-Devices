@@ -20,6 +20,7 @@
 #include "quirc_internal.h"
 #include "esp_camera.h"
 #include "src/misc/lv_color.h"
+#include "json_parser.h"
 
 #include "../common.h"
 
@@ -74,7 +75,7 @@ static void qr_task(void *arg)
         uint8_t *qr_buf = quirc_begin(qr, NULL, NULL);
 
         // Get the next frame from the queue
-        int res = xQueueReceive(conf->cam_to_qr_queue, &pic, 0);
+        int res = xQueueReceive(conf->to_qr_queue, &pic, 0);
         if (res != pdPASS)
         {
             continue;
@@ -119,20 +120,33 @@ static void qr_task(void *arg)
 
                 ESP_LOGI(TAG, "the contents were: %s", qr_data.payload);
 
+                // TODO decide qr meaning and send to Starter or MQTT modules
+
+                if (strncmp("reconf", qr_data.payload, 6) == 0)
                 {
+                    // reconf{"device_name":"DevicePrueba","mqtt_broker_url":"mqtts://thingsboard.asd:8883","provisioning_device_key":"o7l9pkujk2xgnixqlimv","provisioning_device_secret":"of8htwr0xmh65wjpz7qe","wifi_psw":"1234567890","wifi_ssid":"tfgseguimientodocente"}
+                    struct StarterMsg *msg = jalloc(sizeof(StarterMsg));
+
+                    msg->command = QrInfo;
+
+                    jparse_ctx_t jctx;
+                    json_parse_start(&jctx, qr_data.payload + 6, qr_data.payload_len - 6);
+                    json_obj_get_string(&jctx, "device_name", msg->data.qr.device_name, 21);
+                    json_obj_get_string(&jctx, "mqtt_broker_url", msg->data.qr.mqtt_broker_url, 21);
+                    json_obj_get_string(&jctx, "provisioning_device_key", msg->data.qr.provisioning_device_key, 21);
+                    json_obj_get_string(&jctx, "provisioning_device_secret", msg->data.qr.provisioning_device_secret, 21);
+                    json_obj_get_string(&jctx, "wifi_psw", msg->data.qr.wifi_psw, 21);
+                    json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.wifi_ssid, 21);
+
+                    int res = xQueueSend(conf->to_ota_queue, &msg, 0);
+                    if (res != pdTRUE)
                     {
-                        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
-                        msg->command = DisplayInfo;
-
-                        strcpy(msg->data.text, "qr read: ");
-                        strcpy(msg->data.text + 9, (char *)qr_data.payload);
-
-                        int res = xQueueSend(conf->qr_to_screen_demo_queue, &msg, 0);
-                        if (res == pdFAIL)
-                        {
-                            free(msg);
-                        }
+                        free(msg);
                     }
+                }
+                else
+                {
+                    // TODO es una tui, procesala debidamente
                 }
 
                 bsp_led_set(BSP_LED_GREEN, false);

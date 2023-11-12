@@ -5,7 +5,7 @@
 
 struct CameraConf
 {
-    QueueHandle_t cam_to_qr_queue;
+    QueueHandle_t to_qr_queue;
     camera_config_t *camera_config;
 };
 

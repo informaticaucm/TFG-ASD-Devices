@@ -11,9 +11,9 @@ struct OTAMsg
 
 struct OTAConf
 {
-    QueueHandle_t ota_to_mqtt_queue;
-    QueueHandle_t mqtt_to_ota_queue;
-    QueueHandle_t ota_to_screen_queue;
+    QueueHandle_t to_mqtt_queue;
+    QueueHandle_t to_ota_queue;
+    QueueHandle_t to_screen_queue;
     // camera_config_t *cam_conf;
 };
 

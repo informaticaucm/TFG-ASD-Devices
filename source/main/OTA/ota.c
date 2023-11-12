@@ -40,7 +40,7 @@ void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
         msg->command = OTA_state_update;
         msg->data.ota_state_update.ota_state = OTA_state;
 
-        int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
+        int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
         if(res == pdFAIL){
             free(msg);
         }
@@ -57,7 +57,7 @@ void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
         };
         strcpy(msg->data.text, ota_state_to_text[OTA_state]);
 
-        int res = xQueueSend(conf->ota_to_screen_queue, &msg, 0);
+        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
         if (res == pdFAIL)
         {
             free(msg);
@@ -72,7 +72,7 @@ void command_ota_fail(char *error, struct OTAConf *conf)
         msg->command = OTA_failure;
         msg->data.ota_failure.failure_msg = error;
 
-        int res = xQueueSend(conf->ota_to_mqtt_queue, &msg, 0);
+        int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
         if (res == pdFAIL)
         {
             free(msg);
@@ -83,7 +83,7 @@ void command_ota_fail(char *error, struct OTAConf *conf)
         msg->command = DisplayError;
         strcpy(msg->data.text, error);
 
-        int res = xQueueSend(conf->ota_to_screen_queue, &msg, 0);
+        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
         if (res == pdFAIL)
         {
             free(msg);
@@ -214,7 +214,7 @@ void ota_routine(char *url, struct OTAConf *conf)
             strcpy(msg->data.progress.text, "descargando:");
             msg->data.progress.progress = progress;
 
-            int res = xQueueSend(conf->ota_to_screen_queue, &msg, 0);
+            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
             if (res != pdTRUE)
             {
                 free(msg);
@@ -318,7 +318,7 @@ void ota_task(void *arg)
 
         struct OTAMsg *msg;
 
-        int res = xQueueReceive(conf->mqtt_to_ota_queue, &msg, 0);
+        int res = xQueueReceive(conf->to_ota_queue, &msg, 0);
         if (res != pdPASS)
         {
             continue;

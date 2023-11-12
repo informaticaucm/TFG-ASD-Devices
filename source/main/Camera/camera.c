@@ -24,7 +24,7 @@ void camera_task(void *arg)
 
         // Send the frame to the processing task.
         // Note the short delay — if the processing task is busy, simply drop the frame.
-        int res = xQueueSend(conf->cam_to_qr_queue, &pic, 0);
+        int res = xQueueSend(conf->to_qr_queue, &pic, 0);
         if (res == pdFAIL)
         {
             esp_camera_fb_return(pic);

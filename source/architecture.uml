@@ -2,7 +2,7 @@
 
 skinparam componentStyle rectangle
 
-[Camera] -> [QR]
+[Camera] -up-> [QR]
 [QR] -up-> [Starter] : config QR read
 [Starter] -> [Screen] : display start
 

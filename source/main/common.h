@@ -15,6 +15,7 @@
 #define RT_TASK_DELAY 30
 
 #define jTaskCreate xTaskCreateCap
+#define jalloc malloc
 
 TaskHandle_t xTaskCreateCap(TaskFunction_t pxTaskCode,
                            const char *const pcName,

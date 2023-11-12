@@ -1,4 +1,3 @@
-#define device_id "c9YTwKgDDaaMMA5oVv6z"
 #define mqtt_qos 2
 
 #include <stdio.h>
@@ -20,6 +19,7 @@
 
 #include "mqtt.h"
 #include "../OTA/ota.h"
+#include "../Starter/starter.h"
 #include "json_parser.h"
 
 static const char *TAG = "mqtt";
@@ -52,7 +52,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         {
             ESP_LOGI(TAG, "installing new firmware from: %s", ota_msg->url);
 
-            int res = xQueueSend(conf->mqtt_to_ota_queue, &ota_msg, 0);
+            int res = xQueueSend(conf->to_ota_queue, &ota_msg, 0);
             if (res != pdTRUE)
             {
                 free(ota_msg);
@@ -61,6 +61,34 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         else
         {
             ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
+            free(ota_msg);
+        }
+    }
+    else if (strcmp(topic, "/provision/response") == 0)
+    {
+        /*{
+            "status":"SUCCESS",
+            "credentialsType":"ACCESS_TOKEN",
+            "credentialsValue":"sLzc0gDAZPkGMzFVTyUY"
+        }*/
+        struct StarterMsg *msg = malloc(sizeof(struct OTAMsg));
+        msg->command = ProvisioningInfo;
+        int err = json_obj_get_string(&jctx, "credentialsValue", msg->access_tocken, 21);
+
+        if (err == OS_SUCCESS)
+        {
+            ESP_LOGI(TAG, "access tocken is : %s", msg->access_tocken);
+
+            int res = xQueueSend(conf->to_ota_queue, &msg, 0);
+            if (res != pdTRUE)
+            {
+                free(msg);
+            }
+        }
+        else
+        {
+            ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
+            free(msg);
         }
     }
 }
@@ -174,14 +202,10 @@ void mqtt_task(void *arg)
 
     while (1)
     {
-        vTaskDelay(TASK_DELAY);
-
         // ESP_LOGI(TAG, "tick");
 
         struct MQTTMsg *msg;
-        if (xQueueReceive(conf->qr_to_mqtt_queue, &msg, 0) != pdPASS &&
-            xQueueReceive(conf->ota_to_mqtt_queue, &msg, 0) != pdPASS &&
-            xQueueReceive(conf->starter_to_mqtt_queue, &msg, 0) != pdPASS)
+        if (xQueueReceive(conf->to_mqtt_queue, &msg, TASK_DELAY) != pdPASS)
         {
             continue;
         }
@@ -196,42 +220,71 @@ void mqtt_task(void *arg)
         case OTA_state_update:
             mqtt_send_ota_status_report(msg->data.ota_state_update.ota_state);
             break;
-        case found_TUI_qr:
+        case Found_TUI_qr:
             mqtt_send_telemetry("{qr_code: \"blah blah\"}"); // TODO send read qr through mqtt
             break;
-        case start:
+        case DoProvisioning:
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
-                    .address.uri = msg->data.start.broker_url,
+                    .address.uri = msg->data.provisioning.broker_url,
                     .verification.certificate = (const char *)server_cert_pem_start},
-                .credentials = {
-                    .username = device_id,
-                }};
-
-            client = esp_mqtt_client_init(&mqtt_cfg);
-            ESP_LOGI(TAG, "client: %d", (int)client);
-
-            /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
-            ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
-            ESP_ERROR_CHECK(esp_mqtt_client_start(client));
-
-            ESP_LOGI(TAG, "conf->send_updated_mqtt_on_start:%d", conf->send_updated_mqtt_on_start);
-
-            if (conf->send_updated_mqtt_on_start)
-            {
-                mqtt_send_ota_status_report(UPDATED);
             }
+        };
 
-            mqtt_send_telemetry("{online:\"true\"}");
-            mqtt_subscribe("v1/devices/me/attributes");
+        client = esp_mqtt_client_init(&mqtt_cfg);
+        ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
+        ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+        mqtt_subscribe("/provision/response");
 
-            // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
+        /*{
+            "deviceName": "DEVICE_NAME",
+            "provisionDeviceKey": "PUT_PROVISION_KEY_HERE",
+            "provisionDeviceSecret": "PUT_PROVISION_SECRET_HERE"
+        }*/
 
-            break;
+        char msg_buffer[200];
+        snprinf(msf_buffer, 200, "{"
+                                 "\"deviceName\": \"%s\","
+                                 "\"provisionDeviceKey\": \"%s\","
+                                 "\"provisionDeviceSecret\": \"%s\""
+                                 "}",
+                msg->data.provisioning.deviceName,
+                msg->data.provisioning.provision_device_key,
+                msg->data.provisioning.provision_device_secret);
+        mqtt_send("/provision/request", msg_buffer);
+
+        // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
+
+        break;
+        break;
+    case Start:
+        const esp_mqtt_client_config_t mqtt_cfg = {
+            .broker = {
+                .address.uri = msg->data.start.broker_url,
+                .verification.certificate = (const char *)server_cert_pem_start},
+            .credentials = {
+                .username = msg->data.start.access_tocken,
+            }};
+
+        client = esp_mqtt_client_init(&mqtt_cfg);
+        ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
+        ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+        mqtt_subscribe("v1/devices/me/attributes");
+
+        if (conf->send_updated_mqtt_on_start)
+        {
+            mqtt_send_ota_status_report(UPDATED);
         }
 
-        free(msg);
+        mqtt_send_telemetry("{online:\"true\"}");
+
+        // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
+
+        break;
     }
+
+    free(msg);
+}
 }
 
 void mqtt_start(struct MQTTConf *conf)

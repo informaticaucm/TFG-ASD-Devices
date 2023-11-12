@@ -7,8 +7,9 @@ enum MQTTCommand
 {
     OTA_failure,
     OTA_state_update,
-    found_TUI_qr,
-    start,
+    Found_TUI_qr,
+    Start,
+    DoProvisioning
 };
 
 enum OTAState
@@ -36,7 +37,15 @@ struct MQTTMsg
         struct
         {
             char broker_url[URL_SIZE];
+            char access_tocken[21]
         } start;
+        struct
+        {
+            char broker_url[URL_SIZE];
+            char device_name[50];
+            char provision_device_secret[21];
+            char provision_device_key[21];
+        } provisioning;
         struct
         {
             enum OTAState ota_state;
@@ -46,11 +55,9 @@ struct MQTTMsg
 
 struct MQTTConf
 {
-    QueueHandle_t qr_to_mqtt_queue;
-    QueueHandle_t mqtt_to_ota_queue;
-    QueueHandle_t ota_to_mqtt_queue;
-    QueueHandle_t mqtt_to_screen_queue;
-    QueueHandle_t starter_to_mqtt_queue;
+    QueueHandle_t to_mqtt_queue;
+    QueueHandle_t to_ota_queue;
+    QueueHandle_t to_screen_queue;
     int send_updated_mqtt_on_start;
 };
 

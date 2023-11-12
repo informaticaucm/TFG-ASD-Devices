@@ -28,6 +28,18 @@ Se han resuelto las comunicaciones SMQTT con thingsboard
 Se ha completado el primer prototipo completo de OTA
 Se han comenzado los intentos de lectura de QR con el 
 
+## Objetivos del tercer sprint
+Aprovisionamiento
+## Hitos del tercer sprint 06-11-2023
+- Se ha diseñado el sistema de tasks para permitir el aprovisionamiento
+	- el razonamiento es que las tasks se hablen entre ellas, de esa forma la task de qr se puede hablar con la de aprovisionamiento o la de telecomunicaciones segun lea un qr o otro
+- Se ha solucionado el prblema de la memoria moviendo los staks a la psram
+- Se han movido las alocaciones de la libreria de qr a la psram
+- Se han movido algunas las alocaciones de la libreria vlgl port a la psram
+- Se ha implementado un proceso de gestion gráfica básico, que muestra mensajes y el progreso del ota 
+- Se ha implementado la lectura de qr, que se usará para el aprovisionamiento y lectura de las tui
+	- De momento los qr se muestran en la pantalla, como demo
+- Se ha modificado el sistema MQTT para iniciarse tras un comando desde el starter (responsable de guardar las credenciales y de decodificar el mensaje de Aprovisionamiento)
 
 # Cheat sheat
 
