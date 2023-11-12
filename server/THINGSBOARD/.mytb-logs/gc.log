@@ -23443,3 +23443,20 @@
 [2023-11-06T09:52:30.075+0000][4530.100s][info ][safepoint     ] Entering safepoint region: Cleanup
 [2023-11-06T09:52:30.076+0000][4530.100s][info ][safepoint     ] Leaving safepoint region
 [2023-11-06T09:52:30.076+0000][4530.101s][info ][safepoint     ] Total time for which application threads were stopped: 0.0008925 seconds, Stopping threads took: 0.0003853 seconds
+[2023-11-06T09:52:31.077+0000][4531.101s][debug][safepoint     ] Safepoint synchronization initiated. (192 threads)
+[2023-11-06T09:52:31.077+0000][4531.102s][info ][safepoint     ] Application time: 1.0009569 seconds
+[2023-11-06T09:52:31.078+0000][4531.103s][debug][safepoint     ] ... found polling page loop exception at pc = 0x00007f0c6d5038b6, stub =0x00007f0c64843680
+[2023-11-06T09:52:31.079+0000][4531.103s][debug][safepoint     ] Waiting for 1 thread(s) to block
+[2023-11-06T09:52:31.079+0000][4531.104s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-11-06T09:52:31.080+0000][4531.105s][info ][safepoint     ] Leaving safepoint region
+[2023-11-06T09:52:31.080+0000][4531.105s][info ][safepoint     ] Total time for which application threads were stopped: 0.0023292 seconds, Stopping threads took: 0.0016824 seconds
+[2023-11-06T09:52:32.081+0000][4532.106s][debug][safepoint     ] Safepoint synchronization initiated. (192 threads)
+[2023-11-06T09:52:32.082+0000][4532.106s][info ][safepoint     ] Application time: 1.0008533 seconds
+[2023-11-06T09:52:32.082+0000][4532.107s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-11-06T09:52:32.083+0000][4532.108s][info ][safepoint     ] Leaving safepoint region
+[2023-11-06T09:52:32.083+0000][4532.108s][info ][safepoint     ] Total time for which application threads were stopped: 0.0011730 seconds, Stopping threads took: 0.0004976 seconds
+[2023-11-06T09:52:33.084+0000][4533.109s][debug][safepoint     ] Safepoint synchronization initiated. (192 threads)
+[2023-11-06T09:52:33.084+0000][4533.109s][info ][safepoint     ] Application time: 1.0006503 seconds
+[2023-11-06T09:52:33.085+0000][4533.110s][info ][safepoint     ] Entering safepoint region: Cleanup
+[2023-11-06T09:52:33.086+0000][4533.110s][info ][safepoint     ] Leaving safepoint region
+[2023-11-06T09:52:33.087+0000][4533.112s][info ][safepoint     ] Total time for which application threads were stopped: 0.0022617 seconds, Stopping threads took: 0.0004482 seconds
