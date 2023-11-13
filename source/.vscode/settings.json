@@ -47,7 +47,8 @@
     "gpio.h": "c",
     "adc.h": "c",
     "adc_cali.h": "c",
-    "adc_cali_scheme.h": "c"
+    "adc_cali_scheme.h": "c",
+    "*.inc": "cpp"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

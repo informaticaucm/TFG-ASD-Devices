@@ -29,13 +29,13 @@ void start_sequence(struct StarterConf *conf)
 
         return;
     }
-    
+
     {
         struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
 
         msg->command = DisplayWarning;
-        strcpy(msg->data.text, "starting configuration was found, conecting to wifi ");
-        strcpy(msg->data.text + 52, parameters.wifi_ssid);
+        strcpy(msg->data.text, "starting configuration was found, conecting to wifi     ");
+        strcpy(msg->data.text + 51, parameters.wifi_ssid);
 
         int res = xQueueSend(conf->to_screen_queue, &msg, 0);
         if (res == pdFAIL)
@@ -44,7 +44,12 @@ void start_sequence(struct StarterConf *conf)
             free(msg);
         }
     }
-    connect_wifi(parameters.wifi_ssid, parameters.wifi_psw);
+    ESP_LOGE(TAG, "wifi %s, %s", parameters.wifi_ssid, parameters.wifi_psw);
+    int err = connect_wifi(parameters.wifi_ssid, parameters.wifi_psw);
+
+    if(err != ESP_OK){
+        
+    }
 
     {
         struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));

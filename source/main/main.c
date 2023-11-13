@@ -208,11 +208,11 @@ void app_main(void)
     buttons_start(buttons_conf);
     ESP_LOGI(TAG, "starter started");
 
-    j_nvs_set("test", "holaquetal", 11);
-    char buf[20];
-    j_nvs_get("test", buf, 20);
+    // j_nvs_set("test", "holaquetal", 11);
+    // char buf[20];
+    // j_nvs_get("test", buf, 20);
 
-    ESP_LOGE(TAG, "test: %s", buf);
+    // ESP_LOGE(TAG, "test: %s", buf);
 
     // {
     //     struct MQTTMsg *jump_start_msg = jalloc(sizeof(struct MQTTMsg));

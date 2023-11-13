@@ -46,7 +46,7 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     }
 }
 
-void connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD)
+int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD)
 {
     s_wifi_event_group = xEventGroupCreate();
 
@@ -100,15 +100,18 @@ void connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD)
         esp_wifi_set_ps(WIFI_PS_NONE);
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
                  WIFI_SSID, WIFI_PASSWORD);
+        return ESP_OK;
     }
     else if (bits & WIFI_FAIL_BIT)
     {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
                  WIFI_SSID, WIFI_PASSWORD);
+        return ESP_ERR;
     }
     else
     {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
+        vEventGroupDelete(s_wifi_event_group);
+        return ESP_ERR;
     }
-    vEventGroupDelete(s_wifi_event_group);
 }
