@@ -36,6 +36,9 @@
 #include "QR/qr.h"
 #include "Screen/screen.h"
 #include "Starter/starter.h"
+#include "Buttons/buttons.h"
+
+#include "nvs_plugin.h"
 
 #include "common.h"
 
@@ -110,7 +113,6 @@ void app_main(void)
         }
     }
 
-
     // build queues
     QueueHandle_t to_qr_queue = xQueueCreate(1, sizeof(camera_fb_t *));
     QueueHandle_t to_starter_queue = xQueueCreate(10, sizeof(struct StarterMsg *));
@@ -131,10 +133,12 @@ void app_main(void)
 
     quirc_resize(qr, IMG_WIDTH, IMG_HEIGHT);
 
-    struct QRConf *qr_conf = malloc(sizeof(struct QRConf));
+    struct QRConf *qr_conf = jalloc(sizeof(struct QRConf));
     qr_conf->to_qr_queue = to_qr_queue;
     qr_conf->to_starter_queue = to_starter_queue;
     qr_conf->to_mqtt_queue = to_mqtt_queue;
+    qr_conf->to_cam_queue = to_cam_queue;
+
     qr_conf->qr = qr;
 
     qr_start(qr_conf);
@@ -142,7 +146,7 @@ void app_main(void)
 
     // Initialize MQTT
 
-    struct MQTTConf *mqtt_conf = malloc(sizeof(struct MQTTConf));
+    struct MQTTConf *mqtt_conf = jalloc(sizeof(struct MQTTConf));
     mqtt_conf->to_mqtt_queue = to_mqtt_queue;
     mqtt_conf->to_ota_queue = to_ota_queue;
     mqtt_conf->to_screen_queue = to_screen_queue;
@@ -152,14 +156,14 @@ void app_main(void)
 
     // Initialize the camera
 
-    camera_config_t *camera_config = malloc(sizeof(camera_config_t));
+    camera_config_t *camera_config = jalloc(sizeof(camera_config_t));
     {
         camera_config_t on_stack = BSP_CAMERA_DEFAULT_CONFIG;
         memcpy(camera_config, &on_stack, sizeof(camera_config_t));
     }
     camera_config->frame_size = CAM_FRAME_SIZE;
 
-    struct CameraConf *cam_conf = malloc(sizeof(struct CameraConf));
+    struct CameraConf *cam_conf = jalloc(sizeof(struct CameraConf));
     cam_conf->to_qr_queue = to_qr_queue;
     cam_conf->to_cam_queue = to_cam_queue;
     cam_conf->to_screen_queue = to_screen_queue;
@@ -169,7 +173,7 @@ void app_main(void)
 
     // Initialize OTA
 
-    struct OTAConf *ota_conf = malloc(sizeof(struct OTAConf));
+    struct OTAConf *ota_conf = jalloc(sizeof(struct OTAConf));
 
     ota_conf->to_mqtt_queue = to_mqtt_queue;
     ota_conf->to_ota_queue = to_ota_queue;
@@ -180,7 +184,7 @@ void app_main(void)
 
     // Initialize Screen
 
-    struct ScreenConf *screen_conf = malloc(sizeof(struct ScreenConf));
+    struct ScreenConf *screen_conf = jalloc(sizeof(struct ScreenConf));
     screen_conf->to_screen_queue = to_screen_queue;
 
     screen_start(screen_conf);
@@ -188,7 +192,7 @@ void app_main(void)
 
     // Initialize Starter
 
-    struct StarterConf *starter_conf = malloc(sizeof(struct StarterConf));
+    struct StarterConf *starter_conf = jalloc(sizeof(struct StarterConf));
     starter_conf->to_screen_queue = to_screen_queue;
     starter_conf->to_starter_queue = to_starter_queue;
     starter_conf->to_mqtt_queue = to_mqtt_queue;
@@ -196,21 +200,35 @@ void app_main(void)
     start_starter(starter_conf);
     ESP_LOGI(TAG, "starter started");
 
+    // Initialize Buttons
+
+    struct ButtonsConf *buttons_conf = jalloc(sizeof(struct ButtonsConf));
+    buttons_conf->to_cam_queue = to_cam_queue;
+
+    buttons_start(buttons_conf);
+    ESP_LOGI(TAG, "starter started");
+
+    j_nvs_set("test", "holaquetal", 11);
+    char buf[20];
+    j_nvs_get("test", buf, 20);
+
+    ESP_LOGE(TAG, "test: %s", buf);
+
     // {
-    //     struct MQTTMsg *jump_start_msg = malloc(sizeof(struct MQTTMsg));
+    //     struct MQTTMsg *jump_start_msg = jalloc(sizeof(struct MQTTMsg));
     //     jump_start_msg->command = Start;
     //     strcpy(&(jump_start_msg->data.start.broker_url), "mqtts://thingsboard.asd:8883");
 
     //     xQueueSend(to_mqtt_queue, &jump_start_msg, 0);
     // }
 
-    {
-        struct ScreenMsg *jump_start_msg = malloc(sizeof(struct ScreenMsg));
-        jump_start_msg->command = DrawQr;
-        strcpy(&(jump_start_msg->data.text), "Inicio de sistema completado :)");
+    // {
+    //     struct ScreenMsg *jump_start_msg = jalloc(sizeof(struct ScreenMsg));
+    //     jump_start_msg->command = DisplayInfo;
+    //     strcpy(&(jump_start_msg->data.text), "Inicio de sistema completado :)");
 
-        xQueueSend(to_screen_queue, &jump_start_msg, 0);
-    }
+    //     xQueueSend(to_screen_queue, &jump_start_msg, 0);
+    // }
     // mqtt_subscribe("v1/devices/me/attributes"); // check if it worked or needs retriying
     // mqtt_send("v1/devices/me/telemetry", "{\"online\":true}");
 }

@@ -10,6 +10,7 @@ struct QRConf
     QueueHandle_t to_qr_queue;
     QueueHandle_t to_mqtt_queue;
     QueueHandle_t to_starter_queue;
+    QueueHandle_t to_cam_queue;
     struct quirc *qr;
 };
 

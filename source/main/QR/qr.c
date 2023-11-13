@@ -117,14 +117,33 @@ static void qr_task(void *arg)
                     struct CameraMsg *msg = jalloc(sizeof(struct CameraMsg));
 
                     msg->command = StreamToScreen;
-                    msg->data.stream.time = esp_timer_get_time() + 1000;
+                    msg->data.stream.time = jeppoch + CAM_BYPASS_TIME;
                     msg->data.stream.refreshRate = 10;
+
+                    int res = xQueueSend(conf->to_cam_queue, &msg, 0);
+                    if (res != pdTRUE)
+                    {
+                        free(msg);
+                    }
                 }
             }
             else
             {
                 // Indicate that we have successfully decoded something by blinking an LED
                 bsp_led_set(BSP_LED_GREEN, true);
+                {
+                    struct CameraMsg *msg = jalloc(sizeof(struct CameraMsg));
+
+                    msg->command = StreamToScreen;
+                    msg->data.stream.time = 0;
+                    msg->data.stream.refreshRate = 10;
+
+                    int res = xQueueSend(conf->to_cam_queue, &msg, 0);
+                    if (res != pdTRUE)
+                    {
+                        free(msg);
+                    }
+                }
                 ESP_LOGI(TAG, "Processing task ready");
 
                 ESP_LOGI(TAG, "the contents were: %s", qr_data.payload);
@@ -160,6 +179,7 @@ static void qr_task(void *arg)
 
                 bsp_led_set(BSP_LED_GREEN, false);
             }
+           
         }
     }
 }

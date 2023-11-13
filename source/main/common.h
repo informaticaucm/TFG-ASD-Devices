@@ -14,6 +14,10 @@
 #define TASK_DELAY 50
 #define RT_TASK_DELAY 30
 
+#define jeppoch (esp_timer_get_time() / 10000)
+
+#define CAM_BYPASS_TIME (3000)
+
 #define jTaskCreate xTaskCreateCap
 #define jalloc(x) heap_caps_malloc(x, MALLOC_CAP_SPIRAM);
 

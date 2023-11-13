@@ -43,7 +43,11 @@
     "esp_lcd_panel_ops.h": "c",
     "quirc_internal.h": "c",
     "ctime": "c",
-    "xiosbase": "c"
+    "xiosbase": "c",
+    "gpio.h": "c",
+    "adc.h": "c",
+    "adc_cali.h": "c",
+    "adc_cali_scheme.h": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

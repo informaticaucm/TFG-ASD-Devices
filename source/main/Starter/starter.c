@@ -7,10 +7,12 @@
 
 #define TAG "starter"
 
+#define nvs_tag "conf"
+
 void start_sequence(struct StarterConf *conf)
 {
     struct ConfigurationParameters parameters;
-    int err = j_nvs_get("starter_parameters", &parameters, sizeof(struct ConfigurationParameters));
+    int err = j_nvs_get(nvs_tag, &parameters, sizeof(struct ConfigurationParameters));
     if (err == ESP_ERR_NVS_NOT_FOUND)
     {
         struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
@@ -21,12 +23,42 @@ void start_sequence(struct StarterConf *conf)
         int res = xQueueSend(conf->to_screen_queue, &msg, 0);
         if (res == pdFAIL)
         {
+            ESP_LOGE(TAG, "mesage send fail");
             free(msg);
         }
 
         return;
     }
+    
+    {
+        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+
+        msg->command = DisplayWarning;
+        strcpy(msg->data.text, "starting configuration was found, conecting to wifi ");
+        strcpy(msg->data.text + 52, parameters.wifi_ssid);
+
+        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+        if (res == pdFAIL)
+        {
+            ESP_LOGE(TAG, "mesage send fail");
+            free(msg);
+        }
+    }
     connect_wifi(parameters.wifi_ssid, parameters.wifi_psw);
+
+    {
+        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+
+        msg->command = DisplayWarning;
+        strcpy(msg->data.text, "wifi connected, starting thingsboard provisioning");
+
+        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+        if (res == pdFAIL)
+        {
+            ESP_LOGE(TAG, "mesage send fail");
+            free(msg);
+        }
+    }
 
     if (parameters.provisioning_done)
     {
@@ -92,19 +124,19 @@ void starter_task(void *arg)
             strcpy(parameters.provisioning.due.provisioning_device_secret, msg->data.qr.provisioning_device_secret);
             break;
         case ProvisioningInfo:
-            j_nvs_get("starter_parameters", &parameters, sizeof(struct ConfigurationParameters));
+            j_nvs_get(nvs_tag, &parameters, sizeof(struct ConfigurationParameters));
             parameters.provisioning_done = true;
             strcpy(parameters.provisioning.done.access_tocken, msg->data.provisioning.access_tocken);
             break;
         }
-        j_nvs_set("starter_parameters", &parameters, sizeof(struct ConfigurationParameters));
+        j_nvs_set(nvs_tag, &parameters, sizeof(struct ConfigurationParameters));
         esp_restart();
     }
 }
 
 void start_starter(struct StarterConf *conf)
 {
-    TaskHandle_t handle = jTaskCreate(&starter_task, "Starter task", 3000, conf, 1, MALLOC_CAP_INTERNAL);
+    TaskHandle_t handle = jTaskCreate(&starter_task, "Starter task", 10000, conf, 1, MALLOC_CAP_INTERNAL);
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start ");

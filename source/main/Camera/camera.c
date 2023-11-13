@@ -7,7 +7,7 @@
 #include <string.h>
 
 #define TAG "camera"
-#define force_stream true
+#define force_stream false
 
 void camera_task(void *arg)
 {
@@ -18,7 +18,8 @@ void camera_task(void *arg)
 
     while (1)
     {
-        if (stream_end_time > esp_timer_get_time() || force_stream)
+        // ESP_LOGE(TAG, "stream_end_time: %d, jeppoch: %d", stream_end_time, (int)jeppoch);
+        if (stream_end_time > jeppoch  || force_stream)
         {
             vTaskDelay(stream_refresh_rate);
         }
@@ -48,7 +49,7 @@ void camera_task(void *arg)
             continue;
         }
 
-        if (stream_end_time > esp_timer_get_time() || force_stream)
+        if (stream_end_time > jeppoch || force_stream)
         {
 
             struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
@@ -62,6 +63,7 @@ void camera_task(void *arg)
             int res = xQueueSend(conf->to_screen_queue, &msg, 0);
             if (res != pdTRUE)
             {
+                ESP_LOGE(TAG, "mesage send error");
                 free(msg->data.image.buf);
                 free(msg);
             }
