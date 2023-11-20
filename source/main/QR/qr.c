@@ -159,12 +159,20 @@ static void qr_task(void *arg)
 
                     jparse_ctx_t jctx;
                     json_parse_start(&jctx, (char *)(qr_data.payload + 6), qr_data.payload_len - 6);
-                    json_obj_get_string(&jctx, "device_name", msg->data.qr.device_name, 21);
-                    json_obj_get_string(&jctx, "mqtt_broker_url", msg->data.qr.mqtt_broker_url, 21);
+
+                    json_obj_get_string(&jctx, "device_name", msg->data.qr.device_name, 50);
+                    json_obj_get_string(&jctx, "mqtt_broker_url", msg->data.qr.mqtt_broker_url, URL_SIZE);
                     json_obj_get_string(&jctx, "provisioning_device_key", msg->data.qr.provisioning_device_key, 21);
                     json_obj_get_string(&jctx, "provisioning_device_secret", msg->data.qr.provisioning_device_secret, 21);
-                    json_obj_get_string(&jctx, "wifi_psw", msg->data.qr.wifi_psw, 21);
-                    json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.wifi_ssid, 21);
+                    json_obj_get_string(&jctx, "wifi_psw", msg->data.qr.wifi_psw, 30);
+                    json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.wifi_ssid, 30);
+                    
+                    ESP_LOGI(TAG, "json field device_name %s", msg->data.qr.device_name);
+                    ESP_LOGI(TAG, "json field mqtt_broker_url %s", msg->data.qr.mqtt_broker_url);
+                    ESP_LOGI(TAG, "json field provisioning_device_key %s", msg->data.qr.provisioning_device_key);
+                    ESP_LOGI(TAG, "json field provisioning_device_secret %s", msg->data.qr.provisioning_device_secret);
+                    ESP_LOGI(TAG, "json field wifi_psw %s", msg->data.qr.wifi_psw);
+                    ESP_LOGI(TAG, "json field wifi_ssid %s", msg->data.qr.wifi_ssid);
 
                     int res = xQueueSend(conf->to_starter_queue, &msg, 0);
                     if (res != pdTRUE)
@@ -179,7 +187,6 @@ static void qr_task(void *arg)
 
                 bsp_led_set(BSP_LED_GREEN, false);
             }
-           
         }
     }
 }

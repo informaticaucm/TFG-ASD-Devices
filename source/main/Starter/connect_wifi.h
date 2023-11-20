@@ -19,6 +19,6 @@
 
 extern int wifi_connect_status;
 
-void connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD);
+int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD);
 
 #endif

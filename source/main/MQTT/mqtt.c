@@ -71,7 +71,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             "credentialsType":"ACCESS_TOKEN",
             "credentialsValue":"sLzc0gDAZPkGMzFVTyUY"
         }*/
-        struct StarterMsg *msg = malloc(sizeof(struct OTAMsg));
+        struct StarterMsg *msg = malloc(sizeof(struct StarterMsg));
         msg->command = ProvisioningInfo;
         int err = json_obj_get_string(&jctx, "credentialsValue", msg->data.provisioning.access_tocken, 21);
 
@@ -225,6 +225,11 @@ void mqtt_task(void *arg)
             break;
         case DoProvisioning:
         {
+            ESP_LOGI(TAG, "doProvisioning conf");
+            ESP_LOGI(TAG, "brocker url %s", msg->data.start.broker_url);
+            ESP_LOGI(TAG, "device name %s", msg->data.provisioning.device_name);
+            ESP_LOGI(TAG, "device key %s", msg->data.provisioning.provisioning_device_key);
+            ESP_LOGI(TAG, "device secret %s", msg->data.provisioning.provisioning_device_secret);
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
                     .address.uri = msg->data.provisioning.broker_url,
@@ -232,9 +237,15 @@ void mqtt_task(void *arg)
             };
 
             client = esp_mqtt_client_init(&mqtt_cfg);
+            ESP_LOGI(TAG,"a");
             ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
-            ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+            ESP_LOGI(TAG, "b") ;
+
+                                 ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+            ESP_LOGI(TAG,"c");
+
             mqtt_subscribe("/provision/response");
+            ESP_LOGI(TAG,"d");
 
             /*{
                 "deviceName": "DEVICE_NAME",
@@ -251,13 +262,22 @@ void mqtt_task(void *arg)
                      msg->data.provisioning.device_name,
                      msg->data.provisioning.provisioning_device_key,
                      msg->data.provisioning.provisioning_device_secret);
+            ESP_LOGI(TAG,"e");
+
             mqtt_send("/provision/request", msg_buffer);
+
+            ESP_LOGI(TAG,"f");
+
 
             // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
         }
         break;
         case Start:
         {
+            ESP_LOGI(TAG, "start conf");
+            ESP_LOGI(TAG, "brocker url %s", msg->data.start.broker_url);
+            ESP_LOGI(TAG, "access_tocken %s", msg->data.start.access_tocken);
+
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
                     .address.uri = msg->data.start.broker_url,

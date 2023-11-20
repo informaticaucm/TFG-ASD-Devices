@@ -106,12 +106,13 @@ int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD)
     {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
                  WIFI_SSID, WIFI_PASSWORD);
-        return ESP_ERR;
+        return ESP_FAIL;
     }
     else
     {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
         vEventGroupDelete(s_wifi_event_group);
-        return ESP_ERR;
+        return ESP_FAIL;
     }
+
 }
