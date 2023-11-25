@@ -32,7 +32,7 @@ struct MQTTMsg
         } ota_failure;
         struct
         {
-            char TUI_qr[URL_SIZE];
+            char TUI_qr[1024 * 8];
         } found_tui_qr;
         struct
         {
@@ -58,6 +58,7 @@ struct MQTTConf
     QueueHandle_t to_mqtt_queue;
     QueueHandle_t to_ota_queue;
     QueueHandle_t to_screen_queue;
+    QueueHandle_t to_starter_queue;
     int send_updated_mqtt_on_start;
 };
 

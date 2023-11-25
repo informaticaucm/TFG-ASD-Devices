@@ -48,7 +48,8 @@
     "adc.h": "c",
     "adc_cali.h": "c",
     "adc_cali_scheme.h": "c",
-    "*.inc": "cpp"
+    "*.inc": "cpp",
+    "sstream": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

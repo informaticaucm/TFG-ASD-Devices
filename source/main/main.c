@@ -29,6 +29,7 @@
 #include "esp_camera.h"
 #include "esp_ota_ops.h"
 #include "json_parser.h"
+#include "esp_wifi.h"
 
 #include "Camera/camera.h"
 #include "MQTT/mqtt.h"
@@ -52,12 +53,14 @@ void app_main(void)
 
     // heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
     // ESP_LOGE(TAG, "single largest posible allocation at startup at psram: %d", heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM));
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     bsp_i2c_init();
     bsp_display_cfg_t cfg = {
         .lvgl_port_cfg = {
             .task_priority = 0,
-            .task_stack = 30000,
+            .task_stack = 20000,
             .task_affinity = -1,
             .timer_period_ms = TASK_DELAY,
             .task_max_sleep_ms = TASK_DELAY * 2,
@@ -79,8 +82,6 @@ void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
-
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     const esp_partition_t *running = esp_ota_get_running_partition();
     esp_ota_img_states_t ota_state;
@@ -119,7 +120,7 @@ void app_main(void)
     QueueHandle_t to_screen_queue = xQueueCreate(10, sizeof(struct ScreenMsg *));
     QueueHandle_t to_mqtt_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
     QueueHandle_t to_ota_queue = xQueueCreate(10, sizeof(struct OTAMsg *));
-    QueueHandle_t to_cam_queue = xQueueCreate(10, sizeof(struct OTAMsg *));
+    QueueHandle_t to_cam_queue = xQueueCreate(10, sizeof(struct CameraMsg *));
 
     assert(to_qr_queue);
     assert(to_starter_queue);
@@ -150,7 +151,10 @@ void app_main(void)
     mqtt_conf->to_mqtt_queue = to_mqtt_queue;
     mqtt_conf->to_ota_queue = to_ota_queue;
     mqtt_conf->to_screen_queue = to_screen_queue;
+    mqtt_conf->to_starter_queue = to_starter_queue;
+
     mqtt_conf->send_updated_mqtt_on_start = send_updated_mqtt_on_start;
+
     mqtt_start(mqtt_conf);
     ESP_LOGI(TAG, "mqtt started");
 

@@ -1,18 +1,44 @@
-#include "connect_wifi.h"
+/* WiFi station Example
 
-int wifi_connect_status = 0;
-static const char *TAG = "Connect_WiFi";
-int s_retry_num = 0;
+   This example code is in the Public Domain (or CC0 licensed, at your option.)
 
-#define MAXIMUM_RETRY 5
+   Unless required by applicable law or agreed to in writing, this
+   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+   CONDITIONS OF ANY KIND, either express or implied.
+*/
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "esp_system.h"
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "nvs_flash.h"
+
+#include "lwip/err.h"
+#include "lwip/sys.h"
+
+/* The examples use WiFi configuration that you can set via project configuration menu
+
+   If you'd rather not, just change the below entries to strings with
+   the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
+*/
+
+#define EXAMPLE_ESP_MAXIMUM_RETRY 7
+
 /* FreeRTOS event group to signal when we are connected*/
-EventGroupHandle_t s_wifi_event_group;
+static EventGroupHandle_t s_wifi_event_group;
 
 /* The event group allows multiple bits for each event, but we only care about two events:
  * - we are connected to the AP with an IP
  * - we failed to connect after the maximum amount of retries */
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT BIT1
+
+static const char *TAG = "wifi station";
+
+static int s_retry_num = 0;
 
 static void event_handler(void *arg, esp_event_base_t event_base,
                           int32_t event_id, void *event_data)
@@ -23,7 +49,7 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
-        if (s_retry_num < MAXIMUM_RETRY)
+        if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY)
         {
             esp_wifi_connect();
             s_retry_num++;
@@ -33,7 +59,6 @@ static void event_handler(void *arg, esp_event_base_t event_base,
         {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
-        wifi_connect_status = 0;
         ESP_LOGI(TAG, "connect to the AP fail");
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
@@ -42,15 +67,12 @@ static void event_handler(void *arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-        wifi_connect_status = 1;
     }
 }
 
 int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD)
 {
     s_wifi_event_group = xEventGroupCreate();
-
-    ESP_ERROR_CHECK(esp_netif_init());
 
     esp_netif_create_default_wifi_sta();
 
@@ -70,15 +92,10 @@ int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD)
                                                         NULL,
                                                         &instance_got_ip));
 
-    wifi_config_t wifi_config = {
-        .sta = {
-            .threshold.authmode = WIFI_AUTH_WPA2_PSK,
-        },
-    };
+    wifi_config_t wifi_config = {0};
 
     strcpy((char *)wifi_config.sta.ssid, WIFI_SSID);
     strcpy((char *)wifi_config.sta.password, WIFI_PASSWORD);
-
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
@@ -97,22 +114,17 @@ int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD)
      * happened. */
     if (bits & WIFI_CONNECTED_BIT)
     {
-        esp_wifi_set_ps(WIFI_PS_NONE);
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
                  WIFI_SSID, WIFI_PASSWORD);
-        return ESP_OK;
     }
     else if (bits & WIFI_FAIL_BIT)
     {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
                  WIFI_SSID, WIFI_PASSWORD);
-        return ESP_FAIL;
     }
     else
     {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
-        vEventGroupDelete(s_wifi_event_group);
-        return ESP_FAIL;
     }
-
+    return 0;
 }

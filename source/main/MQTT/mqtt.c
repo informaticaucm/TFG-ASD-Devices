@@ -79,7 +79,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         {
             ESP_LOGI(TAG, "access tocken is : %s", msg->data.provisioning.access_tocken);
 
-            int res = xQueueSend(conf->to_ota_queue, &msg, 0);
+            int res = xQueueSend(conf->to_starter_queue, &msg, 0);
             if (res != pdTRUE)
             {
                 free(msg);
@@ -221,7 +221,11 @@ void mqtt_task(void *arg)
             mqtt_send_ota_status_report(msg->data.ota_state_update.ota_state);
             break;
         case Found_TUI_qr:
-            mqtt_send_telemetry("{qr_code: \"blah blah\"}"); // TODO send read qr through mqtt
+            char str_buff[1024 * 8 + 40];
+
+            snprintf(str_buff, 1024 * 8 + 40, "{qr_code: \"%s\"}", msg->data.found_tui_qr.TUI_qr);
+
+            mqtt_send_telemetry(str_buff); // TODO send read qr through mqtt
             break;
         case DoProvisioning:
         {
@@ -234,18 +238,20 @@ void mqtt_task(void *arg)
                 .broker = {
                     .address.uri = msg->data.provisioning.broker_url,
                     .verification.certificate = (const char *)server_cert_pem_start},
-            };
+                .credentials = {
+                    .username = "provision",
+                }};
 
             client = esp_mqtt_client_init(&mqtt_cfg);
-            ESP_LOGI(TAG,"a");
+            ESP_LOGI(TAG, "a");
             ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
-            ESP_LOGI(TAG, "b") ;
+            ESP_LOGI(TAG, "b");
 
-                                 ESP_ERROR_CHECK(esp_mqtt_client_start(client));
-            ESP_LOGI(TAG,"c");
+            ESP_ERROR_CHECK(esp_mqtt_client_start(client));
+            ESP_LOGI(TAG, "c");
 
             mqtt_subscribe("/provision/response");
-            ESP_LOGI(TAG,"d");
+            ESP_LOGI(TAG, "d");
 
             /*{
                 "deviceName": "DEVICE_NAME",
@@ -262,12 +268,11 @@ void mqtt_task(void *arg)
                      msg->data.provisioning.device_name,
                      msg->data.provisioning.provisioning_device_key,
                      msg->data.provisioning.provisioning_device_secret);
-            ESP_LOGI(TAG,"e");
+            ESP_LOGI(TAG, "e");
 
             mqtt_send("/provision/request", msg_buffer);
 
-            ESP_LOGI(TAG,"f");
-
+            ESP_LOGI(TAG, "f");
 
             // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
         }

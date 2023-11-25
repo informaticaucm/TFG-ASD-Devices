@@ -25,6 +25,9 @@ services:
       - ../keys/thingsboard:/cert
       - .mytb-data:/data
       - .mytb-logs:/var/log/thingsboard
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
+
 volumes:
   .mytb-data:
   .mytb-logs:

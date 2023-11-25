@@ -45,9 +45,9 @@ void j_nvs_set(char *key, void *buffer, int buffer_size)
     ESP_ERROR_CHECK(nvs_set_blob(my_handle, key, buffer, buffer_size));
     ESP_ERROR_CHECK(nvs_commit(my_handle));
     nvs_close(my_handle);
-    char *test[100];
+    char *test[1000];
     ESP_LOGE("NVS", "nvs set of %s", key);
-    j_nvs_get(key, test, 100);
+    j_nvs_get(key, test, 1000);
 }
 int j_nvs_get(char *key, void *buffer, int buffer_size)
 {
@@ -56,7 +56,7 @@ int j_nvs_get(char *key, void *buffer, int buffer_size)
     nvs_handle_t my_handle;
     ESP_ERROR_CHECK(nvs_open(STORAGE_NAMESPACE, NVS_READONLY, &my_handle));
     size_t len = (size_t)buffer_size;
-    int err = nvs_get_blob(my_handle, key, buffer, &len);
+    int err = nvs_get_str(my_handle, key, buffer, &len);
     ESP_LOGE("NVS", "nvs get of %s got err:%s", key, esp_err_to_name(err));
     nvs_close(my_handle);
 

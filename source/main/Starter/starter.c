@@ -89,8 +89,8 @@ void start_sequence(struct StarterConf *conf)
         {
             struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
             msg->command = Start;
-            strcpy(msg->data.start.broker_url, parameters.mqtt_broker_url);
-            strcpy(msg->data.start.access_tocken, parameters.provisioning.done.access_tocken);
+            memcpy(msg->data.start.broker_url, parameters.mqtt_broker_url, URL_SIZE);
+            memcpy(msg->data.start.access_tocken, parameters.provisioning.done.access_tocken, 21);
 
             int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
             if (res == pdFAIL)
@@ -102,12 +102,12 @@ void start_sequence(struct StarterConf *conf)
     else
     {
         {
-            struct MQTTMsg *msg = jalloc(sizeof(msg));
+            struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
             msg->command = DoProvisioning;
-            strcpy(msg->data.provisioning.broker_url, parameters.mqtt_broker_url);
-            strcpy(msg->data.provisioning.device_name, parameters.provisioning.due.device_name);
-            strcpy(msg->data.provisioning.provisioning_device_secret, parameters.provisioning.due.provisioning_device_secret);
-            strcpy(msg->data.provisioning.provisioning_device_key, parameters.provisioning.due.provisioning_device_key);
+            memcpy(msg->data.provisioning.broker_url, parameters.mqtt_broker_url, URL_SIZE);
+            memcpy(msg->data.provisioning.device_name, parameters.provisioning.due.device_name, 50);
+            memcpy(msg->data.provisioning.provisioning_device_secret, parameters.provisioning.due.provisioning_device_secret, 21);
+            memcpy(msg->data.provisioning.provisioning_device_key, parameters.provisioning.due.provisioning_device_key, 21);
 
             int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
             if (res == pdFAIL)
@@ -178,7 +178,7 @@ void starter_task(void *arg)
 
 void start_starter(struct StarterConf *conf)
 {
-    TaskHandle_t handle = jTaskCreate(&starter_task, "Starter task", 10000, conf, 1, MALLOC_CAP_INTERNAL);
+    TaskHandle_t handle = jTaskCreate(&starter_task, "Starter task", 5000, conf, 1, MALLOC_CAP_INTERNAL);
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start ");
