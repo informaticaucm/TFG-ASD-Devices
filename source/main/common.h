@@ -20,11 +20,15 @@
 // #define IMG_HEIGHT 296
 // #define CAM_FRAME_SIZE FRAMESIZE_CIF // 400x296
 
+#define nvs_conf_tag "conf"
+
 
 #define MAX_QR_SIZE 300
 #define URL_SIZE 100
 #define TASK_DELAY 50
 #define RT_TASK_DELAY 30
+
+#define min(a,b) (((a) < (b)) ? (a) : (b))
 
 #define jeppoch (esp_timer_get_time() / 10000)
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -7,6 +9,7 @@ enum StarterCommand
 {
     QrInfo,
     ProvisioningInfo,
+    UnvalidateConfig,
 };
 
 struct StarterMsg
@@ -37,11 +40,12 @@ struct ConfigurationParameters
     char wifi_psw[30];
     char mqtt_broker_url[URL_SIZE];
     bool provisioning_done;
+    char device_name[50];
+    bool valid;
     union
     {
         struct
         {
-            char device_name[50];
             char provisioning_device_key[21];
             char provisioning_device_secret[21];
         } due;

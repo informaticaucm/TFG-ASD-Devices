@@ -1,4 +1,4 @@
-#define DEFAULT_SYS_MODE mirror
+#include "../Starter/starter.h"
 
 enum sys_mode
 {
@@ -10,7 +10,10 @@ enum sys_mode
 struct sys_mode_state
 {
     enum sys_mode mode;
+    struct ConfigurationParameters parameters;
 };
 
 enum sys_mode get_mode();
 void set_mode(enum sys_mode mode);
+void get_parameters(struct ConfigurationParameters *parameters);
+void set_parameters(struct ConfigurationParameters *parameters);

@@ -71,12 +71,17 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             "credentialsType":"ACCESS_TOKEN",
             "credentialsValue":"sLzc0gDAZPkGMzFVTyUY"
         }*/
-        struct StarterMsg *msg = malloc(sizeof(struct StarterMsg));
-        msg->command = ProvisioningInfo;
-        int err = json_obj_get_string(&jctx, "credentialsValue", msg->data.provisioning.access_tocken, 21);
+        char access_tocken[21];
+
+        int err = json_obj_get_string(&jctx, "credentialsValue", access_tocken, 21);
 
         if (err == OS_SUCCESS)
         {
+            struct StarterMsg *msg = malloc(sizeof(struct StarterMsg));
+            msg->command = ProvisioningInfo;
+
+            memcpy(msg->data.provisioning.access_tocken, access_tocken, 21);
+
             ESP_LOGI(TAG, "access tocken is : %s", msg->data.provisioning.access_tocken);
 
             int res = xQueueSend(conf->to_starter_queue, &msg, 0);
@@ -87,8 +92,16 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         }
         else
         {
-            ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
-            free(msg);
+
+            struct StarterMsg *msg = malloc(sizeof(struct StarterMsg));
+            msg->command = UnvalidateConfig;
+            ESP_LOGI(TAG, "config error, invalidating!");
+
+            int res = xQueueSend(conf->to_starter_queue, &msg, 0);
+            if (res != pdTRUE)
+            {
+                free(msg);
+            }
         }
     }
 }

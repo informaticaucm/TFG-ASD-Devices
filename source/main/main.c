@@ -212,7 +212,8 @@ void app_main(void)
     // Initialize TOTP
 
     struct TOTPConf *totp_conf = jalloc(sizeof(struct TOTPConf));
+    totp_conf->to_screen_queue = to_screen_queue;
+
     start_totp(totp_conf);
     ESP_LOGI(TAG, "TOTP started");
-
 }

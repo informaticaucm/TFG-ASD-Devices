@@ -20,6 +20,28 @@ void init()
     }
 }
 
+void get_parameters(struct ConfigurationParameters *parameters)
+{
+    init();
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        memcpy(parameters, &state.parameters, sizeof(struct ConfigurationParameters));
+
+        xSemaphoreGive(xSemaphore);
+    }
+}
+
+void set_parameters(struct ConfigurationParameters *parameters)
+{
+    init();
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        memcpy(&state.parameters, parameters, sizeof(struct ConfigurationParameters));
+
+        xSemaphoreGive(xSemaphore);
+    }
+}
+
 void set_mode(enum sys_mode mode)
 {
     init();
@@ -34,7 +56,7 @@ void set_mode(enum sys_mode mode)
 enum sys_mode get_mode()
 {
     init();
-    enum sys_mode ret = DEFAULT_SYS_MODE;
+    enum sys_mode ret = mirror;
     if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
     {
         ret = state.mode;

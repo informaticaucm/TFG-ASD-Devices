@@ -7,14 +7,12 @@
 
 #define TAG "starter"
 
-#define nvs_conf_tag "conf"
-
 void start_sequence(struct StarterConf *conf)
 {
     struct ConfigurationParameters parameters;
     int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConfigurationParameters));
 
-    if (err == ESP_ERR_NVS_NOT_FOUND)
+    if (err == ESP_ERR_NVS_NOT_FOUND || !parameters.valid)
     {
         struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
 
@@ -37,13 +35,14 @@ void start_sequence(struct StarterConf *conf)
     ESP_LOGI(TAG, "parameters field provisioning_done %d", parameters.provisioning_done);
     ESP_LOGI(TAG, "parameters field wifi_psw %s", parameters.wifi_psw);
     ESP_LOGI(TAG, "parameters field wifi_ssid %s", parameters.wifi_ssid);
+    ESP_LOGI(TAG, "parameters field device_name %s", parameters.device_name);
+
     if (parameters.provisioning_done)
     {
         ESP_LOGI(TAG, "parameters field parameters.provisioning.done.access_tocken %s", parameters.provisioning.done.access_tocken);
     }
     else
     {
-        ESP_LOGI(TAG, "parameters field parameters.provisioning.done.device_name %s", parameters.provisioning.due.device_name);
         ESP_LOGI(TAG, "parameters field parameters.provisioning.done.provisioning_device_key %s", parameters.provisioning.due.provisioning_device_key);
         ESP_LOGI(TAG, "parameters field parameters.provisioning.done.provisioning_device_secret %s", parameters.provisioning.due.provisioning_device_secret);
     }
@@ -105,7 +104,7 @@ void start_sequence(struct StarterConf *conf)
             struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
             msg->command = DoProvisioning;
             memcpy(msg->data.provisioning.broker_url, parameters.mqtt_broker_url, URL_SIZE);
-            memcpy(msg->data.provisioning.device_name, parameters.provisioning.due.device_name, 50);
+            memcpy(msg->data.provisioning.device_name, parameters.device_name, 50);
             memcpy(msg->data.provisioning.provisioning_device_secret, parameters.provisioning.due.provisioning_device_secret, 21);
             memcpy(msg->data.provisioning.provisioning_device_key, parameters.provisioning.due.provisioning_device_key, 21);
 
@@ -142,17 +141,23 @@ void starter_task(void *arg)
             ESP_LOGE(TAG, "wifi_ssid: %s", msg->data.qr.wifi_ssid);
             ESP_LOGE(TAG, "wifi_psw: %s", msg->data.qr.wifi_psw);
             parameters.provisioning_done = false;
+            parameters.valid = true;
+
             strcpy(parameters.wifi_ssid, msg->data.qr.wifi_ssid);
             strcpy(parameters.wifi_psw, msg->data.qr.wifi_psw);
             strcpy(parameters.mqtt_broker_url, msg->data.qr.mqtt_broker_url);
-            strcpy(parameters.provisioning.due.device_name, msg->data.qr.device_name);
+            strcpy(parameters.device_name, msg->data.qr.device_name);
             strcpy(parameters.provisioning.due.provisioning_device_key, msg->data.qr.provisioning_device_key);
             strcpy(parameters.provisioning.due.provisioning_device_secret, msg->data.qr.provisioning_device_secret);
             break;
         case ProvisioningInfo:
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConfigurationParameters));
             parameters.provisioning_done = true;
+            parameters.valid = true;
             strcpy(parameters.provisioning.done.access_tocken, msg->data.provisioning.access_tocken);
+            break;
+        case UnvalidateConfig:
+            parameters.valid = false;
             break;
         }
         ESP_LOGI(TAG, "-- parameters before store --");
@@ -161,13 +166,14 @@ void starter_task(void *arg)
         ESP_LOGI(TAG, "parameters field provisioning_done %d", parameters.provisioning_done);
         ESP_LOGI(TAG, "parameters field wifi_psw %s", parameters.wifi_psw);
         ESP_LOGI(TAG, "parameters field wifi_ssid %s", parameters.wifi_ssid);
+        ESP_LOGI(TAG, "parameters field device_name %s", parameters.device_name);
+
         if (parameters.provisioning_done)
         {
             ESP_LOGI(TAG, "parameters field parameters.provisioning.done.access_tocken %s", parameters.provisioning.done.access_tocken);
         }
         else
         {
-            ESP_LOGI(TAG, "parameters field parameters.provisioning.done.device_name %s", parameters.provisioning.due.device_name);
             ESP_LOGI(TAG, "parameters field parameters.provisioning.done.provisioning_device_key %s", parameters.provisioning.due.provisioning_device_key);
             ESP_LOGI(TAG, "parameters field parameters.provisioning.done.provisioning_device_secret %s", parameters.provisioning.due.provisioning_device_secret);
         }

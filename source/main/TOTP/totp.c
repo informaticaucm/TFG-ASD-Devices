@@ -1,7 +1,14 @@
 #include "totp.h"
 #include "../common.h"
+#include "../nvs_plugin.h"
 #include "../SYS_MODE/sys_mode.h"
 #include "../Screen/screen.h"
+#include "../Starter/starter.h"
+
+#include "esp_log.h"
+#include <string.h>
+
+#include "lib/cotp.c"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -19,11 +26,26 @@ static void totp_task(void *arg)
 
         if (get_mode() == qr_display)
         {
+
+            char url[MAX_QR_SIZE];
+
+            {
+                int totp = do_the_totp_thing(time(0), (uint8_t *)"JBSWY3DPEHPK3PXP", 30, 6);
+                ESP_LOGI(TAG, "generated totp: %d", totp);
+
+                struct ConfigurationParameters parameters;
+                get_parameters(&parameters);
+
+                snprintf(url, MAX_QR_SIZE, "https://%s/?totp=%d&device=%s", "la.url.de.helena.y.galdo.asd", totp, parameters.device_name);
+            }
+
+            ESP_LOGI(TAG, "generated url: %s", url);
+
             {
                 struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
 
                 msg->command = DrawQr;
-                memcpy(msg->data.text, "holaa, esto va a ser un qr con una url y otras cosas chungas", MAX_QR_SIZE);
+                memcpy(msg->data.text, url, min(MAX_QR_SIZE, strlen(url)));
 
                 int res = xQueueSend(conf->to_screen_queue, &msg, 0);
                 if (res == pdFAIL)
