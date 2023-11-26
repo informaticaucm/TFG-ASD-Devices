@@ -112,38 +112,12 @@ static void qr_task(void *arg)
             if (err != 0)
             {
                 ESP_LOGE(TAG, "QR err: %d, %s", err, quirc_strerror(err));
-
-                {
-                    struct CameraMsg *msg = jalloc(sizeof(struct CameraMsg));
-
-                    msg->command = StreamToScreen;
-                    msg->data.stream.time = jeppoch + CAM_BYPASS_TIME;
-                    msg->data.stream.refreshRate = 10;
-
-                    int res = xQueueSend(conf->to_cam_queue, &msg, 0);
-                    if (res != pdTRUE)
-                    {
-                        free(msg);
-                    }
-                }
             }
             else
             {
                 // Indicate that we have successfully decoded something by blinking an LED
                 bsp_led_set(BSP_LED_GREEN, true);
-                {
-                    struct CameraMsg *msg = jalloc(sizeof(struct CameraMsg));
 
-                    msg->command = StreamToScreen;
-                    msg->data.stream.time = 0;
-                    msg->data.stream.refreshRate = 10;
-
-                    int res = xQueueSend(conf->to_cam_queue, &msg, 0);
-                    if (res != pdTRUE)
-                    {
-                        free(msg);
-                    }
-                }
                 ESP_LOGI(TAG, "Processing task ready");
 
                 ESP_LOGI(TAG, "the contents were: %s", qr_data.payload);
@@ -166,7 +140,7 @@ static void qr_task(void *arg)
                     json_obj_get_string(&jctx, "provisioning_device_secret", msg->data.qr.provisioning_device_secret, 21);
                     json_obj_get_string(&jctx, "wifi_psw", msg->data.qr.wifi_psw, 30);
                     json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.wifi_ssid, 30);
-                    
+
                     ESP_LOGI(TAG, "json field device_name %s", msg->data.qr.device_name);
                     ESP_LOGI(TAG, "json field mqtt_broker_url %s", msg->data.qr.mqtt_broker_url);
                     ESP_LOGI(TAG, "json field provisioning_device_key %s", msg->data.qr.provisioning_device_key);
@@ -182,7 +156,16 @@ static void qr_task(void *arg)
                 }
                 else
                 {
-                    // TODO es una tui, procesala debidamente
+                    struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
+
+                    msg->command = Found_TUI_qr;
+                    strcpy((char *)msg->data.found_tui_qr.TUI_qr, (char *)qr_data.payload);
+
+                    int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
+                    if (res != pdTRUE)
+                    {
+                        free(msg);
+                    }
                 }
 
                 bsp_led_set(BSP_LED_GREEN, false);

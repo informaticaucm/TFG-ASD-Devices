@@ -178,7 +178,7 @@ void starter_task(void *arg)
 
 void start_starter(struct StarterConf *conf)
 {
-    TaskHandle_t handle = jTaskCreate(&starter_task, "Starter task", 5000, conf, 1, MALLOC_CAP_INTERNAL);
+    TaskHandle_t handle = jTaskCreate(&starter_task, "Starter task", 25000, conf, 1, MALLOC_CAP_INTERNAL);
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start ");

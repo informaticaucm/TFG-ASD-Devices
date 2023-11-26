@@ -32,7 +32,7 @@ struct MQTTMsg
         } ota_failure;
         struct
         {
-            char TUI_qr[1024 * 8];
+            char TUI_qr[MAX_QR_SIZE];
         } found_tui_qr;
         struct
         {

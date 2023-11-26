@@ -18,6 +18,7 @@
 #include "../MQTT/mqtt.h"
 #include "../Screen/screen.h"
 #include "../common.h"
+#include "../SYS_MODE/sys_mode.h"
 
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
@@ -41,7 +42,8 @@ void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
         msg->data.ota_state_update.ota_state = OTA_state;
 
         int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
-        if(res == pdFAIL){
+        if (res == pdFAIL)
+        {
             free(msg);
         }
     }
@@ -323,7 +325,7 @@ void ota_task(void *arg)
         {
             continue;
         }
-
+        set_mode(self_managed);
         ota_routine(msg->url, conf);
         free(msg);
     }

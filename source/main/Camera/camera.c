@@ -5,42 +5,39 @@
 #include "../common.h"
 #include "esp_timer.h"
 #include <string.h>
+#include "../SYS_MODE/sys_mode.h"
 
 #define TAG "camera"
-#define force_stream false
 
 void camera_task(void *arg)
 {
     struct CameraConf *conf = arg;
 
-    int stream_refresh_rate = 0;
-    int stream_end_time = 0;
-
     while (1)
     {
         // ESP_LOGE(TAG, "stream_end_time: %d, jeppoch: %d", stream_end_time, (int)jeppoch);
-        if (stream_end_time > jeppoch  || force_stream)
+        if (get_mode() == mirror)
         {
-            vTaskDelay(stream_refresh_rate);
+            vTaskDelay(MIRROR_RESHESH_RATE);
         }
         else
         {
             vTaskDelay(TASK_DELAY);
         }
 
-        struct CameraMsg *msg;
-        if (xQueueReceive(conf->to_cam_queue, &msg, 0) == pdPASS)
-        {
-            switch (msg->command)
-            {
-            case StreamToScreen:
-                stream_refresh_rate = msg->data.stream.refreshRate;
-                stream_end_time = msg->data.stream.time;
-                break;
-            }
+        // struct CameraMsg *msg;
+        // if (xQueueReceive(conf->to_cam_queue, &msg, 0) == pdPASS)
+        // {
+        //     switch (msg->command)
+        //     {
+        //     case StreamToScreen:
+        //         stream_refresh_rate = msg->data.stream.refreshRate;
+        //         stream_end_time = msg->data.stream.time;
+        //         break;
+        //     }
 
-            free(msg);
-        }
+        //     free(msg);
+        // }
 
         camera_fb_t *pic = esp_camera_fb_get();
         if (pic == NULL)
@@ -49,9 +46,8 @@ void camera_task(void *arg)
             continue;
         }
 
-        if (stream_end_time > jeppoch || force_stream)
+        if (get_mode() == mirror)
         {
-
             struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
             msg->command = DisplayImage;
             msg->data.image.buf = jalloc(pic->len);
@@ -79,6 +75,8 @@ void camera_task(void *arg)
 
 void camera_start(struct CameraConf *conf)
 {
+
+    // heap_caps_print_heap_info(0x00000404);
 
     ESP_ERROR_CHECK(esp_camera_init(conf->camera_config));
     sensor_t *s = esp_camera_sensor_get();

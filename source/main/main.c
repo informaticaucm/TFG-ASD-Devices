@@ -38,6 +38,7 @@
 #include "Screen/screen.h"
 #include "Starter/starter.h"
 #include "Buttons/buttons.h"
+#include "TOTP/totp.h"
 
 #include "nvs_plugin.h"
 
@@ -120,7 +121,6 @@ void app_main(void)
     QueueHandle_t to_screen_queue = xQueueCreate(10, sizeof(struct ScreenMsg *));
     QueueHandle_t to_mqtt_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
     QueueHandle_t to_ota_queue = xQueueCreate(10, sizeof(struct OTAMsg *));
-    QueueHandle_t to_cam_queue = xQueueCreate(10, sizeof(struct CameraMsg *));
 
     assert(to_qr_queue);
     assert(to_starter_queue);
@@ -138,7 +138,6 @@ void app_main(void)
     qr_conf->to_qr_queue = to_qr_queue;
     qr_conf->to_starter_queue = to_starter_queue;
     qr_conf->to_mqtt_queue = to_mqtt_queue;
-    qr_conf->to_cam_queue = to_cam_queue;
 
     qr_conf->qr = qr;
 
@@ -169,7 +168,6 @@ void app_main(void)
 
     struct CameraConf *cam_conf = jalloc(sizeof(struct CameraConf));
     cam_conf->to_qr_queue = to_qr_queue;
-    cam_conf->to_cam_queue = to_cam_queue;
     cam_conf->to_screen_queue = to_screen_queue;
     cam_conf->camera_config = camera_config;
     camera_start(cam_conf);
@@ -207,32 +205,14 @@ void app_main(void)
     // Initialize Buttons
 
     struct ButtonsConf *buttons_conf = jalloc(sizeof(struct ButtonsConf));
-    buttons_conf->to_cam_queue = to_cam_queue;
 
     buttons_start(buttons_conf);
     ESP_LOGI(TAG, "starter started");
 
-    // j_nvs_set("test", "holaquetal", 11);
-    // char buf[20];
-    // j_nvs_get("test", buf, 20);
+    // Initialize TOTP
 
-    // ESP_LOGE(TAG, "test: %s", buf);
+    struct TOTPConf *totp_conf = jalloc(sizeof(struct TOTPConf));
+    start_totp(totp_conf);
+    ESP_LOGI(TAG, "TOTP started");
 
-    // {
-    //     struct MQTTMsg *jump_start_msg = jalloc(sizeof(struct MQTTMsg));
-    //     jump_start_msg->command = Start;
-    //     strcpy(&(jump_start_msg->data.start.broker_url), "mqtts://thingsboard.asd:8883");
-
-    //     xQueueSend(to_mqtt_queue, &jump_start_msg, 0);
-    // }
-
-    // {
-    //     struct ScreenMsg *jump_start_msg = jalloc(sizeof(struct ScreenMsg));
-    //     jump_start_msg->command = DisplayInfo;
-    //     strcpy(&(jump_start_msg->data.text), "Inicio de sistema completado :)");
-
-    //     xQueueSend(to_screen_queue, &jump_start_msg, 0);
-    // }
-    // mqtt_subscribe("v1/devices/me/attributes"); // check if it worked or needs retriying
-    // mqtt_send("v1/devices/me/telemetry", "{\"online\":true}");
 }

@@ -221,9 +221,9 @@ void mqtt_task(void *arg)
             mqtt_send_ota_status_report(msg->data.ota_state_update.ota_state);
             break;
         case Found_TUI_qr:
-            char str_buff[1024 * 8 + 40];
+            char str_buff[MAX_QR_SIZE + 40];
 
-            snprintf(str_buff, 1024 * 8 + 40, "{qr_code: \"%s\"}", msg->data.found_tui_qr.TUI_qr);
+            snprintf(str_buff, MAX_QR_SIZE + 40, "{qr_code: \"%s\"}", msg->data.found_tui_qr.TUI_qr);
 
             mqtt_send_telemetry(str_buff); // TODO send read qr through mqtt
             break;

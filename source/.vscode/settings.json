@@ -49,7 +49,15 @@
     "adc_cali.h": "c",
     "adc_cali_scheme.h": "c",
     "*.inc": "cpp",
-    "sstream": "c"
+    "sstream": "c",
+    "array": "c",
+    "initializer_list": "c",
+    "list": "c",
+    "random": "c",
+    "type_traits": "c",
+    "vector": "c",
+    "xstring": "c",
+    "screen.h": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

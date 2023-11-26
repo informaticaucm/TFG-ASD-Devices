@@ -4,8 +4,8 @@
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 #include "esp_log.h"
-#include "../Camera/camera.h"
 #include "esp_timer.h"
+#include "../SYS_MODE/sys_mode.h"
 
 #define TAG "buttons"
 
@@ -44,24 +44,13 @@ void button_task(void *arg)
         if (voltage > 1500 && voltage < 1700)
         {
             ESP_LOGE(TAG, "+");
-            {
-                struct CameraMsg *msg = jalloc(sizeof(struct CameraMsg));
-
-                msg->command = StreamToScreen;
-                msg->data.stream.time = jeppoch + CAM_BYPASS_TIME;
-                msg->data.stream.refreshRate = 10;
-
-                int res = xQueueSend(conf->to_cam_queue, &msg, 0);
-                if (res != pdTRUE)
-                {
-                    free(msg);
-                }
-            }
+            set_mode(qr_display);
         }
 
         if (voltage > 3400 && voltage < 3600)
         {
             ESP_LOGE(TAG, "-");
+            set_mode(mirror);
         }
     }
 }

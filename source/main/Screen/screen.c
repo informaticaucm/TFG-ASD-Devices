@@ -183,9 +183,13 @@ void screen_task(void *arg)
             lv_obj_center(image_canvas);
             free(canvas_buf);
             canvas_buf = jalloc(msg->data.image.width * msg->data.image.height * 2);
+
             lv_canvas_set_buffer(image_canvas, canvas_buf, msg->data.image.width, msg->data.image.height, LV_IMG_CF_TRUE_COLOR);
             // lv_canvas_fill_bg(image_canvas, lv_color_black(), LV_OPA_COVER);
             lv_canvas_copy_buf(image_canvas, msg->data.image.buf, 0, 0, msg->data.image.width, msg->data.image.height);
+
+            // lv_canvas_transform(image_canvas, lv_canvas_get_img(image_canvas), 0, 128, 0, 0, msg->data.image.width / 2, msg->data.image.height / 2, false);
+
             lv_obj_invalidate(image_canvas);
             break;
         }

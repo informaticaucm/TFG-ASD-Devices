@@ -19,7 +19,7 @@ struct ScreenMsg
     enum ScreenCommand command;
     union
     {
-        char text[100];
+        char text[MAX_QR_SIZE];
         struct
         {
             char text[90];
