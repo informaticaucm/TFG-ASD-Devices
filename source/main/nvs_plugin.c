@@ -57,6 +57,7 @@ void j_nvs_set(char *key, void *buffer, int buffer_size)
 }
 int j_nvs_get(char *key, void *buffer, int buffer_size)
 {
+
     init_nvs();
 
     nvs_handle_t my_handle;

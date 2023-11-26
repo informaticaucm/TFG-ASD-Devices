@@ -57,7 +57,9 @@
     "type_traits": "c",
     "vector": "c",
     "xstring": "c",
-    "screen.h": "c"
+    "screen.h": "c",
+    "connect_wifi.h": "c",
+    "nvs_plugin.h": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

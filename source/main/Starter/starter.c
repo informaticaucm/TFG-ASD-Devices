@@ -4,6 +4,7 @@
 #include "../nvs_plugin.h"
 #include "../MQTT/mqtt.h"
 #include "../Screen/screen.h"
+#include "../SYS_MODE/sys_mode.h"
 
 #define TAG "starter"
 
@@ -11,6 +12,7 @@ void start_sequence(struct StarterConf *conf)
 {
     struct ConfigurationParameters parameters;
     int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConfigurationParameters));
+    set_parameters(&parameters);
 
     if (err == ESP_ERR_NVS_NOT_FOUND || !parameters.valid)
     {
@@ -66,6 +68,7 @@ void start_sequence(struct StarterConf *conf)
     if (wifi_err != ESP_OK)
     {
         j_nvs_reset(nvs_conf_tag);
+        ESP_LOGE(TAG, "wifi connection failed, reseting");
         esp_restart();
     }
 
@@ -178,6 +181,7 @@ void starter_task(void *arg)
             ESP_LOGI(TAG, "parameters field parameters.provisioning.done.provisioning_device_secret %s", parameters.provisioning.due.provisioning_device_secret);
         }
         j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConfigurationParameters));
+        ESP_LOGI(TAG, "new parameters saved, restarting");
         esp_restart();
     }
 }

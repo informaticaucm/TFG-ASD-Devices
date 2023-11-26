@@ -27,11 +27,12 @@ static void totp_task(void *arg)
         if (get_mode() == qr_display)
         {
 
-            char url[MAX_QR_SIZE];
+            char url[MAX_QR_SIZE] = {0};
 
             {
+                ESP_LOGI(TAG, "time: %d", (int)time(0));
                 int totp = do_the_totp_thing(time(0), (uint8_t *)"JBSWY3DPEHPK3PXP", 30, 6);
-                ESP_LOGI(TAG, "generated totp: %d", totp);
+                ESP_LOGI(TAG, "totp is: %d", totp);
 
                 struct ConfigurationParameters parameters;
                 get_parameters(&parameters);
@@ -39,13 +40,12 @@ static void totp_task(void *arg)
                 snprintf(url, MAX_QR_SIZE, "https://%s/?totp=%d&device=%s", "la.url.de.helena.y.galdo.asd", totp, parameters.device_name);
             }
 
-            ESP_LOGI(TAG, "generated url: %s", url);
 
             {
                 struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
 
                 msg->command = DrawQr;
-                memcpy(msg->data.text, url, min(MAX_QR_SIZE, strlen(url)));
+                strcpy(msg->data.text, url);
 
                 int res = xQueueSend(conf->to_screen_queue, &msg, 0);
                 if (res == pdFAIL)

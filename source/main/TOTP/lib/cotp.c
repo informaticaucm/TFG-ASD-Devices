@@ -47,6 +47,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "esp_log.h"
+
 #include "./hmac/hmac.h"
 
 static const int8_t base32_vals[256] = {
@@ -142,6 +144,7 @@ int do_the_totp_thing(time_t now, uint8_t *secret_key, int window, int result_si
     };
   };
 
+
   /* decodes base32 secret key */
   keylen = 0;
   for (pos = 0; pos <= (len - 8); pos += 8)
@@ -221,6 +224,7 @@ int do_the_totp_thing(time_t now, uint8_t *secret_key, int window, int result_si
 
   /* truncates code to result_size digits */
   totp = bin_code % ((int)pow(10, result_size));
+  ESP_LOGI("totp_engine", "totp: %d", (int)totp);
 
   return totp;
 }

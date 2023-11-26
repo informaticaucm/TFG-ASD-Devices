@@ -83,11 +83,13 @@ void screen_task(void *arg)
         // lv_obj_set_width(time, 150);
         // lv_obj_align(time, LV_ALIGN_CENTER, 0, -90);
         // lv_obj_add_style(time, &label_style, LV_PART_MAIN);
+        // ESP_LOGI(TAG, "screen task tick");
 
         switch (msg->command)
         {
         case Empty:
         {
+
             lv_obj_t *lable = lv_label_create(lv_scr_act());
             lv_label_set_text(lable, "Empty");
             lv_obj_set_width(lable, 150);
@@ -97,6 +99,7 @@ void screen_task(void *arg)
         }
         case DisplayWarning:
         {
+
             lv_obj_t *lable = lv_label_create(lv_scr_act());
             lv_label_set_text_fmt(lable, "Warning: %s", msg->data.text);
             lv_obj_set_width(lable, 150);
@@ -106,6 +109,7 @@ void screen_task(void *arg)
         }
         case DisplayInfo:
         {
+
             lv_obj_t *lable = lv_label_create(lv_scr_act());
             lv_label_set_text_fmt(lable, "Info: %s", msg->data.text);
             lv_obj_set_width(lable, 150);
@@ -115,8 +119,8 @@ void screen_task(void *arg)
             break;
         }
         case DisplayError:
-
         {
+
             lv_obj_t *lable = lv_label_create(lv_scr_act());
             lv_label_set_text_fmt(lable, "Error: %s", msg->data.text);
             lv_obj_set_width(lable, 150);
@@ -148,6 +152,8 @@ void screen_task(void *arg)
         }
         case DisplayProcessing:
         {
+
+
             lv_obj_t *lable = lv_label_create(lv_scr_act());
             lv_label_set_text(lable, msg->data.text);
             lv_obj_set_width(lable, 150);
@@ -179,6 +185,7 @@ void screen_task(void *arg)
         }
         case DisplayImage:
         {
+
             lv_obj_t *image_canvas = lv_canvas_create(lv_scr_act());
             lv_obj_center(image_canvas);
             free(canvas_buf);
