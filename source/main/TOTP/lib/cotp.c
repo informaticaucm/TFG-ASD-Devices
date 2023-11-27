@@ -80,8 +80,12 @@ static const int8_t base32_vals[256] = {
 };
 /* static const char * base32_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567="; */
 
-int do_the_totp_thing(time_t now, uint8_t *secret_key, int window, int result_size)
+int do_the_totp_thing(time_t now, const char *key, int window, int result_size)
 {
+
+  uint8_t *secret_key = alloca(30);
+  strcpy((char *)secret_key, key);
+
   size_t pos;
   size_t len;
   size_t keylen;
@@ -91,7 +95,7 @@ int do_the_totp_thing(time_t now, uint8_t *secret_key, int window, int result_si
   uint8_t hmac_result[20] = {0};
   size_t hmac_result_len;
   uint32_t bin_code;
-  uint32_t totp;
+  uint32_t totp = -1;
 
   len = strlen((char *)secret_key);
 
@@ -101,6 +105,7 @@ int do_the_totp_thing(time_t now, uint8_t *secret_key, int window, int result_si
     fprintf(stderr, "%s: invalid base32 secret\n", secret_key);
     return -1;
   };
+
   for (pos = 0; (pos < len); pos++)
   {
     if (base32_vals[secret_key[pos]] == -1)
@@ -144,7 +149,6 @@ int do_the_totp_thing(time_t now, uint8_t *secret_key, int window, int result_si
     };
   };
 
-
   /* decodes base32 secret key */
   keylen = 0;
   for (pos = 0; pos <= (len - 8); pos += 8)
@@ -154,7 +158,7 @@ int do_the_totp_thing(time_t now, uint8_t *secret_key, int window, int result_si
      * LSB is Least Significant Bits (0x01 == 00000001 ~= LSB)
      */
 
-    /* byte 0 */
+    // /* byte 0 */
     secret_key[keylen + 0] = (base32_vals[secret_key[pos + 0]] << 3) & 0xF8;  /* 5 MSB */
     secret_key[keylen + 0] |= (base32_vals[secret_key[pos + 1]] >> 2) & 0x07; /* 3 LSB */
     if (secret_key[pos + 2] == '=')

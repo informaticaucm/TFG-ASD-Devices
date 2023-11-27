@@ -45,11 +45,15 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
     if (strcmp(topic, "v1/devices/me/attributes") == 0)
     {
-        struct OTAMsg *msg = malloc(sizeof(struct OTAMsg));
-        int err = json_obj_get_string(&jctx, "fw_url", msg->url, URL_SIZE);
+
+        char fw_url[URL_SIZE];
+        int err = json_obj_get_string(&jctx, "fw_url", fw_url, URL_SIZE);
 
         if (err == OS_SUCCESS)
         {
+            struct OTAMsg *msg = malloc(sizeof(struct OTAMsg));
+            strcpy(msg->url, fw_url);
+
             ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
 
             int res = xQueueSend(conf->to_ota_queue, &msg, 0);
@@ -60,8 +64,18 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         }
         else
         {
-            ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
-            free(msg);
+            int epoch;
+            int err = json_obj_get_int(&jctx, "epoch", &epoch);
+            if (err == OS_SUCCESS)
+            {
+                struct timeval now = {.tv_sec = epoch};
+                settimeofday(&now, NULL);
+                ESP_LOGI(TAG, "epoch is: %d", epoch);
+            }
+            else
+            {
+                ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
+            }
         }
     }
     else if (strcmp(topic, "/provision/response") == 0)
@@ -215,7 +229,6 @@ void mqtt_task(void *arg)
 
     while (1)
     {
-        // ESP_LOGI(TAG, "tick");
 
         struct MQTTMsg *msg;
         if (xQueueReceive(conf->to_mqtt_queue, &msg, TASK_DELAY) != pdPASS)
@@ -264,6 +277,7 @@ void mqtt_task(void *arg)
             ESP_LOGI(TAG, "c");
 
             mqtt_subscribe("/provision/response");
+
             ESP_LOGI(TAG, "d");
 
             /*{

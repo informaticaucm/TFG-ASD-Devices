@@ -219,4 +219,5 @@ void app_main(void)
     ESP_LOGI(TAG, "TOTP started");
 
     set_mode(qr_display);
+
 }

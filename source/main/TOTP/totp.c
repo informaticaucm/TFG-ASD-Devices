@@ -22,16 +22,23 @@ static void totp_task(void *arg)
 
     while (1)
     {
-        vTaskDelay(TASK_DELAY);
+        vTaskDelay(TASK_DELAY*4);
 
         if (get_mode() == qr_display)
         {
 
             char url[MAX_QR_SIZE] = {0};
 
+            time_t now;
+
+          
+                time(&now);
+               
+
             {
-                ESP_LOGI(TAG, "time: %d", (int)time(0));
-                int totp = do_the_totp_thing(time(0), (uint8_t *)"JBSWY3DPEHPK3PXP", 30, 6);
+                ESP_LOGI(TAG, "time: %d", (int) now);
+
+                int totp = do_the_totp_thing(now, "JBSWY3DPEHPK3PXP", 30, 6);
                 ESP_LOGI(TAG, "totp is: %d", totp);
 
                 struct ConfigurationParameters parameters;
@@ -39,7 +46,6 @@ static void totp_task(void *arg)
 
                 snprintf(url, MAX_QR_SIZE, "https://%s/?totp=%d&device=%s", "la.url.de.helena.y.galdo.asd", totp, parameters.device_name);
             }
-
 
             {
                 struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
