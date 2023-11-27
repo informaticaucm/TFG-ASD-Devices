@@ -16,6 +16,7 @@
 #include "esp_ota_ops.h"
 #include <sys/param.h>
 #include "../common.h"
+#include "../SYS_MODE/sys_mode.h"
 
 #include "mqtt.h"
 #include "../OTA/ota.h"
@@ -223,12 +224,26 @@ void mqtt_send_ota_fail(char *explanation)
     mqtt_send_telemetry(msg);
 }
 
+bool normal_operation = false;
+
 void mqtt_task(void *arg)
 {
     struct MQTTConf *conf = arg;
 
+    int ping_timer = 0;
+
     while (1)
     {
+
+        if (normal_operation)
+        {
+            if (ping_timer > 50)
+            {
+                mqtt_send_telemetry("{\"ping\": true}");
+                ping_timer = 0;
+            }
+            ping_timer++;
+        }
 
         struct MQTTMsg *msg;
         if (xQueueReceive(conf->to_mqtt_queue, &msg, TASK_DELAY) != pdPASS)
@@ -249,7 +264,7 @@ void mqtt_task(void *arg)
         case Found_TUI_qr:
             char str_buff[MAX_QR_SIZE + 40];
 
-            snprintf(str_buff, MAX_QR_SIZE + 40, "{qr_code: \"%s\"}", msg->data.found_tui_qr.TUI_qr);
+            snprintf(str_buff, MAX_QR_SIZE + 40, "{qr: true, qr_content: \"%s\"}", msg->data.found_tui_qr.TUI_qr);
 
             mqtt_send_telemetry(str_buff); // TODO send read qr through mqtt
             break;
@@ -329,7 +344,7 @@ void mqtt_task(void *arg)
             }
 
             mqtt_send_telemetry("{online:\"true\"}");
-
+            normal_operation = true;
             // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
         }
         break;

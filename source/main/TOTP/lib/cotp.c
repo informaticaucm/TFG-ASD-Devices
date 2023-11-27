@@ -228,7 +228,6 @@ int do_the_totp_thing(time_t now, const char *key, int window, int result_size)
 
   /* truncates code to result_size digits */
   totp = bin_code % ((int)pow(10, result_size));
-  ESP_LOGI("totp_engine", "totp: %d", (int)totp);
 
   return totp;
 }
