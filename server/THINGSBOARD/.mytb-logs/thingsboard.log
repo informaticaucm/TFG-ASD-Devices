@@ -13040,3 +13040,4 @@ Incoming metadata:
 2023-11-27 22:37:44,739 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [Attributes] queueSize [0] totalAdded [4] totalSaved [4] totalFailed [0]
 2023-11-27 22:37:44,984 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [16] totalSaved [16] totalFailed [0]
 2023-11-27 22:37:45,094 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [16] totalSaved [16] totalFailed [0]
+2023-11-27 22:37:48,890 [TB-Scheduling-6] INFO  o.t.server.actors.ActorSystemContext - Rule Engine JS Invoke Stats: requests [5] responses [4] failures [0]
