@@ -44,7 +44,68 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         ESP_LOGE(TAG, "ERROR ON JSON PARSE: %d", err);
     }
 
-    if (strcmp(topic, "v1/devices/me/attributes") == 0)
+    if (strncmp(topic, "v1/devices/me/rpc/request/", strlen("v1/devices/me/rpc/request/")) == 0) // server rpc request
+    {
+        char method[20];
+        json_obj_get_string(&jctx, "method", method, 20);
+
+        if (strcmp(method, "display_text"))
+        {
+            char params[100];
+            json_obj_get_object(&jctx, "params", params, 100);
+
+            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+            msg->command = DisplayInfo;
+            json_obj_get_string(&jctx, "text", msg->data.text, 100);
+            int duration;
+            json_obj_get_int(&jctx, "duration", &duration);
+
+            json_obj_leave_object(&jctx);
+            set_tmp_mode(SelfManaged, duration, get_mode());
+            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+            if (res != pdTRUE)
+            {
+                free(msg);
+            }
+        }
+    }
+    else if (strncmp(topic, "v1/devices/me/rpc/response/", strlen("v1/devices/me/rpc/response/")) == 0) // response to a device rpc request
+    {
+        char method[20];
+        json_obj_get_string(&jctx, "method", method, 20);
+
+        if (strcmp(method, "pong") == 0)
+        {
+            bool failure = false;
+            int epoch;
+            int err = json_obj_get_object(&jctx, "response");
+            if (err == OS_SUCCESS)
+            {
+                err = json_obj_get_int(&jctx, "epoch", &epoch);
+                if (err == OS_SUCCESS)
+                {
+                    struct timeval now = {.tv_sec = epoch};
+                    settimeofday(&now, NULL);
+                    ESP_LOGI(TAG, "epoch is: %d", epoch);
+                }
+                else
+                {
+                    failure = true;
+                }
+            }
+            else
+            {
+                failure = true;
+            }
+            json_obj_leave_object(&jctx);
+
+            if (failure)
+            {
+                ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
+            }
+        }
+    }
+    else if (strcmp(topic, "v1/devices/me/attributes") == 0)
     {
 
         char fw_url[URL_SIZE];
@@ -61,21 +122,6 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             if (res != pdTRUE)
             {
                 free(msg);
-            }
-        }
-        else
-        {
-            int epoch;
-            int err = json_obj_get_int(&jctx, "epoch", &epoch);
-            if (err == OS_SUCCESS)
-            {
-                struct timeval now = {.tv_sec = epoch};
-                settimeofday(&now, NULL);
-                ESP_LOGI(TAG, "epoch is: %d", epoch);
-            }
-            else
-            {
-                ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
             }
         }
     }
@@ -199,6 +245,18 @@ void mqtt_send_telemetry(char *msg)
     mqtt_send("v1/devices/me/telemetry", msg);
 }
 
+int rpc_id = 0;
+
+void mqtt_send_rpc(char *method, char *params)
+{
+    rpc_id++;
+    char topic[50];
+    snprintf(topic, 50, "v1/devices/me/rpc/request/%d", rpc_id);
+    char *msg = alloca(30 + strlen(method) + strlen(params));
+    snprintf(msg, 100, "{\"method\": %s, \"params\": \"%s\"}", method, params);
+    mqtt_send(topic, msg);
+}
+
 void mqtt_send_ota_status_report(enum OTAState status)
 {
     // {"current_fw_title": "myFirmware", "current_fw_version": "1.2.3", "fw_state": "UPDATED"}
@@ -237,9 +295,9 @@ void mqtt_task(void *arg)
 
         if (normal_operation)
         {
-            if (ping_timer > 50)
+            if (ping_timer > ping_rate)
             {
-                mqtt_send_telemetry("{\"ping\": true}");
+                mqtt_send_rpc("ping", "{}");
                 ping_timer = 0;
             }
             ping_timer++;
@@ -262,11 +320,11 @@ void mqtt_task(void *arg)
             mqtt_send_ota_status_report(msg->data.ota_state_update.ota_state);
             break;
         case Found_TUI_qr:
-            char str_buff[MAX_QR_SIZE + 40];
+            char params[MAX_QR_SIZE + 40];
 
-            snprintf(str_buff, MAX_QR_SIZE + 40, "{qr: true, qr_content: \"%s\"}", msg->data.found_tui_qr.TUI_qr);
+            snprintf(params, MAX_QR_SIZE + 40, "{qr_content: \"%s\"}", msg->data.found_tui_qr.TUI_qr);
 
-            mqtt_send_telemetry(str_buff); // TODO send read qr through mqtt
+            mqtt_send_rpc("qr", params);
             break;
         case DoProvisioning:
         {
@@ -284,16 +342,11 @@ void mqtt_task(void *arg)
                 }};
 
             client = esp_mqtt_client_init(&mqtt_cfg);
-            ESP_LOGI(TAG, "a");
             ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
-            ESP_LOGI(TAG, "b");
 
             ESP_ERROR_CHECK(esp_mqtt_client_start(client));
-            ESP_LOGI(TAG, "c");
 
             mqtt_subscribe("/provision/response");
-
-            ESP_LOGI(TAG, "d");
 
             /*{
                 "deviceName": "DEVICE_NAME",
@@ -310,13 +363,8 @@ void mqtt_task(void *arg)
                      msg->data.provisioning.device_name,
                      msg->data.provisioning.provisioning_device_key,
                      msg->data.provisioning.provisioning_device_secret);
-            ESP_LOGI(TAG, "e");
 
             mqtt_send("/provision/request", msg_buffer);
-
-            ESP_LOGI(TAG, "f");
-
-            // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
         }
         break;
         case Start:
@@ -337,6 +385,7 @@ void mqtt_task(void *arg)
             ESP_ERROR_CHECK(esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, arg));
             ESP_ERROR_CHECK(esp_mqtt_client_start(client));
             mqtt_subscribe("v1/devices/me/attributes");
+            mqtt_subscribe("v1/devices/me/rpc/request/+");
 
             if (conf->send_updated_mqtt_on_start)
             {
@@ -345,7 +394,6 @@ void mqtt_task(void *arg)
 
             mqtt_send_telemetry("{online:\"true\"}");
             normal_operation = true;
-            // memcpy(&conf->broker_url, &msg->data.start.broker_url, URL_SIZE);
         }
         break;
         }

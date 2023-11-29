@@ -59,7 +59,8 @@
     "xstring": "c",
     "screen.h": "c",
     "connect_wifi.h": "c",
-    "nvs_plugin.h": "c"
+    "nvs_plugin.h": "c",
+    "chrono": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

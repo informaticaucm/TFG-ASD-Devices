@@ -10,7 +10,6 @@ struct sys_mode_state state;
 SemaphoreHandle_t xSemaphore;
 bool started = false;
 
-
 void init()
 {
     if (!started)
@@ -53,14 +52,33 @@ void set_mode(enum sys_mode mode)
     }
 }
 
+set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode)
+{
+    init();
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        state.tmp_mode = mode;
+        state.tmp_mode_expiration = time(0) + sec_duration;
+        state.mode = next_mode;
+
+        xSemaphoreGive(xSemaphore);
+    }
+}
+
 enum sys_mode get_mode()
 {
     init();
     enum sys_mode ret = mirror;
     if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
     {
-        ret = state.mode;
-
+        if (state.tmp_mode_expiration > time(0))
+        {
+            ret = state.tmp_mode;
+        }
+        else
+        {
+            ret = state.mode;
+        }
         xSemaphoreGive(xSemaphore);
     }
 
