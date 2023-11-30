@@ -2242,3 +2242,53 @@ Incoming metadata:
 2023-11-30 08:20:53,598 [TB-Scheduling-8] INFO  o.t.s.c.t.s.DefaultTransportService - Transport Stats: openConnections [1]
 2023-11-30 08:20:53,639 [TB-Scheduling-3] INFO  o.t.s.s.q.TbRuleEngineConsumerStats - [Main] Stats: totalMsgs = [12] successfulMsgs = [12] timeoutMsgs = [0] failedMsgs = [0] tmpTimeout = [0] tmpFailed = [0] successfulIterations = [11] failedIterations = [0] 
 2023-11-30 08:20:53,818 [TB-Scheduling-6] INFO  o.t.server.actors.ActorSystemContext - Rule Engine JS Invoke Stats: requests [2] responses [2] failures [0]
+2023-11-30 08:20:55,504 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [Attributes] queueSize [0] totalAdded [2] totalSaved [2] totalFailed [0]
+2023-11-30 08:20:55,824 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-1 [TS] queueSize [0] totalAdded [6] totalSaved [6] totalFailed [0]
+2023-11-30 08:20:55,824 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [15] totalSaved [15] totalFailed [0]
+2023-11-30 08:20:55,998 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-1 [TS Latest] queueSize [0] totalAdded [6] totalSaved [6] totalFailed [0]
+2023-11-30 08:20:55,998 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [15] totalSaved [15] totalFailed [0]
+2023-11-30 08:20:56,829 [tbel-executor-29-5] INFO  o.t.rule.engine.action.TbLogNode - 
+Log1:
+{"method":"ping","params":{}}
+Incoming metadata:
+{"deviceType":"asd_profile","sessionId":"03ae5faf-453f-4f32-9512-6b142fa0d739","serviceId":"357164a660b1","deviceName":"name_here","requestId":"10"}
+2023-11-30 08:21:02,319 [tbel-executor-29-5] INFO  o.t.rule.engine.action.TbLogNode - 
+Log1:
+{"method":"ping","params":{}}
+Incoming metadata:
+{"deviceType":"asd_profile","sessionId":"03ae5faf-453f-4f32-9512-6b142fa0d739","serviceId":"357164a660b1","deviceName":"name_here","requestId":"11"}
+2023-11-30 08:21:03,818 [TB-Scheduling-2] INFO  o.t.server.actors.ActorSystemContext - Rule Engine JS Invoke Stats: requests [2] responses [2] failures [0]
+2023-11-30 08:21:05,504 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [Attributes] queueSize [0] totalAdded [2] totalSaved [2] totalFailed [0]
+2023-11-30 08:21:05,824 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [8] totalSaved [8] totalFailed [0]
+2023-11-30 08:21:05,998 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [8] totalSaved [8] totalFailed [0]
+2023-11-30 08:21:07,829 [tbel-executor-29-5] INFO  o.t.rule.engine.action.TbLogNode - 
+Log1:
+{"method":"ping","params":{}}
+Incoming metadata:
+{"deviceType":"asd_profile","sessionId":"03ae5faf-453f-4f32-9512-6b142fa0d739","serviceId":"357164a660b1","deviceName":"name_here","requestId":"12"}
+2023-11-30 08:21:13,302 [tbel-executor-29-5] INFO  o.t.rule.engine.action.TbLogNode - 
+Log1:
+{"method":"ping","params":{}}
+Incoming metadata:
+{"deviceType":"asd_profile","sessionId":"03ae5faf-453f-4f32-9512-6b142fa0d739","serviceId":"357164a660b1","deviceName":"name_here","requestId":"13"}
+2023-11-30 08:21:13,820 [TB-Scheduling-3] INFO  o.t.server.actors.ActorSystemContext - Rule Engine JS Invoke Stats: requests [2] responses [2] failures [0]
+2023-11-30 08:21:15,504 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [Attributes] queueSize [0] totalAdded [1] totalSaved [1] totalFailed [0]
+2023-11-30 08:21:15,824 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [8] totalSaved [8] totalFailed [0]
+2023-11-30 08:21:15,997 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [8] totalSaved [8] totalFailed [0]
+2023-11-30 08:21:18,800 [tbel-executor-29-5] INFO  o.t.rule.engine.action.TbLogNode - 
+Log1:
+{"method":"ping","params":{}}
+Incoming metadata:
+{"deviceType":"asd_profile","sessionId":"03ae5faf-453f-4f32-9512-6b142fa0d739","serviceId":"357164a660b1","deviceName":"name_here","requestId":"14"}
+2023-11-30 08:21:23,822 [TB-Scheduling-4] INFO  o.t.server.actors.ActorSystemContext - Rule Engine JS Invoke Stats: requests [1] responses [1] failures [0]
+2023-11-30 08:21:24,328 [tbel-executor-29-5] INFO  o.t.rule.engine.action.TbLogNode - 
+Log1:
+{"method":"ping","params":{}}
+Incoming metadata:
+{"deviceType":"asd_profile","sessionId":"03ae5faf-453f-4f32-9512-6b142fa0d739","serviceId":"357164a660b1","deviceName":"name_here","requestId":"15"}
+2023-11-30 08:21:25,504 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [Attributes] queueSize [0] totalAdded [3] totalSaved [3] totalFailed [0]
+2023-11-30 08:21:25,824 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [8] totalSaved [8] totalFailed [0]
+2023-11-30 08:21:25,997 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [8] totalSaved [8] totalFailed [0]
+2023-11-30 08:21:33,824 [TB-Scheduling-5] INFO  o.t.server.actors.ActorSystemContext - Rule Engine JS Invoke Stats: requests [1] responses [1] failures [0]
+2023-11-30 08:21:35,824 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS] queueSize [0] totalAdded [8] totalSaved [8] totalFailed [0]
+2023-11-30 08:21:35,998 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [8] totalSaved [8] totalFailed [0]

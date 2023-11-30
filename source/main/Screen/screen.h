@@ -8,7 +8,7 @@ enum ScreenCommand
     Empty,
     DrawQr,
     DisplayWarning,
-    DisplayInfo,
+    DisplaySuccess,
     DisplayError,
     DisplayProgress,
     DisplayProcessing,

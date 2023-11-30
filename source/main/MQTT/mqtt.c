@@ -86,7 +86,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             json_obj_get_object(&jctx, "response");
 
             struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
-            msg->command = DisplayInfo;
+            msg->command = DisplaySuccess;
             json_obj_get_string(&jctx, "text", msg->data.text, 100);
             int duration;
             json_obj_get_int(&jctx, "duration", &duration);

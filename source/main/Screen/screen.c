@@ -22,6 +22,7 @@
 #include "bsp/esp-bsp.h"
 #include "../common.h"
 #include "esp_log.h"
+#include "../icon/icon.h"
 
 #define TAG "screen"
 
@@ -107,8 +108,11 @@ void screen_task(void *arg)
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
             break;
         }
-        case DisplayInfo:
+        case DisplaySuccess:
         {
+
+            lv_obj_t * icon = lv_img_create(lv_scr_act());
+            lv_img_set_src(icon, &good_map);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
             lv_label_set_text_fmt(lable, "Info: %s", msg->data.text);
