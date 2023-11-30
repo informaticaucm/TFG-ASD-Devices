@@ -60,7 +60,9 @@
     "screen.h": "c",
     "connect_wifi.h": "c",
     "nvs_plugin.h": "c",
-    "chrono": "c"
+    "chrono": "c",
+    "sys_mode.h": "c",
+    "esp_partition.h": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

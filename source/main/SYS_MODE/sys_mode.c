@@ -1,10 +1,13 @@
 #include "sys_mode.h"
+#include "esp_log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+
+#define TAG "sys_mode"
 
 struct sys_mode_state state;
 SemaphoreHandle_t xSemaphore;
@@ -52,7 +55,7 @@ void set_mode(enum sys_mode mode)
     }
 }
 
-set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode)
+void set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode)
 {
     init();
     if (xSemaphoreTake(xSemaphore, portMAX_DELAY))

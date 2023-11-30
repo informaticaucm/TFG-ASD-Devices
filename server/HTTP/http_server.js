@@ -31,25 +31,8 @@ app.post("/rpc", (req, res) => {
     if (method == "ping") {
         res.json({ "method": "pong", "response": { "epoch": Math.floor(Date.now() / 1000), "ok": true } })
     } else if (method == "qr") {
-        http.request({
-            host: 'thingsboard.asd',
-            port: 8080,
-            path: '/api/plugins/rpc/oneway/{deviceId}',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(JSON.stringify(params)),
-                "X-Authorization": SERVER_JWT_TOKEN
-            }
-        })
 
-        /*
-        curl -v -X POST -d @set-gpio-request.json http://localhost:8080/api/plugins/rpc/twoway/$DEVICE_ID \
---header "Content-Type:application/json" \
---header "X-Authorization: $JWT_TOKEN"
-*/
-
-        res.json({ "ok": true })
+        res.json({ "method": "qr_res", "response": { "text": "qr recibido, contenido era: " + params.qr_content, "duration": 6, "ok": true } })
     }
     else {
         res.json({ "ok": true })

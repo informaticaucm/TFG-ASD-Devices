@@ -21,6 +21,8 @@
 #include "mqtt.h"
 #include "../OTA/ota.h"
 #include "../Starter/starter.h"
+#include "../Screen/screen.h"
+#include "../SYS_MODE/sys_mode.h"
 #include "json_parser.h"
 
 static const char *TAG = "mqtt";
@@ -44,32 +46,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         ESP_LOGE(TAG, "ERROR ON JSON PARSE: %d", err);
     }
 
-    if (strncmp(topic, "v1/devices/me/rpc/request/", strlen("v1/devices/me/rpc/request/")) == 0) // server rpc request
-    {
-        char method[20];
-        json_obj_get_string(&jctx, "method", method, 20);
-
-        if (strcmp(method, "display_text"))
-        {
-            char params[100];
-            json_obj_get_object(&jctx, "params", params, 100);
-
-            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
-            msg->command = DisplayInfo;
-            json_obj_get_string(&jctx, "text", msg->data.text, 100);
-            int duration;
-            json_obj_get_int(&jctx, "duration", &duration);
-
-            json_obj_leave_object(&jctx);
-            set_tmp_mode(SelfManaged, duration, get_mode());
-            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-            if (res != pdTRUE)
-            {
-                free(msg);
-            }
-        }
-    }
-    else if (strncmp(topic, "v1/devices/me/rpc/response/", strlen("v1/devices/me/rpc/response/")) == 0) // response to a device rpc request
+    if (strncmp(topic, "v1/devices/me/rpc/response/", strlen("v1/devices/me/rpc/response/")) == 0) // response to a device rpc request
     {
         char method[20];
         json_obj_get_string(&jctx, "method", method, 20);
@@ -102,6 +79,25 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             if (failure)
             {
                 ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
+            }
+        }
+        else if (strcmp(method, "qr_res") == 0)
+        {
+            json_obj_get_object(&jctx, "response");
+
+            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+            msg->command = DisplayInfo;
+            json_obj_get_string(&jctx, "text", msg->data.text, 100);
+            int duration;
+            json_obj_get_int(&jctx, "duration", &duration);
+            ESP_LOGI(TAG, "duration is: %d", duration);
+
+            json_obj_leave_object(&jctx);
+            set_tmp_mode(self_managed, duration, qr_display);
+            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+            if (res != pdTRUE)
+            {
+                free(msg);
             }
         }
     }
@@ -253,7 +249,7 @@ void mqtt_send_rpc(char *method, char *params)
     char topic[50];
     snprintf(topic, 50, "v1/devices/me/rpc/request/%d", rpc_id);
     char *msg = alloca(30 + strlen(method) + strlen(params));
-    snprintf(msg, 100, "{\"method\": %s, \"params\": \"%s\"}", method, params);
+    snprintf(msg, 100, "{\"method\": \"%s\", \"params\": %s}", method, params);
     mqtt_send(topic, msg);
 }
 

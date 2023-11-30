@@ -1,4 +1,6 @@
+#pragma once
 #include "../Starter/starter.h"
+#include <time.h>
 
 enum sys_mode
 {
@@ -17,5 +19,6 @@ struct sys_mode_state
 
 enum sys_mode get_mode();
 void set_mode(enum sys_mode mode);
+void set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode);
 void get_parameters(struct ConfigurationParameters *parameters);
 void set_parameters(struct ConfigurationParameters *parameters);
