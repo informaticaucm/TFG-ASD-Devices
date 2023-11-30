@@ -2233,3 +2233,12 @@ Log1:
 Incoming metadata:
 {"deviceType":"asd_profile","sessionId":"03ae5faf-453f-4f32-9512-6b142fa0d739","serviceId":"357164a660b1","deviceName":"name_here","requestId":"8"}
 2023-11-30 08:20:45,998 [sql-log-1-thread-1] INFO  o.t.s.dao.sql.TbSqlBlockingQueue - Queue-2 [TS Latest] queueSize [0] totalAdded [8] totalSaved [8] totalFailed [0]
+2023-11-30 08:20:51,320 [tbel-executor-29-5] INFO  o.t.rule.engine.action.TbLogNode - 
+Log1:
+{"method":"ping","params":{}}
+Incoming metadata:
+{"deviceType":"asd_profile","sessionId":"03ae5faf-453f-4f32-9512-6b142fa0d739","serviceId":"357164a660b1","deviceName":"name_here","requestId":"9"}
+2023-11-30 08:20:53,598 [TB-Scheduling-7] INFO  o.t.s.s.queue.TbCoreConsumerStats - Core Stats: totalMsgs = [14] sessionEvents = [2] getAttr = [0] subToAttr = [1] subToRpc = [1] toDevRpc = [0] subInfo = [10] claimDevice = [0] deviceState = [0] subMsgs = [0] coreNfs = [0] edgeNfs = [0] deviceActivity = [0] 
+2023-11-30 08:20:53,598 [TB-Scheduling-8] INFO  o.t.s.c.t.s.DefaultTransportService - Transport Stats: openConnections [1]
+2023-11-30 08:20:53,639 [TB-Scheduling-3] INFO  o.t.s.s.q.TbRuleEngineConsumerStats - [Main] Stats: totalMsgs = [12] successfulMsgs = [12] timeoutMsgs = [0] failedMsgs = [0] tmpTimeout = [0] tmpFailed = [0] successfulIterations = [11] failedIterations = [0] 
+2023-11-30 08:20:53,818 [TB-Scheduling-6] INFO  o.t.server.actors.ActorSystemContext - Rule Engine JS Invoke Stats: requests [2] responses [2] failures [0]
