@@ -33,6 +33,7 @@ void start_sequence(struct StarterConf *conf)
 
     ESP_LOGI(TAG, "-- parameters after store --");
 
+    ESP_LOGI(TAG, "parameters field thingsboard_url %s", parameters.thingsboard_url);
     ESP_LOGI(TAG, "parameters field mqtt_broker_url %s", parameters.mqtt_broker_url);
     ESP_LOGI(TAG, "parameters field provisioning_done %d", parameters.provisioning_done);
     ESP_LOGI(TAG, "parameters field wifi_psw %s", parameters.wifi_psw);
@@ -41,7 +42,7 @@ void start_sequence(struct StarterConf *conf)
 
     if (parameters.provisioning_done)
     {
-        ESP_LOGI(TAG, "parameters field parameters.provisioning.done.access_tocken %s", parameters.provisioning.done.access_tocken);
+        ESP_LOGI(TAG, "parameters field parameters.provisioning.done.access_token %s", parameters.provisioning.done.access_token);
     }
     else
     {
@@ -91,7 +92,7 @@ void start_sequence(struct StarterConf *conf)
             struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
             msg->command = Start;
             memcpy(msg->data.start.broker_url, parameters.mqtt_broker_url, URL_SIZE);
-            memcpy(msg->data.start.access_tocken, parameters.provisioning.done.access_tocken, 21);
+            memcpy(msg->data.start.access_token, parameters.provisioning.done.access_token, 21);
 
             int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
             if (res == pdFAIL)
@@ -160,6 +161,7 @@ void starter_task(void *arg)
 
             strcpy(parameters.wifi_ssid, msg->data.qr.wifi_ssid);
             strcpy(parameters.wifi_psw, msg->data.qr.wifi_psw);
+            strcpy(parameters.thingsboard_url, msg->data.qr.thingsboard_url);
             strcpy(parameters.mqtt_broker_url, msg->data.qr.mqtt_broker_url);
             strcpy(parameters.device_name, msg->data.qr.device_name);
             strcpy(parameters.provisioning.due.provisioning_device_key, msg->data.qr.provisioning_device_key);
@@ -169,7 +171,7 @@ void starter_task(void *arg)
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConfigurationParameters));
             parameters.provisioning_done = true;
             parameters.valid = true;
-            strcpy(parameters.provisioning.done.access_tocken, msg->data.provisioning.access_tocken);
+            strcpy(parameters.provisioning.done.access_token, msg->data.provisioning.access_token);
             break;
         case UnvalidateConfig:
             parameters.valid = false;
@@ -177,6 +179,7 @@ void starter_task(void *arg)
         }
         ESP_LOGI(TAG, "-- parameters before store --");
 
+        ESP_LOGI(TAG, "parameters field thingsboard_url %s", parameters.thingsboard_url);
         ESP_LOGI(TAG, "parameters field mqtt_broker_url %s", parameters.mqtt_broker_url);
         ESP_LOGI(TAG, "parameters field provisioning_done %d", parameters.provisioning_done);
         ESP_LOGI(TAG, "parameters field wifi_psw %s", parameters.wifi_psw);
@@ -185,7 +188,7 @@ void starter_task(void *arg)
 
         if (parameters.provisioning_done)
         {
-            ESP_LOGI(TAG, "parameters field parameters.provisioning.done.access_tocken %s", parameters.provisioning.done.access_tocken);
+            ESP_LOGI(TAG, "parameters field parameters.provisioning.done.access_token %s", parameters.provisioning.done.access_token);
         }
         else
         {

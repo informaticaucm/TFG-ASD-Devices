@@ -126,7 +126,7 @@ static void qr_task(void *arg)
 
                 if (strncmp("reconf", (char *)qr_data.payload, 6) == 0)
                 {
-                    // reconf{"device_name":"DevicePrueba","mqtt_broker_url":"mqtts://thingsboard.asd:8883","provisioning_device_key":"o7l9pkujk2xgnixqlimv","provisioning_device_secret":"of8htwr0xmh65wjpz7qe","wifi_psw":"1234567890","wifi_ssid":"tfgseguimientodocente"}
+                    // reconf{"device_name":"DevicePrueba","thingsboard_url":"https://thingsboard.asd:8080","mqtt_broker_url":"mqtts://thingsboard.asd:8883","provisioning_device_key":"o7l9pkujk2xgnixqlimv","provisioning_device_secret":"of8htwr0xmh65wjpz7qe","wifi_psw":"1234567890","wifi_ssid":"tfgseguimientodocente"}
                     struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
 
                     msg->command = QrInfo;
@@ -135,6 +135,7 @@ static void qr_task(void *arg)
                     json_parse_start(&jctx, (char *)(qr_data.payload + 6), qr_data.payload_len - 6);
 
                     json_obj_get_string(&jctx, "device_name", msg->data.qr.device_name, 50);
+                    json_obj_get_string(&jctx, "thingsboard_url", msg->data.qr.thingsboard_url, URL_SIZE);
                     json_obj_get_string(&jctx, "mqtt_broker_url", msg->data.qr.mqtt_broker_url, URL_SIZE);
                     json_obj_get_string(&jctx, "provisioning_device_key", msg->data.qr.provisioning_device_key, 21);
                     json_obj_get_string(&jctx, "provisioning_device_secret", msg->data.qr.provisioning_device_secret, 21);
@@ -142,6 +143,7 @@ static void qr_task(void *arg)
                     json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.wifi_ssid, 30);
 
                     ESP_LOGI(TAG, "json field device_name %s", msg->data.qr.device_name);
+                    ESP_LOGI(TAG, "json field thingsboard_url %s", msg->data.qr.thingsboard_url);
                     ESP_LOGI(TAG, "json field mqtt_broker_url %s", msg->data.qr.mqtt_broker_url);
                     ESP_LOGI(TAG, "json field provisioning_device_key %s", msg->data.qr.provisioning_device_key);
                     ESP_LOGI(TAG, "json field provisioning_device_secret %s", msg->data.qr.provisioning_device_secret);

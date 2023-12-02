@@ -32,6 +32,8 @@ app.post("/rpc", (req, res) => {
     }
 })
 
+app.use('/ota', express.static(__dirname + '/ota'));
+
 /* rpc to display text on the device
 {
     "method": "display_text",

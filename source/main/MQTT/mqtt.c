@@ -59,7 +59,15 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             if (!have_i_ever_been_connected)
             {
                 ESP_LOGI(TAG, "first connection");
-                set_mode(qr_display);
+                set_tmp_mode(self_managed, 10, qr_display);
+                struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+                msg->command = DisplaySuccess;
+                strcpy(msg->data.text, "connected to thingsboard server");
+                int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+                if (res != pdTRUE)
+                {
+                    free(msg);
+                }
             }
             have_i_ever_been_connected = true;
 
@@ -148,6 +156,27 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                 free(msg);
             }
         }
+        else
+        {
+            char fw_title[30];
+            json_obj_get_string(&jctx, "fw_title", fw_title, 30);
+            char fw_version[30];
+            json_obj_get_string(&jctx, "fw_version", fw_version, 30);
+            
+            struct ConfigurationParameters parameters;
+            get_parameters(&parameters);
+
+            struct OTAMsg *msg = malloc(sizeof(struct OTAMsg));
+            snprintf(msg->url, sizeof(msg->url), "%s/api/v1/%s/firmware/?title=%s&version=%s", parameters.thingsboard_url, parameters.provisioning.done.access_token, fw_title, fw_version);
+
+            ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
+
+            int res = xQueueSend(conf->to_ota_queue, &msg, 0);
+            if (res != pdTRUE)
+            {
+                free(msg);
+            }
+        }
     }
     else if (strcmp(topic, "/provision/response") == 0)
     {
@@ -156,18 +185,18 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             "credentialsType":"ACCESS_TOKEN",
             "credentialsValue":"sLzc0gDAZPkGMzFVTyUY"
         }*/
-        char access_tocken[21];
+        char access_token[21];
 
-        int err = json_obj_get_string(&jctx, "credentialsValue", access_tocken, 21);
+        int err = json_obj_get_string(&jctx, "credentialsValue", access_token, 21);
 
         if (err == OS_SUCCESS)
         {
             struct StarterMsg *msg = malloc(sizeof(struct StarterMsg));
             msg->command = ProvisioningInfo;
 
-            memcpy(msg->data.provisioning.access_tocken, access_tocken, 21);
+            memcpy(msg->data.provisioning.access_token, access_token, 21);
 
-            ESP_LOGI(TAG, "access tocken is : %s", msg->data.provisioning.access_tocken);
+            ESP_LOGI(TAG, "access token is : %s", msg->data.provisioning.access_token);
 
             int res = xQueueSend(conf->to_starter_queue, &msg, 0);
             if (res != pdTRUE)
@@ -410,14 +439,14 @@ void mqtt_task(void *arg)
         {
             ESP_LOGI(TAG, "start conf");
             ESP_LOGI(TAG, "brocker url %s", msg->data.start.broker_url);
-            ESP_LOGI(TAG, "access_tocken %s", msg->data.start.access_tocken);
+            ESP_LOGI(TAG, "access_token %s", msg->data.start.access_token);
 
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
                     .address.uri = msg->data.start.broker_url,
                     .verification.certificate = (const char *)server_cert_pem_start},
                 .credentials = {
-                    .username = msg->data.start.access_tocken,
+                    .username = msg->data.start.access_token,
                 }};
 
             client = esp_mqtt_client_init(&mqtt_cfg);

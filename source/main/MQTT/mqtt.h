@@ -37,7 +37,7 @@ struct MQTTMsg
         struct
         {
             char broker_url[URL_SIZE];
-            char access_tocken[21];
+            char access_token[21];
         } start;
         struct
         {

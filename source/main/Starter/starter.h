@@ -21,6 +21,7 @@ struct StarterMsg
         {
             char wifi_ssid[30];
             char wifi_psw[30];
+            char thingsboard_url[URL_SIZE];
             char mqtt_broker_url[URL_SIZE];
             char device_name[50];
             char provisioning_device_key[21];
@@ -28,7 +29,7 @@ struct StarterMsg
         } qr;
         struct
         {
-            char access_tocken[21];
+            char access_token[21];
         } provisioning;
 
     } data;
@@ -38,6 +39,7 @@ struct ConfigurationParameters
 {
     char wifi_ssid[30];
     char wifi_psw[30];
+    char thingsboard_url[URL_SIZE];
     char mqtt_broker_url[URL_SIZE];
     bool provisioning_done;
     char device_name[50];
@@ -51,7 +53,7 @@ struct ConfigurationParameters
         } due;
         struct
         {
-            char access_tocken[21];
+            char access_token[21];
         } done;
     } provisioning;
 };

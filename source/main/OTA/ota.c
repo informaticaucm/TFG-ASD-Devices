@@ -19,6 +19,7 @@
 #include "../Screen/screen.h"
 #include "../common.h"
 #include "../SYS_MODE/sys_mode.h"
+#include "../common.h"
 
 #if CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
 #include "esp_efuse.h"
@@ -32,7 +33,6 @@ static const char *TAG = "ota";
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
-#define OTA_URL_SIZE 256
 
 void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
 {

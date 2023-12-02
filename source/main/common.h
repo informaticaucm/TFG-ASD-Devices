@@ -27,6 +27,8 @@
 
 #define MAX_QR_SIZE 300
 #define URL_SIZE 100
+#define OTA_URL_SIZE 256
+
 #define TASK_DELAY 50
 #define RT_TASK_DELAY 30
 

@@ -6,7 +6,7 @@
 
 struct OTAMsg
 {
-    char url[URL_SIZE];
+    char url[OTA_URL_SIZE];
 };
 
 struct OTAConf
