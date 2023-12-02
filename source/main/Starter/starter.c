@@ -101,14 +101,6 @@ void start_sequence(struct StarterConf *conf)
             }
         }
 
-        // esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG(parameters.sntp_url);
-        // esp_netif_sntp_init(&config);
-        // if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(10000)) != ESP_OK)
-        // {
-        //     j_nvs_reset(nvs_conf_tag);
-        //     printf("Failed to update system time within 10s timeout");
-        //     esp_restart();
-        // }
     }
     else
     {
