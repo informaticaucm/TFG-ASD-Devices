@@ -218,6 +218,6 @@ void app_main(void)
     start_totp(totp_conf);
     ESP_LOGI(TAG, "TOTP started");
 
-    set_mode(qr_display);
+    set_mode(self_managed);
 
 }

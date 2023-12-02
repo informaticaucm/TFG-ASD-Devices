@@ -23,7 +23,7 @@
 #define nvs_conf_tag "conf"
 
 #define PING_RATE 10
-#define PING_TIMEOUT
+#define PING_TIMEOUT 3
 
 #define MAX_QR_SIZE 300
 #define URL_SIZE 100

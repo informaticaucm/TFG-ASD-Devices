@@ -10,6 +10,7 @@ enum ScreenCommand
     DisplayWarning,
     DisplaySuccess,
     DisplayError,
+    DisplayText,
     DisplayProgress,
     DisplayProcessing,
     DisplayImage,

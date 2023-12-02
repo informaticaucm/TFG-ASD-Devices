@@ -32,6 +32,7 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 esp_mqtt_client_handle_t client = 0;
 bool specting_pong = false;
 int pong_timeout_time = 0;
+bool have_i_ever_been_connected = false;
 // mosquitto_pub -d -q 1 -h thingsboard.asd -p 1883 -t v1/devices/me/telemetry -u c9YTwKgDDaaMMA5oVv6z -m "{temperature:25}"
 
 void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
@@ -55,6 +56,12 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         if (strcmp(method, "pong") == 0)
         {
             specting_pong = false;
+            if (!have_i_ever_been_connected)
+            {
+                ESP_LOGI(TAG, "first connection");
+                set_mode(qr_display);
+            }
+            have_i_ever_been_connected = true;
 
             bool failure = false;
             int epoch;
@@ -89,13 +96,31 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             json_obj_get_object(&jctx, "response");
 
             struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
-            msg->command = DisplaySuccess;
             json_obj_get_string(&jctx, "text", msg->data.text, 100);
             int duration;
             json_obj_get_int(&jctx, "duration", &duration);
-            ESP_LOGI(TAG, "duration is: %d", duration);
+            int icon_id;
+            json_obj_get_int(&jctx, "icon_id", &icon_id);
+
+            ESP_LOGI(TAG, "duration is: %d and icon id is: %d", duration, icon_id);
 
             json_obj_leave_object(&jctx);
+
+            switch (icon_id)
+            {
+            case 0:
+                msg->command = DisplaySuccess;
+                break;
+            case 1:
+                msg->command = DisplayWarning;
+                break;
+            case 2:
+                msg->command = DisplayError;
+                break;
+            default:
+                msg->command = DisplayText;
+            }
+
             set_tmp_mode(self_managed, duration, qr_display);
             int res = xQueueSend(conf->to_screen_queue, &msg, 0);
             if (res != pdTRUE)
@@ -294,16 +319,16 @@ void mqtt_task(void *arg)
 
         if (normal_operation)
         {
-            if (ping_timer > PING_RATE)
+            if (ping_timer < 0)
             {
                 mqtt_send_rpc("ping", "{}");
-                ping_timer = 0;
+                ping_timer = PING_RATE;
                 specting_pong = true;
                 pong_timeout_time = time(0) + PING_TIMEOUT;
             }
             else if (!specting_pong)
             {
-                ping_timer++;
+                ping_timer--;
             }
             if (specting_pong)
             {
@@ -406,7 +431,6 @@ void mqtt_task(void *arg)
                 mqtt_send_ota_status_report(UPDATED);
             }
 
-            mqtt_send_telemetry("{online:\"true\"}");
             normal_operation = true;
         }
         break;

@@ -15,13 +15,6 @@ var options = {
 var app = express();
 app.use(bodyparser.json({ limit: '50mb' }));
 
-const THINGSBOARD_URL = "http://thingsboard.asd:8080";
-
-/*
-curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{"username":"tenant@thingsboard.org", "password":"tenant"}' 'http://THINGSBOARD_URL/api/auth/login'
-
-*/
-const SERVER_JWT_TOKEN = ""
 
 app.post("/rpc", (req, res) => {
     let { devicename } = req.headers
@@ -32,7 +25,7 @@ app.post("/rpc", (req, res) => {
         res.json({ "method": "pong", "response": { "epoch": Math.floor(Date.now() / 1000), "ok": true } })
     } else if (method == "qr") {
 
-        res.json({ "method": "qr_res", "response": { "text": "qr recibido, contenido era: " + params.qr_content, "duration": 6, "ok": true } })
+        res.json({ "method": "qr_res", "response": { "text": "qr recibido, contenido era: " + params.qr_content, "duration": 17, "icon_id": Math.floor(Math.random() * 2.999), "ok": true } })
     }
     else {
         res.json({ "ok": true })

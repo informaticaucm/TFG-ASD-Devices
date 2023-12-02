@@ -55,11 +55,11 @@ void screen_task(void *arg)
     lv_style_set_radius(&style_bar_indic, 3);
 
     static lv_style_t bg_style;
-    lv_style_set_bg_color(&bg_style, lv_color_make(0x00, 0x00, 0x00));
+    lv_style_set_bg_color(&bg_style, lv_color_white());
     lv_obj_add_style(lv_scr_act(), &bg_style, LV_PART_MAIN);
 
     static lv_style_t label_style;
-    lv_style_set_text_color(&label_style, lv_color_make(0xff, 0xff, 0xff));
+    lv_style_set_text_color(&label_style, lv_color_black());
 
     while (1)
     {
@@ -100,33 +100,51 @@ void screen_task(void *arg)
         }
         case DisplayWarning:
         {
+            lv_obj_t *icon = lv_img_create(lv_scr_act());
+            lv_img_set_src(icon, &warning);
+            lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Warning: %s", msg->data.text);
+            lv_label_set_text_fmt(lable, "Aviso: %s", msg->data.text);
             lv_obj_set_width(lable, 150);
-            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
             break;
         }
         case DisplaySuccess:
         {
 
-            lv_obj_t * icon = lv_img_create(lv_scr_act());
-            lv_img_set_src(icon, &good_map);
+            lv_obj_t *icon = lv_img_create(lv_scr_act());
+            lv_img_set_src(icon, &success);
+            lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Info: %s", msg->data.text);
+            lv_label_set_text_fmt(lable, "Exito: %s", msg->data.text);
             lv_obj_set_width(lable, 150);
-            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
 
             break;
         }
         case DisplayError:
         {
+            lv_obj_t *icon = lv_img_create(lv_scr_act());
+            lv_img_set_src(icon, &failure);
+            lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
             lv_label_set_text_fmt(lable, "Error: %s", msg->data.text);
+            lv_obj_set_width(lable, 150);
+            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
+            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
+
+            break;
+        }
+        case DisplayText:
+        {
+
+            lv_obj_t *lable = lv_label_create(lv_scr_act());
+            lv_label_set_text_fmt(lable, "%s", msg->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -156,7 +174,6 @@ void screen_task(void *arg)
         }
         case DisplayProcessing:
         {
-
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
             lv_label_set_text(lable, msg->data.text);

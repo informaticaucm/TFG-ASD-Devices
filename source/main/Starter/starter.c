@@ -72,22 +72,21 @@ void start_sequence(struct StarterConf *conf)
         esp_restart();
     }
 
-    {
-        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
-
-        msg->command = DisplayWarning;
-        strcpy(msg->data.text, "wifi connected, starting thingsboard provisioning");
-
-        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-        if (res == pdFAIL)
-        {
-            ESP_LOGE(TAG, "mesage send fail");
-            free(msg);
-        }
-    }
-
     if (parameters.provisioning_done)
     {
+        {
+            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+
+            msg->command = DisplayWarning;
+            strcpy(msg->data.text, "wifi connected, starting mqtt client");
+
+            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+            if (res == pdFAIL)
+            {
+                ESP_LOGE(TAG, "mesage send fail");
+                free(msg);
+            }
+        }
         {
             struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
             msg->command = Start;
@@ -100,10 +99,22 @@ void start_sequence(struct StarterConf *conf)
                 free(msg);
             }
         }
-
     }
     else
     {
+        {
+            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+
+            msg->command = DisplayWarning;
+            strcpy(msg->data.text, "wifi connected, starting thingsboard provisioning");
+
+            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+            if (res == pdFAIL)
+            {
+                ESP_LOGE(TAG, "mesage send fail");
+                free(msg);
+            }
+        }
         {
             struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
             msg->command = DoProvisioning;
