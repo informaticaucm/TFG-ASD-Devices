@@ -25,12 +25,12 @@
 #define PING_RATE 10
 #define PING_TIMEOUT 3
 
+#define DEFAULT_TASK_DELAY 50
+#define DEFAULT_RT_TASK_DELAY 5
+
 #define MAX_QR_SIZE 300
 #define URL_SIZE 100
 #define OTA_URL_SIZE 256
-
-#define TASK_DELAY 50
-#define RT_TASK_DELAY 30
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 

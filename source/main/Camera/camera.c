@@ -18,11 +18,11 @@ void camera_task(void *arg)
         // ESP_LOGE(TAG, "stream_end_time: %d, jeppoch: %d", stream_end_time, (int)jeppoch);
         if (get_mode() == mirror)
         {
-            vTaskDelay(MIRROR_RESHESH_RATE);
+            vTaskDelay(get_rt_task_delay());
         }
         else
         {
-            vTaskDelay(TASK_DELAY);
+            vTaskDelay(get_task_delay());
         }
 
         // struct CameraMsg *msg;

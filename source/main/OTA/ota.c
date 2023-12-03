@@ -178,6 +178,17 @@ void ota_routine(char *url, struct OTAConf *conf)
     err = validate_image_header(&app_desc);
     if (err != ESP_OK)
     {
+        set_tmp_mode(self_managed, 20, qr_display);
+
+        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+        msg->command = DisplayError;
+        strcpy(msg->data.text, "la version del ota es la misma que la versión actual");
+        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+        if (res == pdFAIL)
+        {
+            free(msg);
+        }
+
         ESP_LOGE(TAG, "image header verification failed");
         goto ota_end;
     }
@@ -310,7 +321,7 @@ void ota_task(void *arg)
     struct OTAConf *conf = arg;
     while (1)
     {
-        vTaskDelay(TASK_DELAY);
+        vTaskDelay(get_task_delay());
         // ESP_LOGI(TAG, "tick");
 
         struct OTAMsg *msg;
@@ -320,8 +331,24 @@ void ota_task(void *arg)
         {
             continue;
         }
-        set_mode(self_managed);
-        ota_routine(msg->url, conf);
+
+        switch (msg->command)
+        {
+        case Update:
+        {
+            set_rt_task_delay(DEFAULT_TASK_DELAY * 10);
+            set_mode(self_managed);
+            ota_routine(msg->url, conf);
+            set_rt_task_delay(DEFAULT_TASK_DELAY);
+            break;
+        }
+        case CancelRollback:
+        {
+            esp_ota_mark_app_valid_cancel_rollback();
+            break;
+        }
+        }
+
         free(msg);
     }
 }

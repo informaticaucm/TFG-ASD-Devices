@@ -3,8 +3,6 @@
 #include "freertos/semphr.h"
 #include "esp_camera.h"
 
-#define MIRROR_RESHESH_RATE 5
-
 // enum CameraCommand
 // {
 //     StreamToScreen

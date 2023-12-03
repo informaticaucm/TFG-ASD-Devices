@@ -23,6 +23,7 @@
 #include "../common.h"
 #include "esp_log.h"
 #include "../icon/icon.h"
+#include "../SYS_MODE/sys_mode.h"
 
 #define TAG "screen"
 
@@ -65,7 +66,7 @@ void screen_task(void *arg)
     {
         struct ScreenMsg *msg;
 
-        if (xQueueReceive(conf->to_screen_queue, &msg, RT_TASK_DELAY) == pdPASS)
+        if (xQueueReceive(conf->to_screen_queue, &msg, get_rt_task_delay()) == pdPASS)
         {
             if (current_state->command == DisplayImage)
             {
@@ -86,7 +87,7 @@ void screen_task(void *arg)
         // lv_obj_add_style(time, &label_style, LV_PART_MAIN);
         // ESP_LOGI(TAG, "screen task tick");
 
-        switch (msg->command)
+        switch (current_state->command)
         {
         case Empty:
         {
@@ -105,7 +106,7 @@ void screen_task(void *arg)
             lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Aviso: %s", msg->data.text);
+            lv_label_set_text_fmt(lable, "Aviso: %s", current_state->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -119,7 +120,7 @@ void screen_task(void *arg)
             lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Exito: %s", msg->data.text);
+            lv_label_set_text_fmt(lable, "Exito: %s", current_state->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -133,7 +134,7 @@ void screen_task(void *arg)
             lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Error: %s", msg->data.text);
+            lv_label_set_text_fmt(lable, "Error: %s", current_state->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -144,7 +145,7 @@ void screen_task(void *arg)
         {
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "%s", msg->data.text);
+            lv_label_set_text_fmt(lable, "%s", current_state->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -155,7 +156,7 @@ void screen_task(void *arg)
         {
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "%s \n(%f%%)", msg->data.progress.text, msg->data.progress.progress * 100.);
+            lv_label_set_text_fmt(lable, "%s \n(%f%%)", current_state->data.progress.text, current_state->data.progress.progress * 100.);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, -30);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -176,7 +177,7 @@ void screen_task(void *arg)
         {
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text(lable, msg->data.text);
+            lv_label_set_text(lable, current_state->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, -30);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -199,7 +200,7 @@ void screen_task(void *arg)
 
             lv_obj_t *qr = lv_qrcode_create(lv_scr_act(), 240, lv_color_black(), lv_color_white());
             /*Set data*/
-            lv_qrcode_update(qr, msg->data.text, strlen(msg->data.text));
+            lv_qrcode_update(qr, current_state->data.text, strlen(current_state->data.text));
             lv_obj_center(qr);
 
             break;
@@ -210,13 +211,10 @@ void screen_task(void *arg)
             lv_obj_t *image_canvas = lv_canvas_create(lv_scr_act());
             lv_obj_center(image_canvas);
             free(canvas_buf);
-            canvas_buf = jalloc(msg->data.image.width * msg->data.image.height * 2);
+            canvas_buf = jalloc(current_state->data.image.width * current_state->data.image.height * 2);
 
-            lv_canvas_set_buffer(image_canvas, canvas_buf, msg->data.image.width, msg->data.image.height, LV_IMG_CF_TRUE_COLOR);
-            // lv_canvas_fill_bg(image_canvas, lv_color_black(), LV_OPA_COVER);
-            lv_canvas_copy_buf(image_canvas, msg->data.image.buf, 0, 0, msg->data.image.width, msg->data.image.height);
-
-            // lv_canvas_transform(image_canvas, lv_canvas_get_img(image_canvas), 0, 128, 0, 0, msg->data.image.width / 2, msg->data.image.height / 2, false);
+            lv_canvas_set_buffer(image_canvas, canvas_buf, current_state->data.image.width, current_state->data.image.height, LV_IMG_CF_TRUE_COLOR);
+            lv_canvas_copy_buf(image_canvas, current_state->data.image.buf, 0, 0, current_state->data.image.width, current_state->data.image.height);
 
             lv_obj_invalidate(image_canvas);
             break;

@@ -36,7 +36,7 @@ void button_task(void *arg)
 
     while (1)
     {
-        vTaskDelay(RT_TASK_DELAY);
+        vTaskDelay(get_rt_task_delay());
         uint32_t voltage = 0;
 
         adc_oneshot_read(adc1_handle, ADC_CHANNEL_0, &voltage);

@@ -144,7 +144,7 @@ void starter_task(void *arg)
         // ESP_LOGI(TAG, "tick");
 
         struct StarterMsg *msg;
-        if (xQueueReceive(conf->to_starter_queue, &msg, TASK_DELAY) != pdPASS)
+        if (xQueueReceive(conf->to_starter_queue, &msg, get_task_delay()) != pdPASS)
         {
             continue;
         }

@@ -360,7 +360,7 @@ void mqtt_task(void *arg)
 
                 snprintf(params, sizeof(params), "{fw_version: \"%s\"}", fw_version);
 
-                mqtt_send_rpc("ping", "{}");
+                mqtt_send_rpc("ping", params);
                 ping_timer = PING_RATE;
                 specting_pong = true;
                 pong_timeout_time = time(0) + PING_TIMEOUT;
@@ -382,7 +382,7 @@ void mqtt_task(void *arg)
         }
 
         struct MQTTMsg *msg;
-        if (xQueueReceive(conf->to_mqtt_queue, &msg, TASK_DELAY) != pdPASS)
+        if (xQueueReceive(conf->to_mqtt_queue, &msg, get_task_delay()) != pdPASS)
         {
             continue;
         }
@@ -469,7 +469,14 @@ void mqtt_task(void *arg)
 
             if (conf->send_updated_mqtt_on_start)
             {
-                esp_ota_mark_app_valid_cancel_rollback();
+                struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
+                msg->command = CancelRollback;
+                int res = xQueueSend(conf->to_ota_queue, &msg, 0);
+                if (res != pdTRUE)
+                {
+                    free(msg);
+                }
+
                 mqtt_send_ota_status_report(UPDATED);
             }
 

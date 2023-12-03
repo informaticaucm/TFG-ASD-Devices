@@ -64,8 +64,8 @@ void app_main(void)
             .task_priority = 0,
             .task_stack = 20000,
             .task_affinity = -1,
-            .timer_period_ms = TASK_DELAY,
-            .task_max_sleep_ms = TASK_DELAY * 2,
+            .timer_period_ms = get_task_delay(),
+            .task_max_sleep_ms = get_task_delay() * 2,
         }};
     bsp_display_start_with_config(&cfg);
     bsp_leds_init();

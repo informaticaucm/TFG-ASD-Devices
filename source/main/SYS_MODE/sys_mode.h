@@ -11,6 +11,8 @@ enum sys_mode
 
 struct sys_mode_state
 {
+    int task_delay;
+    int rt_task_delay;
     enum sys_mode mode;
     enum sys_mode tmp_mode;
     int tmp_mode_expiration;
@@ -25,3 +27,7 @@ void get_parameters(struct ConfigurationParameters *parameters);
 void set_parameters(struct ConfigurationParameters *parameters);
 void set_version(char version[32]);
 void get_version(char version[32]);
+void set_rt_task_delay(int rt_task_delay);
+int get_rt_task_delay();
+void set_task_delay(int task_delay);
+int get_task_delay();

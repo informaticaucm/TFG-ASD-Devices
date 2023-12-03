@@ -22,6 +22,7 @@
 #include "esp_camera.h"
 #include "src/misc/lv_color.h"
 #include "json_parser.h"
+#include "../SYS_MODE/sys_mode.h"
 
 #include "../common.h"
 
@@ -68,7 +69,7 @@ static void qr_task(void *arg)
     ESP_LOGI(TAG, "Processing task ready");
     while (1)
     {
-        vTaskDelay(TASK_DELAY);
+        vTaskDelay(get_task_delay());
 
         // ESP_LOGI(TAG, "tick");
 

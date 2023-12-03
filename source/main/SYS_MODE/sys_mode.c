@@ -6,10 +6,15 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "../common.h"
 
 #define TAG "sys_mode"
 
-struct sys_mode_state state;
+struct sys_mode_state state = {
+    .rt_task_delay = DEFAULT_RT_TASK_DELAY,
+    .task_delay = DEFAULT_TASK_DELAY,
+    .ota_running = false,
+};
 SemaphoreHandle_t xSemaphore;
 bool started = false;
 
@@ -104,6 +109,77 @@ enum sys_mode get_mode()
         {
             ret = state.mode;
         }
+        xSemaphoreGive(xSemaphore);
+    }
+
+    return ret;
+}
+
+void set_rt_task_delay(int rt_task_delay)
+{
+    init();
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        state.rt_task_delay = rt_task_delay;
+
+        xSemaphoreGive(xSemaphore);
+    }
+}
+int get_rt_task_delay()
+{
+    init();
+    int ret = 0;
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        ret = state.rt_task_delay;
+
+        xSemaphoreGive(xSemaphore);
+    }
+
+    return ret;
+}
+void set_task_delay(int task_delay)
+{
+    init();
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        state.task_delay = task_delay;
+
+        xSemaphoreGive(xSemaphore);
+    }
+}
+int get_task_delay()
+{
+    init();
+    int ret = 0;
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        ret = state.task_delay;
+
+        xSemaphoreGive(xSemaphore);
+    }
+
+    return ret;
+}
+void set_ota_running(bool ota_running)
+{
+    init();
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        state.ota_running ota_running
+      
+        xSemaphoreGive(xSemaphore);
+    }
+
+}
+bool get_ota_running()
+{
+    init();
+    bool ret = false;
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        ret = state.ota_running;
+
         xSemaphoreGive(xSemaphore);
     }
 

@@ -4,8 +4,15 @@
 #include "../common.h"
 #include "esp_camera.h"
 
+enum OTACommand
+{
+    Update,
+    CancelRollback
+};
+
 struct OTAMsg
 {
+    enum OTACommand command;
     char url[OTA_URL_SIZE];
 };
 

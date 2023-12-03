@@ -22,7 +22,7 @@ static void totp_task(void *arg)
 
     while (1)
     {
-        vTaskDelay(TASK_DELAY * 4);
+        vTaskDelay(get_task_delay());
 
         if (get_mode() == qr_display)
         {
