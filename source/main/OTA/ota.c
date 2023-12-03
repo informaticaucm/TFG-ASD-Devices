@@ -37,7 +37,7 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
 {
     {
-        struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
+        struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
         msg->command = OTA_state_update;
         msg->data.ota_state_update.ota_state = OTA_state;
 
@@ -48,7 +48,7 @@ void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
         }
     }
     {
-        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
         msg->command = DisplayProcessing;
         char *ota_state_to_text[] = {
             "ota state is DOWNLOADING",
@@ -70,7 +70,7 @@ void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
 void command_ota_fail(char *error, struct OTAConf *conf)
 {
     {
-        struct MQTTMsg *msg = malloc(sizeof(struct MQTTMsg));
+        struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
         msg->command = OTA_failure;
         msg->data.ota_failure.failure_msg = error;
 
@@ -81,7 +81,7 @@ void command_ota_fail(char *error, struct OTAConf *conf)
         }
     }
     {
-        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
         msg->command = DisplayError;
         strcpy(msg->data.text, error);
 
@@ -211,7 +211,7 @@ void ota_routine(char *url, struct OTAConf *conf)
         ESP_LOGI(TAG, "Image bytes read: %f", progress);
 
         {
-            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+            struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
             msg->command = DisplayProgress;
             strcpy(msg->data.progress.text, "descargando:");
             msg->data.progress.progress = progress;

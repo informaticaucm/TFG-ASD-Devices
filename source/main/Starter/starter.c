@@ -16,7 +16,7 @@ void start_sequence(struct StarterConf *conf)
 
     if (err == ESP_ERR_NVS_NOT_FOUND || !parameters.valid)
     {
-        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
 
         msg->command = DisplayError;
         strcpy(msg->data.text, "no starting configuration found");
@@ -51,7 +51,7 @@ void start_sequence(struct StarterConf *conf)
     }
 
     {
-        struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
 
         msg->command = DisplaySuccess;
         strcpy(msg->data.text, "starting configuration was found, conecting to wifi ");
@@ -76,7 +76,7 @@ void start_sequence(struct StarterConf *conf)
     if (parameters.provisioning_done)
     {
         {
-            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+            struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
 
             msg->command = DisplaySuccess;
             strcpy(msg->data.text, "wifi connected, starting mqtt client");
@@ -104,7 +104,7 @@ void start_sequence(struct StarterConf *conf)
     else
     {
         {
-            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+            struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
 
             msg->command = DisplaySuccess;
             strcpy(msg->data.text, "wifi connected, starting thingsboard provisioning");

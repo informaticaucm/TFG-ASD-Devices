@@ -60,7 +60,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             {
                 ESP_LOGI(TAG, "first connection");
                 set_tmp_mode(self_managed, 10, qr_display);
-                struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+                struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
                 msg->command = DisplaySuccess;
                 strcpy(msg->data.text, "connected to thingsboard server");
                 int res = xQueueSend(conf->to_screen_queue, &msg, 0);
@@ -103,7 +103,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         {
             json_obj_get_object(&jctx, "response");
 
-            struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
+            struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
             json_obj_get_string(&jctx, "text", msg->data.text, 100);
             int duration;
             json_obj_get_int(&jctx, "duration", &duration);
@@ -140,41 +140,45 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
     else if (strcmp(topic, "v1/devices/me/attributes") == 0)
     {
 
-        char fw_url[URL_SIZE];
-        int err = json_obj_get_string(&jctx, "fw_url", fw_url, URL_SIZE);
+        char fw_title[30];
+        int err = json_obj_get_string(&jctx, "fw_title", fw_title, 30);
 
         if (err == OS_SUCCESS)
         {
-            struct OTAMsg *msg = malloc(sizeof(struct OTAMsg));
-            strcpy(msg->url, fw_url);
+            char fw_url[URL_SIZE];
+            int err = json_obj_get_string(&jctx, "fw_url", fw_url, URL_SIZE);
 
-            ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
-
-            int res = xQueueSend(conf->to_ota_queue, &msg, 0);
-            if (res != pdTRUE)
+            if (err == OS_SUCCESS)
             {
-                free(msg);
+                struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
+                strcpy(msg->url, fw_url);
+
+                ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
+
+                int res = xQueueSend(conf->to_ota_queue, &msg, 0);
+                if (res != pdTRUE)
+                {
+                    free(msg);
+                }
             }
-        }
-        else
-        {
-            char fw_title[30];
-            json_obj_get_string(&jctx, "fw_title", fw_title, 30);
-            char fw_version[30];
-            json_obj_get_string(&jctx, "fw_version", fw_version, 30);
-
-            struct ConfigurationParameters parameters;
-            get_parameters(&parameters);
-
-            struct OTAMsg *msg = malloc(sizeof(struct OTAMsg));
-            snprintf(msg->url, sizeof(msg->url), "%s/api/v1/%s/firmware/?title=%s&version=%s", parameters.thingsboard_url, parameters.provisioning.done.access_token, fw_title, fw_version);
-
-            ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
-
-            int res = xQueueSend(conf->to_ota_queue, &msg, 0);
-            if (res != pdTRUE)
+            else
             {
-                free(msg);
+                char fw_version[30];
+                json_obj_get_string(&jctx, "fw_version", fw_version, 30);
+
+                struct ConfigurationParameters parameters;
+                get_parameters(&parameters);
+
+                struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
+                snprintf(msg->url, sizeof(msg->url), "%s/api/v1/%s/firmware/?title=%s&version=%s", parameters.thingsboard_url, parameters.provisioning.done.access_token, fw_title, fw_version);
+
+                ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
+
+                int res = xQueueSend(conf->to_ota_queue, &msg, 0);
+                if (res != pdTRUE)
+                {
+                    free(msg);
+                }
             }
         }
     }
@@ -191,7 +195,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
         if (err == OS_SUCCESS)
         {
-            struct StarterMsg *msg = malloc(sizeof(struct StarterMsg));
+            struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
             msg->command = ProvisioningInfo;
 
             memcpy(msg->data.provisioning.access_token, access_token, 21);
@@ -207,7 +211,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         else
         {
 
-            struct StarterMsg *msg = malloc(sizeof(struct StarterMsg));
+            struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
             msg->command = UnvalidateConfig;
             ESP_LOGI(TAG, "config error, invalidating!");
 
