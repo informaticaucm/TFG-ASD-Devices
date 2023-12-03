@@ -15,6 +15,11 @@ void camera_task(void *arg)
 
     while (1)
     {
+        if (is_ota_running())
+        {
+            vTaskDelay(get_task_delay());
+            continue;
+        }
         // ESP_LOGE(TAG, "stream_end_time: %d, jeppoch: %d", stream_end_time, (int)jeppoch);
         if (get_mode() == mirror)
         {

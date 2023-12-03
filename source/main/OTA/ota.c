@@ -336,10 +336,10 @@ void ota_task(void *arg)
         {
         case Update:
         {
-            set_rt_task_delay(DEFAULT_TASK_DELAY * 10);
+            set_ota_running(true);
             set_mode(self_managed);
             ota_routine(msg->url, conf);
-            set_rt_task_delay(DEFAULT_TASK_DELAY);
+            set_ota_running(false);
             break;
         }
         case CancelRollback:

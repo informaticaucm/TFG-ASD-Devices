@@ -69,6 +69,11 @@ static void qr_task(void *arg)
     ESP_LOGI(TAG, "Processing task ready");
     while (1)
     {
+        if (is_ota_running())
+        {
+            vTaskDelay(get_task_delay());
+            continue;
+        }
         vTaskDelay(get_task_delay());
 
         // ESP_LOGI(TAG, "tick");

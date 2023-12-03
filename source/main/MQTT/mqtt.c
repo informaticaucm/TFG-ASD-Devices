@@ -349,8 +349,9 @@ void mqtt_task(void *arg)
 
     while (1)
     {
+  
 
-        if (normal_operation)
+        if (normal_operation && !is_ota_running())
         {
             if (ping_timer < 0)
             {
@@ -436,10 +437,10 @@ void mqtt_task(void *arg)
 
             char msg_buffer[200];
             snprintf(msg_buffer, sizeof(msg_buffer), "{"
-                                      "\"deviceName\": \"%s\","
-                                      "\"provisionDeviceKey\": \"%s\","
-                                      "\"provisionDeviceSecret\": \"%s\""
-                                      "}",
+                                                     "\"deviceName\": \"%s\","
+                                                     "\"provisionDeviceKey\": \"%s\","
+                                                     "\"provisionDeviceSecret\": \"%s\""
+                                                     "}",
                      msg->data.provisioning.device_name,
                      msg->data.provisioning.provisioning_device_key,
                      msg->data.provisioning.provisioning_device_secret);

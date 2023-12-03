@@ -36,6 +36,11 @@ void button_task(void *arg)
 
     while (1)
     {
+        if (is_ota_running())
+        {
+            vTaskDelay(get_task_delay());
+            continue;
+        }
         vTaskDelay(get_rt_task_delay());
         uint32_t voltage = 0;
 

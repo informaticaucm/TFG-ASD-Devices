@@ -166,13 +166,13 @@ void set_ota_running(bool ota_running)
     init();
     if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
     {
-        state.ota_running ota_running
+        state.ota_running = ota_running
       
         xSemaphoreGive(xSemaphore);
     }
 
 }
-bool get_ota_running()
+bool is_ota_running()
 {
     init();
     bool ret = false;

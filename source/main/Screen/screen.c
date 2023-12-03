@@ -64,6 +64,7 @@ void screen_task(void *arg)
 
     while (1)
     {
+
         struct ScreenMsg *msg;
 
         if (xQueueReceive(conf->to_screen_queue, &msg, get_rt_task_delay()) == pdPASS)
