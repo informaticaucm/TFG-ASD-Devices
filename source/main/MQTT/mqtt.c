@@ -162,7 +162,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             json_obj_get_string(&jctx, "fw_title", fw_title, 30);
             char fw_version[30];
             json_obj_get_string(&jctx, "fw_version", fw_version, 30);
-            
+
             struct ConfigurationParameters parameters;
             get_parameters(&parameters);
 
@@ -457,6 +457,7 @@ void mqtt_task(void *arg)
 
             if (conf->send_updated_mqtt_on_start)
             {
+                esp_ota_mark_app_valid_cancel_rollback();
                 mqtt_send_ota_status_report(UPDATED);
             }
 

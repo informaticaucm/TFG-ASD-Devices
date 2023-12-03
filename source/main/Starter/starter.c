@@ -18,7 +18,7 @@ void start_sequence(struct StarterConf *conf)
     {
         struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
 
-        msg->command = DisplayWarning;
+        msg->command = DisplayError;
         strcpy(msg->data.text, "no starting configuration found");
 
         int res = xQueueSend(conf->to_screen_queue, &msg, 0);
@@ -53,7 +53,7 @@ void start_sequence(struct StarterConf *conf)
     {
         struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
 
-        msg->command = DisplayWarning;
+        msg->command = DisplaySuccess;
         strcpy(msg->data.text, "starting configuration was found, conecting to wifi ");
         strcpy(msg->data.text + 51, parameters.wifi_ssid);
 
@@ -78,7 +78,7 @@ void start_sequence(struct StarterConf *conf)
         {
             struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
 
-            msg->command = DisplayWarning;
+            msg->command = DisplaySuccess;
             strcpy(msg->data.text, "wifi connected, starting mqtt client");
 
             int res = xQueueSend(conf->to_screen_queue, &msg, 0);
@@ -106,7 +106,7 @@ void start_sequence(struct StarterConf *conf)
         {
             struct ScreenMsg *msg = malloc(sizeof(struct ScreenMsg));
 
-            msg->command = DisplayWarning;
+            msg->command = DisplaySuccess;
             strcpy(msg->data.text, "wifi connected, starting thingsboard provisioning");
 
             int res = xQueueSend(conf->to_screen_queue, &msg, 0);

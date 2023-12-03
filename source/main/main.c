@@ -106,7 +106,6 @@ void app_main(void)
             if (true)
             {
                 send_updated_mqtt_on_start = true;
-                esp_ota_mark_app_valid_cancel_rollback();
             }
             else
             {
