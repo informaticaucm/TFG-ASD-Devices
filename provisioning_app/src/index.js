@@ -19,6 +19,7 @@ window.addEventListener('load', function () {
         }
 
         input.addEventListener("input", refresh_qr)
+        refresh_qr()
     }
 
 
