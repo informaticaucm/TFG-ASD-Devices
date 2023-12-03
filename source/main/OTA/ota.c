@@ -322,7 +322,6 @@ void ota_task(void *arg)
     while (1)
     {
         vTaskDelay(get_task_delay());
-        // ESP_LOGI(TAG, "tick");
 
         struct OTAMsg *msg;
 
@@ -331,6 +330,8 @@ void ota_task(void *arg)
         {
             continue;
         }
+
+        ESP_LOGE(TAG, "message received, command: %d", msg->command);
 
         switch (msg->command)
         {

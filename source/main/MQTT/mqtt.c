@@ -151,6 +151,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             if (err == OS_SUCCESS)
             {
                 struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
+                msg->command = Update;
                 strcpy(msg->url, fw_url);
 
                 ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
@@ -170,6 +171,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                 get_parameters(&parameters);
 
                 struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
+                msg->command = Update;
                 snprintf(msg->url, sizeof(msg->url), "%s/api/v1/%s/firmware/?title=%s&version=%s", parameters.thingsboard_url, parameters.provisioning.done.access_token, fw_title, fw_version);
 
                 ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
@@ -349,7 +351,6 @@ void mqtt_task(void *arg)
 
     while (1)
     {
-  
 
         if (normal_operation && !is_ota_running())
         {
