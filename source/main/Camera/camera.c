@@ -86,6 +86,6 @@ void camera_start(struct CameraConf *conf)
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start");
-        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
+        heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
     }
 }

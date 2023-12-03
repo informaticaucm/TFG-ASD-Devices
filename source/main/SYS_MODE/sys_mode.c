@@ -55,6 +55,28 @@ void set_mode(enum sys_mode mode)
     }
 }
 
+void set_version(char version[32])
+{
+    init();
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        strcpy(state.version, version);
+
+        xSemaphoreGive(xSemaphore);
+    }
+}
+
+void get_version(char version[32])
+{
+    init();
+    if (xSemaphoreTake(xSemaphore, portMAX_DELAY))
+    {
+        strcpy(version, state.version);
+
+        xSemaphoreGive(xSemaphore);
+    }
+}
+
 void set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode)
 {
     init();

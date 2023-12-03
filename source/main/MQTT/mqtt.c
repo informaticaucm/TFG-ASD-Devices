@@ -308,9 +308,9 @@ void mqtt_send_rpc(char *method, char *params)
 {
     rpc_id++;
     char topic[50];
-    snprintf(topic, 50, "v1/devices/me/rpc/request/%d", rpc_id);
+    snprintf(topic, sizeof(topic), "v1/devices/me/rpc/request/%d", rpc_id);
     char *msg = alloca(30 + strlen(method) + strlen(params));
-    snprintf(msg, 100, "{\"method\": \"%s\", \"params\": %s}", method, params);
+    snprintf(msg, 30 + strlen(method) + strlen(params), "{\"method\": \"%s\", \"params\": %s}", method, params);
     mqtt_send(topic, msg);
 }
 
@@ -327,7 +327,7 @@ void mqtt_send_ota_status_report(enum OTAState status)
     };
 
     char msg[100];
-    snprintf(msg, 100, "{\"fw_state\": \"%s\"}", to_string[status]);
+    snprintf(msg, sizeof(msg), "{\"fw_state\": \"%s\"}", to_string[status]);
     mqtt_send_telemetry(msg);
 }
 
@@ -335,7 +335,7 @@ void mqtt_send_ota_fail(char *explanation)
 {
     // {"fw_state": "FAILED", "fw_error":  "the human readable message about the cause of the error"}
     char msg[150];
-    snprintf(msg, 150, "{\"fw_state\": \"FAILED\", \"fw_error\": \"%s\"}", explanation);
+    snprintf(msg, sizeof(msg), "{\"fw_state\": \"FAILED\", \"fw_error\": \"%s\"}", explanation);
     mqtt_send_telemetry(msg);
 }
 
@@ -354,6 +354,12 @@ void mqtt_task(void *arg)
         {
             if (ping_timer < 0)
             {
+                char params[50];
+                char fw_version[32];
+                get_version(fw_version);
+
+                snprintf(params, sizeof(params), "{fw_version: \"%s\"}", fw_version);
+
                 mqtt_send_rpc("ping", "{}");
                 ping_timer = PING_RATE;
                 specting_pong = true;
@@ -392,9 +398,11 @@ void mqtt_task(void *arg)
             mqtt_send_ota_status_report(msg->data.ota_state_update.ota_state);
             break;
         case Found_TUI_qr:
-            char params[MAX_QR_SIZE + 40];
+            char params[MAX_QR_SIZE + 90];
+            char fw_version[32];
+            get_version(fw_version);
 
-            snprintf(params, MAX_QR_SIZE + 40, "{qr_content: \"%s\"}", msg->data.found_tui_qr.TUI_qr);
+            snprintf(params, sizeof(params), "{fw_version: \"%s\",qr_content: \"%s\"}", fw_version, msg->data.found_tui_qr.TUI_qr);
 
             mqtt_send_rpc("qr", params);
             break;
@@ -427,7 +435,7 @@ void mqtt_task(void *arg)
             }*/
 
             char msg_buffer[200];
-            snprintf(msg_buffer, 200, "{"
+            snprintf(msg_buffer, sizeof(msg_buffer), "{"
                                       "\"deviceName\": \"%s\","
                                       "\"provisionDeviceKey\": \"%s\","
                                       "\"provisionDeviceSecret\": \"%s\""
@@ -480,6 +488,6 @@ void mqtt_start(struct MQTTConf *conf)
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start");
-        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
+        heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
     }
 }

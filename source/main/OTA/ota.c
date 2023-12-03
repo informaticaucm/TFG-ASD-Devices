@@ -17,6 +17,7 @@
 #include "ota.h"
 #include "../MQTT/mqtt.h"
 #include "../Screen/screen.h"
+#include "../SYS_MODE/sys_mode.h"
 #include "../common.h"
 #include "../SYS_MODE/sys_mode.h"
 #include "../common.h"
@@ -32,7 +33,6 @@
 static const char *TAG = "ota";
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
-
 
 void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
 {
@@ -93,18 +93,13 @@ void command_ota_fail(char *error, struct OTAConf *conf)
     }
 }
 
+esp_app_desc_t running_app_info;
+
 static esp_err_t validate_image_header(esp_app_desc_t *new_app_info)
 {
     if (new_app_info == NULL)
     {
         return ESP_ERR_INVALID_ARG;
-    }
-
-    const esp_partition_t *running = esp_ota_get_running_partition();
-    esp_app_desc_t running_app_info;
-    if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK)
-    {
-        ESP_LOGI(TAG, "Running firmware version: %s", running_app_info.version);
     }
 
 #ifndef CONFIG_EXAMPLE_SKIP_VERSION_CHECK
@@ -333,12 +328,19 @@ void ota_task(void *arg)
 
 void ota_start(struct OTAConf *ota_conf)
 {
+    const esp_partition_t *running = esp_ota_get_running_partition();
+    if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK)
+    {
+        ESP_LOGI(TAG, "Running firmware version: %s", running_app_info.version);
+        set_version(running_app_info.version);
+    }
+
     ESP_ERROR_CHECK(esp_event_handler_register(ESP_HTTPS_OTA_EVENT, ESP_EVENT_ANY_ID, &ota_event_handler, NULL));
 
-    TaskHandle_t handler = jTaskCreate(&ota_task, "OTA task", 9000, ota_conf, 1, MALLOC_CAP_8BIT); // los ota deben ocurrir en un stack interno
+    TaskHandle_t handler = jTaskCreate(&ota_task, "OTA task", 10000, ota_conf, 1, MALLOC_CAP_INTERNAL); // los ota deben ocurrir en un stack interno
     if (handler == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start");
-        heap_caps_print_heap_info(MALLOC_CAP_8BIT);
+        heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
     }
 }

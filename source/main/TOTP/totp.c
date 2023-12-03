@@ -26,7 +26,7 @@ static void totp_task(void *arg)
 
         if (get_mode() == qr_display)
         {
-            char url[MAX_QR_SIZE] = {0};
+            char url[MAX_QR_SIZE];
 
             {
                 time_t now;
@@ -36,7 +36,7 @@ static void totp_task(void *arg)
                 struct ConfigurationParameters parameters;
                 get_parameters(&parameters);
 
-                snprintf(url, MAX_QR_SIZE, "https://%s/?totp=%06d&device=%s", "la.url.de.helena.y.galdo.asd", totp, parameters.device_name);
+                snprintf(url, sizeof(url), "https://%s/?totp=%06d&device=%s", "la.url.de.helena.y.galdo.asd", totp, parameters.device_name);
             }
 
             {
