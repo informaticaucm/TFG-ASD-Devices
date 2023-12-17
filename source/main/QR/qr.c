@@ -69,14 +69,12 @@ static void qr_task(void *arg)
     ESP_LOGI(TAG, "Processing task ready");
     while (1)
     {
+
+        vTaskDelay(get_task_delay());
         if (is_ota_running())
         {
-            vTaskDelay(get_task_delay());
             continue;
         }
-        vTaskDelay(get_task_delay());
-
-        // ESP_LOGI(TAG, "tick");
 
         camera_fb_t *pic;
         uint8_t *qr_buf = quirc_begin(qr, NULL, NULL);

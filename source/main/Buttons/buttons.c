@@ -18,11 +18,6 @@ typedef enum
     BUTTON_DOWN
 } ButtonName;
 
-static void button_single_click_cb(void *arg, void *usr_data)
-{
-    ESP_LOGI(TAG, "BUTTON_SINGLE_CLICK");
-}
-
 void button_task(void *arg)
 
 {

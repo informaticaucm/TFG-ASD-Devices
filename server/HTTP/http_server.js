@@ -15,24 +15,42 @@ var options = {
 var app = express();
 app.use(bodyparser.json({ limit: '50mb' }));
 
+const public_domain = "domain-name.com"
 
-app.post("/rpc", (req, res) => {
-    let { devicename } = req.headers
-    let { method, params } = req.body
-    console.log("url: ", req.originalUrl, params, method, devicename);
+app.post("/api/v1/seguimiento", (req, res) => {
+    let { fw_version, qr_content } = req.body;
 
-    if (method == "ping") {
-        res.json({ "method": "pong", "response": { "epoch": Math.floor(Date.now() / 1000), "ok": true } })
-    } else if (method == "qr") {
-
-        res.json({ "method": "qr_res", "response": { "text": "qr recibido, contenido era: " + params.qr_content, "duration": 17, "icon_id": Math.floor(Math.random() * 2.999), "ok": true } })
-    }
-    else {
-        res.json({ "ok": true })
-    }
+    res.json({
+        "text": "qr recibido, contenido era: " + qr_content,
+        "duration": 17,
+        "icon_id": Math.floor(Math.random() * 2.999)
+    });
 })
 
-app.use('/ota', express.static(__dirname + '/ota'));
+app.post("/api/v1/dispositivos", (req, res) => {
+    let { nombre, espacioId, idExternoDispositivo } = req.body;
+
+    res.json({
+        // "id": 1,
+        // "creadoEn": "2023-12-17T19:09:20.155Z",
+        // "actualizadoEn": "2023-12-17T19:09:20.155Z",
+        // "creadoPor": 1,
+        // "actualizadoPor": 2,
+        // "nombre": "Lector QR, BLE, NFC",
+        // "espacioId": 1,
+        // "idExternoDispositivo": "abcdefg",
+        // "endpointSeguimiento": "https://localhost:3000/api/v1/seguimiento",
+        "qr_url_template": `https://${public_domain}/submit/?totp=%d&space_id=${espacioId}`, // de momento nos matamos con un %d
+        "totpConfig": {
+            "t0": 0,
+            "secret": "JBSWY3DPEHPK3PXP"
+        }
+    });
+})
+
+app.get("/api/v1/ping", (req, res) => {
+    res.json({ "epoch": Math.floor(Date.now() / 1000) })
+});
 
 /* rpc to display text on the device
 {

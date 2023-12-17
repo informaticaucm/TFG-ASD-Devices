@@ -210,3 +210,4 @@ void start_starter(struct StarterConf *conf)
         heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
     }
 }
+

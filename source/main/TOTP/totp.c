@@ -23,6 +23,16 @@ static void totp_task(void *arg)
     while (1)
     {
         vTaskDelay(get_task_delay());
+        if (!is_totp_ready())
+        {
+            ESP_LOGE(TAG, "TOTP not ready");
+            continue;
+        }
+        if (is_ota_running())
+        {
+            ESP_LOGE(TAG, "OTA running, I sleep");
+            continue;
+        }
 
         if (get_mode() == qr_display)
         {
@@ -31,12 +41,17 @@ static void totp_task(void *arg)
             {
                 time_t now;
                 time(&now);
-                int totp = do_the_totp_thing(now, "JBSWY3DPEHPK3PXP", 30, 6);
 
-                struct ConfigurationParameters parameters;
-                get_parameters(&parameters);
+                char secret[17];
+                char url_template[URL_SIZE];
+                int t0;
 
-                snprintf(url, sizeof(url), "https://%s/?totp=%06d&device=%s", "la.url.de.helena.y.galdo.asd", totp, parameters.device_name);
+                get_TOTP_secret(secret);
+                t0 = get_TOTP_t0();
+                get_qr_url_template(url_template);
+
+                int totp = do_the_totp_thing(now - t0, secret, 30, 6);
+                snprintf(url, sizeof(url), url_template, totp);
             }
 
             {

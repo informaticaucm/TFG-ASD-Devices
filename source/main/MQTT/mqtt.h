@@ -1,7 +1,36 @@
+#pragma once
+
+#include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <string.h>
+#include "esp_system.h"
+#include "esp_partition.h"
+#include "nvs_flash.h"
+#include "esp_event.h"
+#include "esp_netif.h"
+
+#include "esp_log.h"
+#include "mqtt_client.h"
+#include "esp_tls.h"
+#include "esp_ota_ops.h"
+#include <sys/param.h>
+#include "../common.h"
+#include "../SYS_MODE/sys_mode.h"
+
+#include "../OTA/ota.h"
+#include "../Starter/starter.h"
+#include "../Screen/screen.h"
+#include "../SYS_MODE/sys_mode.h"
+#include "json_parser.h"
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "../common.h"
+
+extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
+extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
 enum MQTTCommand
 {
@@ -63,3 +92,12 @@ struct MQTTConf
 };
 
 void mqtt_start(struct MQTTConf *conf);
+void mqtt_subscribe(char *topic);
+void mqtt_send(char *topic, char *msg);
+void mqtt_send_telemetry(char *msg);
+void mqtt_send_rpc(char *method, char *params);
+void mqtt_send_ota_status_report(enum OTAState status);
+void mqtt_send_ota_fail(char *explanation);
+void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
+
+// coordination

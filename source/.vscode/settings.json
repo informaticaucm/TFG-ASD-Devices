@@ -62,7 +62,9 @@
     "nvs_plugin.h": "c",
     "chrono": "c",
     "sys_mode.h": "c",
-    "esp_partition.h": "c"
+    "esp_partition.h": "c",
+    "event_groups.h": "c",
+    "camera.h": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

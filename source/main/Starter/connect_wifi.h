@@ -1,5 +1,4 @@
-#ifndef CONNECT_WIFI_H_
-#define CONNECT_WIFI_H_
+#pragma once
 
 #include <esp_system.h>
 #include <nvs_flash.h>
@@ -20,5 +19,3 @@
 extern int wifi_connect_status;
 
 int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD);
-
-#endif
