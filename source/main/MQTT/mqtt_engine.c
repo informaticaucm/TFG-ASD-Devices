@@ -115,17 +115,17 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         {
             json_obj_get_object(&jctx, "response");
 
-            char qr_url_template[URL_SIZE];
+            // char qr_url_template[URL_SIZE];
+            // json_obj_get_string(&jctx, "qr_url_template", qr_url_template, URL_SIZE);
+            // set_qr_url_template(qr_url_template);
+
             char totp_secret[17];
             int t0;
-
-            json_obj_get_string(&jctx, "qr_url_template", qr_url_template, URL_SIZE);
 
             json_obj_get_object(&jctx, "totpConfig");
             json_obj_get_string(&jctx, "secret", totp_secret, 17);
             json_obj_get_int(&jctx, "t0", &t0);
 
-            set_qr_url_template(qr_url_template);
             set_TOTP_secret(totp_secret);
             set_TOTP_t0(t0);
             set_TOTP_ready(true);
@@ -219,7 +219,6 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         }
     }
 }
-
 
 bool mqtt_normal_operation = false;
 
@@ -367,7 +366,7 @@ void mqtt_task(void *arg)
                 get_parameters(&parameters);
 
                 char params[170];
-                snprintf(params, sizeof(params), "{nombre: \"%s\", espacioId: TODO, idExternoDispositivo: \"TODO\"}", parameters.device_name );
+                snprintf(params, sizeof(params), "{nombre: \"%s\", espacioId: TODO, idExternoDispositivo: \"TODO\"}", parameters.device_name);
                 mqtt_send_rpc("dispositivos", params);
             }
 

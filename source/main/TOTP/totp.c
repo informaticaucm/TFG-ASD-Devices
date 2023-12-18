@@ -43,15 +43,15 @@ static void totp_task(void *arg)
                 time(&now);
 
                 char secret[17];
-                char url_template[URL_SIZE];
+                // char url_template[URL_SIZE];
                 int t0;
 
                 get_TOTP_secret(secret);
                 t0 = get_TOTP_t0();
-                get_qr_url_template(url_template);
+                // get_qr_url_template(url_template);
 
                 int totp = do_the_totp_thing(now - t0, secret, 30, 6);
-                snprintf(url, sizeof(url), url_template, totp);
+                snprintf(url, sizeof(url), "http://lo.que.sea.com/?nonce=%d&aula=%s", totp, "TODO");
             }
 
             {

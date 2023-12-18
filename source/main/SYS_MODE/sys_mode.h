@@ -21,7 +21,7 @@ struct sys_mode_state
     char version[32];
     char TOTP_secret[17];
     int TOTP_t0;
-    char qr_url_template[URL_SIZE];
+    // char qr_url_template[URL_SIZE];
     bool totp_ready;
     struct ConfigurationParameters parameters;
 };
@@ -45,8 +45,8 @@ int get_task_delay();
 void set_ota_running(bool ota_running);
 bool is_ota_running();
 
-void set_qr_url_template(char qr_url_template[URL_SIZE]);
-void get_qr_url_template(char qr_url_template[URL_SIZE]);
+// void set_qr_url_template(char qr_url_template[URL_SIZE]);
+// void get_qr_url_template(char qr_url_template[URL_SIZE]);
 
 void set_TOTP_secret(char TOTP_secret[17]);
 void get_TOTP_secret(char TOTP_secret[17]);

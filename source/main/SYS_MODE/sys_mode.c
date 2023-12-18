@@ -111,15 +111,15 @@ bool is_ota_running()
     critical_section(ret = state.ota_running;) return ret;
 }
 
-void set_qr_url_template(char qr_url_template[URL_SIZE])
-{
-    critical_section(strcpy(state.qr_url_template, qr_url_template);)
-}
+// void set_qr_url_template(char qr_url_template[URL_SIZE])
+// {
+//     critical_section(strcpy(state.qr_url_template, qr_url_template);)
+// }
 
-void get_qr_url_template(char qr_url_template[URL_SIZE])
-{
-    critical_section(strcpy(qr_url_template, state.qr_url_template);)
-}
+// void get_qr_url_template(char qr_url_template[URL_SIZE])
+// {
+//     critical_section(strcpy(qr_url_template, state.qr_url_template);)
+// }
 
 void set_TOTP_secret(char TOTP_secret[17])
 {
