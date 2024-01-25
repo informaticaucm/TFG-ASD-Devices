@@ -20,7 +20,7 @@
 // #define IMG_HEIGHT 296
 // #define CAM_FRAME_SIZE FRAMESIZE_CIF // 400x296
 
-#define nvs_conf_tag "conf"
+#define nvs_conf_tag "ConnParams"
 
 #define PING_RATE 10
 #define PING_TIMEOUT 3

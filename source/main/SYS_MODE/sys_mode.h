@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef __SYS_MODE_H__
+#define __SYS_MODE_H__
 #include "../Starter/starter.h"
 #include <time.h>
 
@@ -8,12 +8,6 @@ enum sys_mode
     mirror,
     qr_display,
     self_managed,
-};
-
-char *sys_mode_to_string[] = {
-    "mirror",
-    "qr_display",
-    "self_managed",
 };
 
 struct sys_mode_state
@@ -29,15 +23,15 @@ struct sys_mode_state
     int TOTP_t0;
     // char qr_url_template[URL_SIZE];
     bool totp_ready;
-    struct ConfigurationParameters parameters;
+    struct ConnectionParameters parameters;
 };
 
 enum sys_mode get_mode();
 void set_mode(enum sys_mode mode);
 void set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode);
 
-void get_parameters(struct ConfigurationParameters *parameters);
-void set_parameters(struct ConfigurationParameters *parameters);
+void get_parameters(struct ConnectionParameters *parameters);
+void set_parameters(struct ConnectionParameters *parameters);
 
 void set_version(char version[32]);
 void get_version(char version[32]);
@@ -51,9 +45,6 @@ int get_task_delay();
 void set_ota_running(bool ota_running);
 bool is_ota_running();
 
-// void set_qr_url_template(char qr_url_template[URL_SIZE]);
-// void get_qr_url_template(char qr_url_template[URL_SIZE]);
-
 void set_TOTP_secret(char TOTP_secret[17]);
 void get_TOTP_secret(char TOTP_secret[17]);
 
@@ -62,3 +53,5 @@ int get_TOTP_t0();
 
 void set_TOTP_ready(bool totp_ready);
 bool is_totp_ready();
+
+#endif

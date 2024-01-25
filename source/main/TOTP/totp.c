@@ -23,11 +23,7 @@ static void totp_task(void *arg)
     while (1)
     {
         vTaskDelay(get_task_delay());
-        if (!is_totp_ready())
-        {
-            ESP_LOGE(TAG, "TOTP not ready");
-            continue;
-        }
+        
         if (is_ota_running())
         {
             ESP_LOGE(TAG, "OTA running, I sleep");
@@ -36,7 +32,10 @@ static void totp_task(void *arg)
 
         if (get_mode() == qr_display)
         {
+
             char url[MAX_QR_SIZE];
+
+            if (is_totp_ready())
 
             {
                 time_t now;
@@ -52,18 +51,33 @@ static void totp_task(void *arg)
 
                 int totp = do_the_totp_thing(now - t0, secret, 30, 6);
                 snprintf(url, sizeof(url), "http://lo.que.sea.com/?nonce=%d&aula=%s", totp, "TODO");
-            }
 
-            {
-                struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-
-                msg->command = DrawQr;
-                strcpy(msg->data.text, url);
-
-                int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-                if (res == pdFAIL)
                 {
-                    free(msg);
+                    struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+
+                    msg->command = DrawQr;
+                    strcpy(msg->data.text, url);
+
+                    int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+                    if (res == pdFAIL)
+                    {
+                        free(msg);
+                    }
+                }
+            }
+            else
+            {
+                {
+                    struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+
+                    msg->command = DisplayError;
+                    strcpy(msg->data.text, "El QR está desactivado debido a un error en la conexión con el servidor");
+
+                    int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+                    if (res == pdFAIL)
+                    {
+                        free(msg);
+                    }
                 }
             }
         }

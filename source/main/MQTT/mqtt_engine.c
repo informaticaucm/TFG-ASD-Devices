@@ -161,7 +161,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                 char fw_version[30];
                 json_obj_get_string(&jctx, "fw_version", fw_version, 30);
 
-                struct ConfigurationParameters parameters;
+                struct ConnectionParameters parameters;
                 get_parameters(&parameters);
 
                 struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
@@ -208,7 +208,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         {
 
             struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-            msg->command = UnvalidateConfig;
+            msg->command = InvalidateConfig;
             ESP_LOGI(TAG, "config error, invalidating!");
 
             int res = xQueueSend(conf->to_starter_queue, &msg, 0);
@@ -268,7 +268,15 @@ void mqtt_task(void *arg)
             continue;
         }
 
-        ESP_LOGI(TAG, "a message %s was recieved at mqtt module" ,mqtt_command_to_string[msg->command]);
+        char *mqtt_command_to_string[] = {
+            "OTA_failure",
+            "OTA_state_update",
+            "Found_TUI_qr",
+            "Start",
+            "DoProvisioning",
+        };
+
+        ESP_LOGI(TAG, "a message %s was recieved at mqtt module", mqtt_command_to_string[msg->command]);
 
         switch (msg->command)
         {
@@ -362,7 +370,7 @@ void mqtt_task(void *arg)
             }
 
             {
-                struct ConfigurationParameters parameters;
+                struct ConnectionParameters parameters;
                 get_parameters(&parameters);
 
                 char params[170];

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __STARTER_H__
+#define __STARTER_H__
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -8,14 +9,19 @@
 enum StarterCommand
 {
     QrInfo,
-    ProvisioningInfo,
+    AithInfo,
     UnvalidateConfig,
 };
 
-char *starter_command_to_string[] = {
-    "QrInfo",
-    "ProvisioningInfo",
-    "UnvalidateConfig",
+struct QRInfo
+{
+    char wifi_ssid[30];
+    char wifi_psw[30];
+    char thingsboard_url[URL_SIZE];
+    char mqtt_broker_url[URL_SIZE];
+    char device_name[50];
+    char provisioning_device_key[21];
+    char provisioning_device_secret[21];
 };
 
 struct StarterMsg
@@ -23,45 +29,20 @@ struct StarterMsg
     enum StarterCommand command;
     union
     {
-        struct
-        {
-            char wifi_ssid[30];
-            char wifi_psw[30];
-            char thingsboard_url[URL_SIZE];
-            char mqtt_broker_url[URL_SIZE];
-            char device_name[50];
-            char provisioning_device_key[21];
-            char provisioning_device_secret[21];
-        } qr;
-        struct
-        {
-            char access_token[21];
-        } provisioning;
+        struct QRInfo qr;
+        char access_token[21];
 
     } data;
 };
 
-struct ConfigurationParameters
+struct ConnectionParameters
 {
-    char wifi_ssid[30];
-    char wifi_psw[30];
-    char thingsboard_url[URL_SIZE];
-    char mqtt_broker_url[URL_SIZE];
-    bool provisioning_done;
-    char device_name[50];
-    bool valid;
-    union
-    {
-        struct
-        {
-            char provisioning_device_key[21];
-            char provisioning_device_secret[21];
-        } due;
-        struct
-        {
-            char access_token[21];
-        } done;
-    } provisioning;
+
+    enum StartState start_state;
+    bool qr_valid;
+    struct QRInfo qr_info;
+    bool access_token_valid;
+    char access_token[21];
 };
 
 struct StarterConf
@@ -72,3 +53,5 @@ struct StarterConf
 };
 
 void start_starter(struct StarterConf *conf);
+
+#endif // __STARTER_H__

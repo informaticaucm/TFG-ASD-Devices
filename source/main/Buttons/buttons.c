@@ -1,3 +1,6 @@
+#ifndef __BUTTONS_H__
+#define __BUTTONS_H__
+
 #include "buttons.h"
 #include "../common.h"
 #include "iot_button.h"
@@ -19,7 +22,6 @@ typedef enum
 } ButtonName;
 
 void button_task(void *arg)
-
 {
     struct ButtonsConf *conf = arg;
     adc_oneshot_unit_handle_t adc1_handle;
@@ -64,3 +66,5 @@ void buttons_start(struct ButtonsConf *conf)
         ESP_LOGE(TAG, "Problem on task start");
     }
 }
+
+#endif

@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef __MQTT_H__
+#define __MQTT_H__
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -41,13 +41,6 @@ enum MQTTCommand
     DoProvisioning
 };
 
-char *mqtt_command_to_string[] = {
-    "OTA_failure",
-    "OTA_state_update",
-    "Found_TUI_qr",
-    "Start",
-    "DoProvisioning",
-};
 
 enum OTAState
 {
@@ -58,18 +51,10 @@ enum OTAState
     UPDATED,
 };
 
-char *ota_state_to_string[] = {
-    "DOWNLOADING",
-    "DOWNLOADED",
-    "VERIFIED",
-    "UPDATING",
-    "UPDATED",
-};
-
 struct MQTTMsg
 {
     enum MQTTCommand command;
-    union 
+    union
     {
         struct
         {
@@ -90,6 +75,7 @@ struct MQTTMsg
             char device_name[50];
             char provisioning_device_secret[21];
             char provisioning_device_key[21];
+            bool *onDoneFlag;
         } provisioning;
         struct
         {
@@ -116,5 +102,4 @@ void mqtt_send_ota_status_report(enum OTAState status);
 void mqtt_send_ota_fail(char *explanation);
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
 
-// coordination
-
+#endif

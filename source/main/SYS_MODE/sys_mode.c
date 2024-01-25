@@ -58,14 +58,14 @@ enum sys_mode get_mode()
         }) return ret;
 }
 
-void get_parameters(struct ConfigurationParameters *parameters)
+void get_parameters(struct ConnectionParameters *parameters)
 {
-    critical_section(memcpy(parameters, &state.parameters, sizeof(struct ConfigurationParameters));)
+    critical_section(memcpy(parameters, &state.parameters, sizeof(struct ConnectionParameters));)
 }
 
-void set_parameters(struct ConfigurationParameters *parameters)
+void set_parameters(struct ConnectionParameters *parameters)
 {
-    critical_section(memcpy(&state.parameters, parameters, sizeof(struct ConfigurationParameters));)
+    critical_section(memcpy(&state.parameters, parameters, sizeof(struct ConnectionParameters));)
 }
 
 void set_version(char version[32])

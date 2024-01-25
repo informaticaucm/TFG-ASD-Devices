@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef __SCREEN_H__
+#define __SCREEN_H__
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -18,17 +18,6 @@ enum ScreenCommand
     DisplayImage,
 };
 
-char *screen_command_to_string[] = {
-    "Empty",
-    "DrawQr",
-    "DisplayWarning",
-    "DisplaySuccess",
-    "DisplayError",
-    "DisplayText",
-    "DisplayProgress",
-    "DisplayProcessing",
-    "DisplayImage",
-};
 
 struct ScreenMsg
 {
@@ -56,3 +45,5 @@ struct ScreenConf
 };
 
 void screen_start(struct ScreenConf *conf);
+
+#endif

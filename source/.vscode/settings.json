@@ -64,7 +64,9 @@
     "sys_mode.h": "c",
     "esp_partition.h": "c",
     "event_groups.h": "c",
-    "camera.h": "c"
+    "camera.h": "c",
+    "buttons.h": "c",
+    "mutex": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

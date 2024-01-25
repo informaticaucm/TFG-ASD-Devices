@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef __OTA_H__
+#define __OTA_H__
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -12,10 +12,6 @@ enum OTACommand
     CancelRollback
 };
 
-char *ota_command_to_string[] = {
-    "Update",
-    "CancelRollback",
-};
 
 struct OTAMsg
 {
@@ -32,3 +28,5 @@ struct OTAConf
 };
 
 void ota_start(struct OTAConf *conf);
+
+#endif
