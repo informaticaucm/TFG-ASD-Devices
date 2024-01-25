@@ -10,6 +10,12 @@ enum sys_mode
     self_managed,
 };
 
+char *sys_mode_to_string[] = {
+    "mirror",
+    "qr_display",
+    "self_managed",
+};
+
 struct sys_mode_state
 {
     int task_delay;

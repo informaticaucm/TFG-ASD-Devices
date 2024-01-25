@@ -52,17 +52,6 @@ app.get("/api/v1/ping", (req, res) => {
     res.json({ "epoch": Math.floor(Date.now() / 1000) })
 });
 
-/* rpc to display text on the device
-{
-    "method": "display_text",
-    "params": {
-        "text": "Hello World"
-        "duration": 5
-    }
-}
-callType is either oneway or twoway;
-send that in a post to http://thingsboard.asd:8080/api/plugins/rpc/{callType}/{deviceId}
-*/
 
 
 

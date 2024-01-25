@@ -12,6 +12,11 @@ enum OTACommand
     CancelRollback
 };
 
+char *ota_command_to_string[] = {
+    "Update",
+    "CancelRollback",
+};
+
 struct OTAMsg
 {
     enum OTACommand command;

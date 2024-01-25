@@ -41,6 +41,14 @@ enum MQTTCommand
     DoProvisioning
 };
 
+char *mqtt_command_to_string[] = {
+    "OTA_failure",
+    "OTA_state_update",
+    "Found_TUI_qr",
+    "Start",
+    "DoProvisioning",
+};
+
 enum OTAState
 {
     DOWNLOADING,
@@ -48,6 +56,14 @@ enum OTAState
     VERIFIED,
     UPDATING,
     UPDATED,
+};
+
+char *ota_state_to_string[] = {
+    "DOWNLOADING",
+    "DOWNLOADED",
+    "VERIFIED",
+    "UPDATING",
+    "UPDATED",
 };
 
 struct MQTTMsg
@@ -101,3 +117,4 @@ void mqtt_send_ota_fail(char *explanation);
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
 
 // coordination
+

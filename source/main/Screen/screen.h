@@ -18,6 +18,18 @@ enum ScreenCommand
     DisplayImage,
 };
 
+char *screen_command_to_string[] = {
+    "Empty",
+    "DrawQr",
+    "DisplayWarning",
+    "DisplaySuccess",
+    "DisplayError",
+    "DisplayText",
+    "DisplayProgress",
+    "DisplayProcessing",
+    "DisplayImage",
+};
+
 struct ScreenMsg
 {
     enum ScreenCommand command;

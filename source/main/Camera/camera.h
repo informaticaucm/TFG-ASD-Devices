@@ -5,24 +5,6 @@
 #include "freertos/semphr.h"
 #include "esp_camera.h"
 
-// enum CameraCommand
-// {
-//     StreamToScreen
-// };
-
-// struct CameraMsg
-// {
-//     enum CameraCommand command;
-//     union
-//     {
-//         struct
-//         {
-//             int time;
-//             int refreshRate;
-//         } stream;
-//     } data;
-// };
-
 struct CameraConf
 {
     QueueHandle_t to_qr_queue;

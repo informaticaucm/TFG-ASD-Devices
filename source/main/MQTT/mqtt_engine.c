@@ -268,7 +268,7 @@ void mqtt_task(void *arg)
             continue;
         }
 
-        ESP_LOGI(TAG, "a message was recieved at mqtt module");
+        ESP_LOGI(TAG, "a message %s was recieved at mqtt module" ,mqtt_command_to_string[msg->command]);
 
         switch (msg->command)
         {

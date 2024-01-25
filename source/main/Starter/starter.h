@@ -12,6 +12,12 @@ enum StarterCommand
     UnvalidateConfig,
 };
 
+char *starter_command_to_string[] = {
+    "QrInfo",
+    "ProvisioningInfo",
+    "UnvalidateConfig",
+};
+
 struct StarterMsg
 {
     enum StarterCommand command;
