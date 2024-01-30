@@ -166,7 +166,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
                 struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
                 msg->command = Update;
-                snprintf(msg->url, sizeof(msg->url), "%s/api/v1/%s/firmware/?title=%s&version=%s", parameters.thingsboard_url, parameters.provisioning.done.access_token, fw_title, fw_version);
+                snprintf(msg->url, sizeof(msg->url), "%s/api/v1/%s/firmware/?title=%s&version=%s", parameters.qr_info.thingsboard_url, parameters.access_token, fw_title, fw_version);
 
                 ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
 
@@ -192,11 +192,11 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         if (err == OS_SUCCESS)
         {
             struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-            msg->command = ProvisioningInfo;
+            msg->command = AuthInfo;
 
-            memcpy(msg->data.provisioning.access_token, access_token, 21);
+            memcpy(msg->data.access_token, access_token, 21);
 
-            ESP_LOGI(TAG, "access token is : %s", msg->data.provisioning.access_token);
+            ESP_LOGI(TAG, "access token is : %s", msg->data.access_token);
 
             int res = xQueueSend(conf->to_starter_queue, &msg, 0);
             if (res != pdTRUE)
@@ -220,8 +220,6 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
     }
 }
 
-bool mqtt_normal_operation = false;
-
 void mqtt_task(void *arg)
 {
     struct MQTTConf *conf = arg;
@@ -231,7 +229,7 @@ void mqtt_task(void *arg)
     while (1)
     {
 
-        if (mqtt_normal_operation && !is_ota_running())
+        if (is_mqtt_normal_operation() && !is_ota_running())
         {
             if (ping_timer < 0)
             {
@@ -256,8 +254,16 @@ void mqtt_task(void *arg)
                 {
                     ESP_LOGE(TAG, "pong timeout");
 
-                    esp_restart();
-                    mqtt_normal_operation = false;
+                    {
+                        struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
+                        msg->command = PingLost;
+
+                        int res = xQueueSend(conf->to_starter_queue, &msg, 0);
+                        if (res != pdTRUE)
+                        {
+                            free(msg);
+                        }
+                    }
                 }
             }
         }
@@ -297,6 +303,12 @@ void mqtt_task(void *arg)
             break;
         case DoProvisioning:
         {
+            if (client != 0)
+            {
+                esp_mqtt_client_stop(client);
+                esp_mqtt_client_destroy(client);
+            }
+
             ESP_LOGI(TAG, "doProvisioning conf");
             ESP_LOGI(TAG, "brocker url %s", msg->data.start.broker_url);
             ESP_LOGI(TAG, "device name %s", msg->data.provisioning.device_name);
@@ -338,6 +350,12 @@ void mqtt_task(void *arg)
         break;
         case Start:
         {
+            if (client != 0)
+            {
+                esp_mqtt_client_stop(client);
+                esp_mqtt_client_destroy(client);
+            }
+
             ESP_LOGI(TAG, "start conf");
             ESP_LOGI(TAG, "brocker url %s", msg->data.start.broker_url);
             ESP_LOGI(TAG, "access_token %s", msg->data.start.access_token);
@@ -374,11 +392,21 @@ void mqtt_task(void *arg)
                 get_parameters(&parameters);
 
                 char params[170];
-                snprintf(params, sizeof(params), "{nombre: \"%s\", espacioId: TODO, idExternoDispositivo: \"TODO\"}", parameters.device_name);
+                snprintf(params, sizeof(params), "{nombre: \"%s\", espacioId: TODO, idExternoDispositivo: \"TODO\"}", parameters.qr_info.device_name);
                 mqtt_send_rpc("dispositivos", params);
             }
 
-            mqtt_normal_operation = true;
+            set_mqtt_normal_operation(true);
+            break;
+        }
+        case Disconect:
+        {
+            if (client != 0)
+            {
+                esp_mqtt_client_stop(client);
+                esp_mqtt_client_destroy(client);
+            }
+            set_mqtt_normal_operation(false);
         }
         break;
         }

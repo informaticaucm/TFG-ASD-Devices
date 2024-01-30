@@ -38,6 +38,7 @@ enum MQTTCommand
     OTA_state_update,
     Found_TUI_qr,
     Start,
+    Disconect,
     DoProvisioning
 };
 
@@ -75,7 +76,6 @@ struct MQTTMsg
             char device_name[50];
             char provisioning_device_secret[21];
             char provisioning_device_key[21];
-            bool *onDoneFlag;
         } provisioning;
         struct
         {

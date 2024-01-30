@@ -23,6 +23,8 @@ struct sys_mode_state
     int TOTP_t0;
     // char qr_url_template[URL_SIZE];
     bool totp_ready;
+    bool mqtt_normal_operation;
+
     struct ConnectionParameters parameters;
 };
 
@@ -53,5 +55,8 @@ int get_TOTP_t0();
 
 void set_TOTP_ready(bool totp_ready);
 bool is_totp_ready();
+
+void set_mqtt_normal_operation(bool mqtt_normal_operation);
+bool is_mqtt_normal_operation();
 
 #endif

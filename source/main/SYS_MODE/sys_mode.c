@@ -15,6 +15,7 @@ struct sys_mode_state state = {
     .task_delay = DEFAULT_TASK_DELAY,
     .ota_running = false,
     .totp_ready = false,
+    .mqtt_normal_operation = false,
 };
 SemaphoreHandle_t xSemaphore;
 bool started = false;
@@ -151,4 +152,15 @@ bool is_totp_ready()
 {
     bool ret = false;
     critical_section(ret = state.totp_ready;) return ret;
+}
+
+void set_mqtt_normal_operation(bool mqtt_normal_operation)
+{
+    critical_section(state.mqtt_normal_operation = mqtt_normal_operation;)
+}
+
+bool is_mqtt_normal_operation()
+{
+    bool ret = false;
+    critical_section(ret = state.mqtt_normal_operation;) return ret;
 }

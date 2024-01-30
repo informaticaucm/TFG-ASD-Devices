@@ -6,11 +6,21 @@
 #include "freertos/semphr.h"
 #include "../common.h"
 
+enum StarterState
+{
+    NoQRConfig,
+    NoWifi,
+    NoAuth,
+    NoMQTT,
+    Success,
+};
+
 enum StarterCommand
 {
     QrInfo,
-    AithInfo,
-    UnvalidateConfig,
+    AuthInfo,
+    InvalidateConfig,
+    PingLost,
 };
 
 struct QRInfo
@@ -38,11 +48,13 @@ struct StarterMsg
 struct ConnectionParameters
 {
 
-    enum StartState start_state;
+    enum StarterState start_state;
     bool qr_valid;
     struct QRInfo qr_info;
     bool access_token_valid;
     char access_token[21];
+    bool totp_seed_valid;
+    char totp_seed[17];
 };
 
 struct StarterConf
