@@ -19,3 +19,4 @@
 extern int wifi_connect_status;
 
 int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD);
+void crash_wifi();

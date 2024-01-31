@@ -72,11 +72,13 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     }
 }
 
+esp_netif_t *my_ap = 0;
+
 int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD)
 {
     s_wifi_event_group = xEventGroupCreate();
 
-    esp_netif_create_default_wifi_sta();
+    esp_netif_t *my_ap = esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -129,4 +131,13 @@ int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD)
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
     return 0;
+}
+
+void crash_wifi()
+{
+    if (my_ap != 0)
+    {
+        esp_wifi_stop();
+        esp_netif_destroy(my_ap);
+    }
 }

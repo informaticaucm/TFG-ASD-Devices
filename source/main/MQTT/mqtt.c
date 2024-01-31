@@ -96,6 +96,11 @@ void mqtt_send_ota_status_report(enum OTAState status)
 {
     // {"current_fw_title": "myFirmware", "current_fw_version": "1.2.3", "fw_state": "UPDATED"}
 
+    if (status < 0 || status > 4)
+    {
+        ESP_LOGE(TAG, "invalid status %d", status);
+        return;
+    }
     char *to_string[] = {
         "DOWNLOADING",
         "DOWNLOADED",
@@ -125,4 +130,4 @@ void mqtt_start(struct MQTTConf *conf)
         ESP_LOGE(TAG, "Problem on task start");
         heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
     }
- }
+}

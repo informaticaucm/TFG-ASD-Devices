@@ -13,10 +13,20 @@ enum StarterState starterState = NoQRConfig;
 int tries = 0;
 int cooldown = 0;
 
+char *state_string[] = {
+    "NoQRConfig",
+    "NoWifi",
+    "NoAuth",
+    "NoMQTT",
+    "Success",
+};
+
 void setState(enum StarterState state, struct StarterConf *conf)
 {
     tries = 0;
     starterState = state;
+
+    ESP_LOGI(TAG, "starter state changed to %s", state_string[state]);
 
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
@@ -25,7 +35,7 @@ void setState(enum StarterState state, struct StarterConf *conf)
     case NoQRConfig:
         parameters.qr_valid = false;
     case NoWifi:
-        esp_wifi_stop();
+        crash_wifi();
     case NoAuth:
         parameters.access_token_valid = false;
     case NoMQTT:
@@ -52,15 +62,17 @@ void starter_task(void *arg)
     while (1)
     {
 
+        ESP_LOGE(TAG, "starter is on state %s with tries %d (%d)", state_string[starterState], tries, cooldown);
+
         switch (starterState)
         {
-
         case NoQRConfig:
             struct ConnectionParameters parameters;
             int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
             if (err == ESP_ERR_NVS_NOT_FOUND || !parameters.qr_valid)
             {
+
                 struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
 
                 msg->command = DisplayError;
@@ -72,12 +84,9 @@ void starter_task(void *arg)
                     ESP_LOGE(TAG, "mesage send fail");
                     free(msg);
                 }
-
-                return;
             }
             else
             {
-                tries = 20;
                 setState(NoWifi, conf);
             }
             break;
@@ -104,10 +113,7 @@ void starter_task(void *arg)
             {
 
                 tries += 1;
-                if (tries > 20)
-                {
-                    setState(NoQRConfig, conf);
-                }
+                // ASK if we should reset the device or the configuration
             }
             else
             {
@@ -127,7 +133,7 @@ void starter_task(void *arg)
                 break;
             }
 
-            if (!is_mqtt_normal_operation())
+            if (!parameters.access_token_valid)
             {
                 if (cooldown == 0)
                 {
@@ -162,7 +168,66 @@ void starter_task(void *arg)
                     }
 
                     tries++;
-                    cooldown = 1000;
+                    cooldown = 20;
+                }
+                else
+                {
+                    cooldown -= 1;
+                }
+            }
+            else
+            {
+                setState(NoMQTT, conf);
+            }
+
+            break;
+        }
+        case NoMQTT:
+        {
+
+            struct ConnectionParameters parameters;
+            int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+            if (err == ESP_ERR_NVS_NOT_FOUND)
+            {
+                setState(NoQRConfig, conf);
+                break;
+            }
+
+            if (!is_mqtt_normal_operation())
+            {
+                if (cooldown == 0)
+                {
+                    {
+                        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+
+                        msg->command = DisplayText;
+
+                        snprintf(msg->data.text, MAX_QR_SIZE, "normal handshake with %s (try number %d)", parameters.qr_info.thingsboard_url, tries);
+
+                        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+                        if (res == pdFAIL)
+                        {
+                            ESP_LOGE(TAG, "mesage send fail");
+                            free(msg);
+                        }
+                    }
+
+                    {
+                        struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
+                        msg->command = Start;
+                        memcpy(msg->data.start.broker_url, parameters.qr_info.mqtt_broker_url, URL_SIZE);
+                        memcpy(msg->data.start.access_token, parameters.access_token, 21);
+
+                        int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
+                        if (res == pdFAIL)
+                        {
+                            ESP_LOGE(TAG, "mesage send fail");
+                            free(msg);
+                        }
+                    }
+
+                    tries++;
+                    cooldown = 20;
                 }
                 else
                 {
@@ -186,6 +251,15 @@ void starter_task(void *arg)
         {
             continue;
         }
+
+        char *starter_command_to_string[] = {
+            "QrInfo",
+            "AuthInfo",
+            "InvalidateConfig",
+            "PingLost",
+        };
+
+        ESP_LOGI(TAG, "starter received message %s", starter_command_to_string[msg->command]);
 
         switch (msg->command)
         {
@@ -219,6 +293,7 @@ void starter_task(void *arg)
             break;
         }
     }
+    ESP_LOGE(TAG, "starter task ended");
 }
 
 void start_starter(struct StarterConf *conf)

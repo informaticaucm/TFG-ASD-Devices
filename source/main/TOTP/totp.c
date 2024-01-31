@@ -35,7 +35,7 @@ static void totp_task(void *arg)
 
             char url[MAX_QR_SIZE];
 
-            if (is_totp_ready())
+            if (is_totp_ready()) // TODO check if we have the qr. If not, dont display the error to allow the "please show the qr" message
 
             {
                 time_t now;

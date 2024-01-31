@@ -191,32 +191,34 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
         if (err == OS_SUCCESS)
         {
-            struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-            msg->command = AuthInfo;
-
-            memcpy(msg->data.access_token, access_token, 21);
-
-            ESP_LOGI(TAG, "access token is : %s", msg->data.access_token);
-
-            int res = xQueueSend(conf->to_starter_queue, &msg, 0);
-            if (res != pdTRUE)
             {
-                free(msg);
+                struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
+                msg->command = AuthInfo;
+
+                memcpy(msg->data.access_token, access_token, 21);
+
+                ESP_LOGI(TAG, "access token is : %s", msg->data.access_token);
+
+                int res = xQueueSend(conf->to_starter_queue, &msg, 0);
+                if (res != pdTRUE)
+                {
+                    free(msg);
+                }
             }
         }
-        else
-        {
+        // else
+        // {
 
-            struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-            msg->command = InvalidateConfig;
-            ESP_LOGI(TAG, "config error, invalidating!");
+        //     struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
+        //     msg->command = InvalidateConfig;
+        //     ESP_LOGI(TAG, "config error, invalidating!");
 
-            int res = xQueueSend(conf->to_starter_queue, &msg, 0);
-            if (res != pdTRUE)
-            {
-                free(msg);
-            }
-        }
+        //     int res = xQueueSend(conf->to_starter_queue, &msg, 0);
+        //     if (res != pdTRUE)
+        //     {
+        //         free(msg);
+        //     }
+        // }
     }
 }
 
@@ -279,8 +281,8 @@ void mqtt_task(void *arg)
             "OTA_state_update",
             "Found_TUI_qr",
             "Start",
-            "DoProvisioning",
-        };
+            "Disconect",
+            "DoProvisioning"};
 
         ESP_LOGI(TAG, "a message %s was recieved at mqtt module", mqtt_command_to_string[msg->command]);
 
@@ -307,6 +309,7 @@ void mqtt_task(void *arg)
             {
                 esp_mqtt_client_stop(client);
                 esp_mqtt_client_destroy(client);
+                client = 0;
             }
 
             ESP_LOGI(TAG, "doProvisioning conf");
@@ -354,6 +357,7 @@ void mqtt_task(void *arg)
             {
                 esp_mqtt_client_stop(client);
                 esp_mqtt_client_destroy(client);
+                client = 0;
             }
 
             ESP_LOGI(TAG, "start conf");
@@ -401,14 +405,17 @@ void mqtt_task(void *arg)
         }
         case Disconect:
         {
+
+            printf("disconecting %d\n", (int)client);
             if (client != 0)
             {
                 esp_mqtt_client_stop(client);
                 esp_mqtt_client_destroy(client);
             }
             set_mqtt_normal_operation(false);
+            client = 0;
+            break;
         }
-        break;
         }
 
         free(msg);
