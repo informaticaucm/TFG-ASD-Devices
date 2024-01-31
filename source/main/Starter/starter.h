@@ -47,8 +47,6 @@ struct StarterMsg
 
 struct ConnectionParameters
 {
-
-    enum StarterState start_state;
     bool qr_valid;
     struct QRInfo qr_info;
     bool access_token_valid;

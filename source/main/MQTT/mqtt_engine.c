@@ -1,5 +1,5 @@
 #pragma once
-
+#include "esp_random.h"
 #include "mqtt.h"
 
 esp_mqtt_client_handle_t client = 0;
@@ -30,6 +30,8 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
         if (strcmp(method, "ping") == 0)
         {
+            set_last_ping_time(time(0));
+
             specting_pong = false;
             if (!have_i_ever_been_connected)
             {
@@ -255,10 +257,12 @@ void mqtt_task(void *arg)
                 if (time(0) > pong_timeout_time)
                 {
                     ESP_LOGE(TAG, "pong timeout");
-
+                    specting_pong = false;
+                    set_mqtt_normal_operation(false);
                     {
                         struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
                         msg->command = PingLost;
+                        set_last_ping_time(0);
 
                         int res = xQueueSend(conf->to_starter_queue, &msg, 0);
                         if (res != pdTRUE)
@@ -340,11 +344,12 @@ void mqtt_task(void *arg)
 
             char msg_buffer[200];
             snprintf(msg_buffer, sizeof(msg_buffer), "{"
-                                                     "\"deviceName\": \"%s\","
+                                                     "\"deviceName\": \"%s_%d\","
                                                      "\"provisionDeviceKey\": \"%s\","
                                                      "\"provisionDeviceSecret\": \"%s\""
                                                      "}",
                      msg->data.provisioning.device_name,
+                     (int)esp_random(),
                      msg->data.provisioning.provisioning_device_key,
                      msg->data.provisioning.provisioning_device_secret);
 

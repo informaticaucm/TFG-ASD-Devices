@@ -13,10 +13,13 @@
 struct sys_mode_state state = {
     .rt_task_delay = DEFAULT_RT_TASK_DELAY,
     .task_delay = DEFAULT_TASK_DELAY,
+    .idle_task_delay = DEFAULT_IDLE_TASK_DELAY,
     .ota_running = false,
     .totp_ready = false,
     .mqtt_normal_operation = false,
-};
+    .last_ping_time = 0,
+}
+;
 SemaphoreHandle_t xSemaphore;
 bool started = false;
 
@@ -101,6 +104,17 @@ int get_task_delay()
     critical_section(ret = state.task_delay;) return ret;
 }
 
+void set_idle_task_delay(int idle_task_delay)
+{
+    critical_section(state.idle_task_delay = idle_task_delay;)
+}
+
+int get_idle_task_delay()
+{
+    int ret = 0;
+    critical_section(ret = state.idle_task_delay;) return ret;
+}
+
 void set_ota_running(bool ota_running)
 {
     critical_section(state.ota_running = ota_running;)
@@ -163,4 +177,15 @@ bool is_mqtt_normal_operation()
 {
     bool ret = false;
     critical_section(ret = state.mqtt_normal_operation;) return ret;
+}
+
+void set_last_ping_time(int last_ping_time)
+{
+    critical_section(state.last_ping_time = last_ping_time;)
+}
+
+int get_last_ping_time()
+{
+    int ret = 0;
+    critical_section(ret = state.last_ping_time;) return ret;
 }

@@ -66,7 +66,9 @@
     "event_groups.h": "c",
     "camera.h": "c",
     "buttons.h": "c",
-    "mutex": "c"
+    "mutex": "c",
+    "set": "c",
+    "ios": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

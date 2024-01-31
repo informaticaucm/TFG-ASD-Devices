@@ -7,6 +7,7 @@ enum sys_mode
 {
     mirror,
     qr_display,
+    message,
     self_managed,
 };
 
@@ -14,6 +15,7 @@ struct sys_mode_state
 {
     int task_delay;
     int rt_task_delay;
+    int idle_task_delay;
     bool ota_running;
     enum sys_mode mode;
     enum sys_mode tmp_mode;
@@ -24,6 +26,7 @@ struct sys_mode_state
     // char qr_url_template[URL_SIZE];
     bool totp_ready;
     bool mqtt_normal_operation;
+    int last_ping_time;
 
     struct ConnectionParameters parameters;
 };
@@ -44,6 +47,9 @@ int get_rt_task_delay();
 void set_task_delay(int task_delay);
 int get_task_delay();
 
+void set_idle_task_delay(int rt_task_delay);
+int get_idle_task_delay();
+
 void set_ota_running(bool ota_running);
 bool is_ota_running();
 
@@ -58,5 +64,8 @@ bool is_totp_ready();
 
 void set_mqtt_normal_operation(bool mqtt_normal_operation);
 bool is_mqtt_normal_operation();
+
+void set_last_ping_time(int last_ping_time);
+int get_last_ping_time();
 
 #endif

@@ -48,7 +48,7 @@ void j_nvs_set(char *key, void *buffer, int buffer_size)
     ESP_ERROR_CHECK(nvs_set_blob(my_handle, key, buffer, buffer_size));
     ESP_ERROR_CHECK(nvs_commit(my_handle));
     nvs_close(my_handle);
-    ESP_LOGE(TAG, "nvs set of \"%s\" as (size %d):\n", key, buffer_size);
+    // ESP_LOGE(TAG, "nvs set of \"%s\" as (size %d):\n", key, buffer_size);
     // fwrite(buffer, 1, buffer_size, stdout);
     // printf("\n");
 
