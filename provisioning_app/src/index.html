@@ -1,19 +1,38 @@
 <head>
     <title>Provisioning So Called App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <canvas id=qr_canvas></canvas><br>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">QR generator</h5>
 
-    <label>device_name: </label><input type=text id=device_name></index><br>
-    <label>space_id: </label><input type=text id=space_id></index><br>
-    <label>thingsboard_url: </label><input type=text id=thingsboard_url></index><br>
-    <label>mqtt_broker_url: </label><input type=text id=mqtt_broker_url></index><br>
-    <label>provisioning_device_key: </label><input type=text id=provisioning_device_key></index><br>
-    <label>provisioning_device_secret: </label><input type=text id=provisioning_device_secret></index><br>
-    <label>wifi_psw: </label><input type=text id=wifi_psw></index><br>
-    <label>wifi_ssid: </label><input type=text id=wifi_ssid></index><br>
+            </div>
+            <div class="card-body">
+                <canvas id=qr_canvas></canvas><br>
 
 
-    <p id=text_display></p>
+                <label>device_name: </label><input class="form-control" type=text id=device_name></index><br>
+                <label>space_id: </label><input class="form-control" type=text id=space_id></index><br>
+                <label>thingsboard_url: </label><input class="form-control" type=text id=thingsboard_url></index><br>
+                <label>mqtt_broker_url: </label><input class="form-control" type=text id=mqtt_broker_url></index><br>
+                <label>provisioning_device_key: </label><input class="form-control" type=text id=provisioning_device_key></index><br>
+                <label>provisioning_device_secret: </label><input class="form-control" type=text id=provisioning_device_secret></index><br>
+                <label>wifi_psw: </label><input class="form-control" type=text id=wifi_psw></index><br>
+                <label>wifi_ssid: </label><input class="form-control" type=text id=wifi_ssid></index><br>
+
+
+            </div>
+
+            <div class="card-footer text-muted">
+                <p id=text_display></p>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
