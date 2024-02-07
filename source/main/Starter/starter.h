@@ -11,7 +11,8 @@ enum StarterState
     NoQRConfig,
     NoWifi,
     NoAuth,
-    NoMQTT,
+    NoTB,
+    NoBackend,
     Success,
 };
 
@@ -20,7 +21,6 @@ enum StarterCommand
     QrInfo,
     AuthInfo,
     InvalidateConfig,
-    PingLost,
 };
 
 struct QRInfo
@@ -30,6 +30,7 @@ struct QRInfo
     char thingsboard_url[URL_SIZE];
     char mqtt_broker_url[URL_SIZE];
     char device_name[50];
+    int space_id;
     char provisioning_device_key[21];
     char provisioning_device_secret[21];
 };

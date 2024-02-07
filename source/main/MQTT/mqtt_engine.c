@@ -6,7 +6,6 @@ esp_mqtt_client_handle_t client = 0;
 
 bool specting_pong = false;
 int pong_timeout_time = 0;
-bool have_i_ever_been_connected = false;
 
 static const char *TAG = "mqtt";
 
@@ -28,25 +27,13 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         char method[20];
         json_obj_get_string(&jctx, "method", method, 20);
 
-        if (strcmp(method, "ping") == 0)
+        if (0 == strcmp(method, "tb_ping"))
+        {
+            set_last_tb_ping_time(time(0));
+        }
+        if (0 == strcmp(method, "ping"))
         {
             set_last_ping_time(time(0));
-
-            specting_pong = false;
-            if (!have_i_ever_been_connected)
-            {
-                ESP_LOGI(TAG, "first connection");
-                set_tmp_mode(self_managed, 10, qr_display);
-                struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-                msg->command = DisplaySuccess;
-                strcpy(msg->data.text, "connected to thingsboard server");
-                int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-                if (res != pdTRUE)
-                {
-                    free(msg);
-                }
-            }
-            have_i_ever_been_connected = true;
 
             bool failure = false;
             int epoch;
@@ -76,50 +63,10 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                 ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
             }
         }
-        else if (strcmp(method, "seguimiento") == 0)
+
+        if (strcmp(method, "dispositivos"))
         {
             json_obj_get_object(&jctx, "response");
-
-            struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-            json_obj_get_string(&jctx, "text", msg->data.text, 100);
-            int duration;
-            json_obj_get_int(&jctx, "duration", &duration);
-            int icon_id;
-            json_obj_get_int(&jctx, "icon_id", &icon_id);
-
-            ESP_LOGI(TAG, "duration is: %d and icon id is: %d", duration, icon_id);
-
-            json_obj_leave_object(&jctx);
-
-            switch (icon_id)
-            {
-            case 0:
-                msg->command = DisplaySuccess;
-                break;
-            case 1:
-                msg->command = DisplayWarning;
-                break;
-            case 2:
-                msg->command = DisplayError;
-                break;
-            default:
-                msg->command = DisplayText;
-            }
-
-            set_tmp_mode(self_managed, duration, qr_display);
-            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-            if (res != pdTRUE)
-            {
-                free(msg);
-            }
-        }
-        else if (strcmp(method, "dispositivos") == 0)
-        {
-            json_obj_get_object(&jctx, "response");
-
-            // char qr_url_template[URL_SIZE];
-            // json_obj_get_string(&jctx, "qr_url_template", qr_url_template, URL_SIZE);
-            // set_qr_url_template(qr_url_template);
 
             char totp_secret[17];
             int t0;
@@ -228,52 +175,8 @@ void mqtt_task(void *arg)
 {
     struct MQTTConf *conf = arg;
 
-    int ping_timer = 0;
-
     while (1)
     {
-
-        if (is_mqtt_normal_operation() && !is_ota_running())
-        {
-            if (ping_timer < 0)
-            {
-                char params[50];
-                char fw_version[32];
-                get_version(fw_version);
-
-                snprintf(params, sizeof(params), "{fw_version: \"%s\"}", fw_version);
-
-                mqtt_send_rpc("ping", params);
-                ping_timer = PING_RATE;
-                specting_pong = true;
-                pong_timeout_time = time(0) + PING_TIMEOUT;
-            }
-            else if (!specting_pong)
-            {
-                ping_timer--;
-            }
-            if (specting_pong)
-            {
-                if (time(0) > pong_timeout_time)
-                {
-                    ESP_LOGE(TAG, "pong timeout");
-                    specting_pong = false;
-                    set_mqtt_normal_operation(false);
-                    {
-                        struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-                        msg->command = PingLost;
-                        set_last_ping_time(0);
-
-                        int res = xQueueSend(conf->to_starter_queue, &msg, 0);
-                        if (res != pdTRUE)
-                        {
-                            free(msg);
-                        }
-                    }
-                }
-            }
-        }
-
         struct MQTTMsg *msg;
         if (xQueueReceive(conf->to_mqtt_queue, &msg, get_task_delay()) != pdPASS)
         {
@@ -397,17 +300,29 @@ void mqtt_task(void *arg)
             }
 
             {
-                struct ConnectionParameters parameters;
-                get_parameters(&parameters);
+                mqtt_send_rpc("tb_ping", "");
 
-                char params[170];
-                snprintf(params, sizeof(params), "{nombre: \"%s\", espacioId: TODO, idExternoDispositivo: \"TODO\"}", parameters.qr_info.device_name);
-                mqtt_send_rpc("dispositivos", params);
+                break;
             }
 
-            set_mqtt_normal_operation(true);
             break;
         }
+        case LogInToServer:
+        {
+            char params[80];
+
+            snprintf(params, sizeof(params), "{\"nombre\":\"%s\",\"espacioId\":%d}", msg->data.login.name, msg->data.login.space_id);
+
+            mqtt_send_rpc("devices", params);
+
+            break;
+        }
+        case SendPingToServer:
+        {
+            mqtt_send_rpc("ping", "");
+            break;
+        }
+
         case Disconect:
         {
 

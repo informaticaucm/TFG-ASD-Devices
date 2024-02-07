@@ -27,6 +27,7 @@ struct sys_mode_state
     bool totp_ready;
     bool mqtt_normal_operation;
     int last_ping_time;
+    int last_tb_ping_time;
 
     struct ConnectionParameters parameters;
 };
@@ -67,5 +68,8 @@ bool is_mqtt_normal_operation();
 
 void set_last_ping_time(int last_ping_time);
 int get_last_ping_time();
+
+void set_last_tb_ping_time(int last_ping_time);
+int get_last_tb_ping_time();
 
 #endif

@@ -73,7 +73,7 @@ void setState(enum StarterState state, struct StarterConf *conf)
         parameters.qr_valid = false;
     case NoWifi:
     case NoAuth:
-    case NoMQTT:
+    case NoTB:
         struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
         msg->command = Disconect;
 
@@ -178,7 +178,7 @@ int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf *conf)
     esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id);
     esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip);
 
-        return 0;
+    return 0;
 }
 
 void print_ConnectionParameters(struct ConnectionParameters *cp)
@@ -191,6 +191,7 @@ void print_ConnectionParameters(struct ConnectionParameters *cp)
     ESP_LOGI(TAG, "      .thingsboard_url: %s", cp->qr_info.thingsboard_url);
     ESP_LOGI(TAG, "      .mqtt_broker_url: %s", cp->qr_info.mqtt_broker_url);
     ESP_LOGI(TAG, "      .device_name: %s", cp->qr_info.device_name);
+    ESP_LOGI(TAG, "      .space_id: %d", cp->qr_info.space_id);
     ESP_LOGI(TAG, "      .provisioning_device_key: %s", cp->qr_info.provisioning_device_key);
     ESP_LOGI(TAG, "      .provisioning_device_secret: %s", cp->qr_info.provisioning_device_secret);
     ESP_LOGI(TAG, "   access_token_valid: %d", cp->access_token_valid);
@@ -355,12 +356,12 @@ void starter_task(void *arg)
             }
             else
             {
-                setState(NoMQTT, conf);
+                setState(NoTB, conf);
             }
 
             break;
         }
-        case NoMQTT:
+        case NoTB:
         {
 
             struct ConnectionParameters parameters;
@@ -373,7 +374,7 @@ void starter_task(void *arg)
 
             ESP_LOGE(TAG, "last ping time %d, current time %d", get_last_ping_time(), (int)time(0));
 
-            if (time(0) - get_last_ping_time() > 10)
+            if (time(0) - get_last_tb_ping_time() > 10)
             {
                 if (cooldown == 0)
                 {
@@ -423,12 +424,99 @@ void starter_task(void *arg)
             }
             else
             {
+                setState(NoBackend, conf);
+            }
+
+            break;
+        }
+        case NoBackend:
+        {
+
+            struct ConnectionParameters parameters;
+            int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+            if (err == ESP_ERR_NVS_NOT_FOUND)
+            {
+                setState(NoQRConfig, conf);
+                break;
+            }
+
+            ESP_LOGE(TAG, "last ping time %d, current time %d", get_last_ping_time(), (int)time(0));
+
+            if (time(0) - get_last_ping_time() > 10)
+            {
+                if (cooldown == 0)
+                {
+                    {
+                        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+
+                        msg->command = DisplayText;
+
+                        snprintf(msg->data.text, MAX_QR_SIZE, "normal handshake with backend (try number %d)", tries);
+
+                        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+                        if (res == pdFAIL)
+                        {
+                            ESP_LOGE(TAG, "mesage send fail");
+                            free(msg);
+                        }
+                    }
+
+                    {
+                        struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
+                        msg->command = LogInToServer;
+                        memcpy(msg->data.login.name, parameters.qr_info.device_name, 50);
+                        memcpy(msg->data.login.space_id, parameters.qr_info.space_id, 21);
+
+                        int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
+                        if (res == pdFAIL)
+                        {
+                            ESP_LOGE(TAG, "mesage send fail");
+                            free(msg);
+                        }
+                    }
+
+                    tries++;
+                    cooldown = 20;
+                }
+                else
+                {
+                    cooldown -= 1;
+                }
+
+                if (tries > 10)
+                {
+                    parameters.access_token_valid = false;
+                    j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+                    setState(NoTB, conf);
+                }
+            }
+            else
+            {
                 setState(Success, conf);
             }
 
             break;
         }
 
+        case Success:
+        {
+            struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
+
+            msg->command = SendPingToServer;
+            int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
+            if (res == pdFAIL)
+            {
+                ESP_LOGE(TAG, "mesage send fail");
+                free(msg);
+            }
+
+            if (get_last_ping_time() - time(0) > 50)
+            {
+                setState(NoBackend, conf);
+            }
+
+            break;
+        }
         default:
             break;
         }
@@ -474,9 +562,6 @@ void starter_task(void *arg)
         }
         case InvalidateConfig:
             setState(NoQRConfig, conf);
-            break;
-        case PingLost:
-            setState(NoMQTT, conf);
             break;
         }
     }

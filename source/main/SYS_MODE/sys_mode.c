@@ -18,6 +18,7 @@ struct sys_mode_state state = {
     .totp_ready = false,
     .mqtt_normal_operation = false,
     .last_ping_time = 0,
+    .last_tb_ping_time = 0,
 }
 ;
 SemaphoreHandle_t xSemaphore;
@@ -188,4 +189,15 @@ int get_last_ping_time()
 {
     int ret = 0;
     critical_section(ret = state.last_ping_time;) return ret;
+}
+
+void set_last_tb_ping_time(int last_tb_ping_time)
+{
+    critical_section(state.last_tb_ping_time = last_tb_ping_time;)
+}
+
+int get_last_tb_ping_time()
+{
+    int ret = 0;
+    critical_section(ret = state.last_tb_ping_time;) return ret;
 }
