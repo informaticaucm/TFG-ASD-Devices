@@ -202,13 +202,25 @@ void mqtt_task(void *arg)
             mqtt_send_ota_status_report(msg->data.ota_state_update.ota_state);
             break;
         case Found_TUI_qr:
+            /*
+            {
+                "tipo_registro": "RegistroSeguimientoDispositivoQr",
+                "espacioId": 1,
+                "dispositivoId": 2,
+                "qr": "ZXlKaGJHY2lPaUpTVTBFdFQwRkZVQ0lzSW1WdVl5STZJa0V5TlRaRFFrTXRTRk0xTVRJaUxDSnJhV1FpT2lJeE9HSXhZMlkzTlRoak1XUTBaV00yWW1SaE5qVTRPVE0xTjJGaVpHUTROU0lzSW5SNWNDSTZJa3BYVkNJc0ltTjBlU0k2SWtwWFZDSjkuZ0NieFA3OG8zRGdwRFRVUWJ1SG5pdUdnWXBBVHFnR2tSR3k3cGFDNmhScno3TjdlSWE2c0FPV0RPOUZobmotYzhvY01sNGNGNEpiX212NXFSUENoOXI1N1BCcXg3ak9oTUlNUFR3SkdwamN5QmFxdEhsWmx1MXZ1cFk1dFEzWTJqR3oxVGk0Qm55d2FlRUhQeUlQUUp0TjdGN2hJQU9Semo3SVk0c0lLa1ZYdFFKWmdhS1c4cEVIcV9HQ3FqOGk1YWFpTTB1Sm5SRzNHT2gzbGl2cDlOcGp2OWRvcXAzZ3lQYTF6anJnMkgxUnNPR24wajJRTUd2dHVWZmt1TndGLVNvUEtGRUN5SE9xMFpLMW9IMnNUTzgtSnd2SGZsYklaUXI1eFdUcFM4cTdNYlVYRXVxVVJ0cmcwVGotMno2dGRhT0xUNGIzVWVEdWZLMmFyM2JCZlJENC1uUkFMdG9ZMGVrY015R0ZPUzdvMU14bDNoeTVzSUctRXlTeVdldUJWeTY4YURXRHBpOXFab1F1WTFUYnh4YWtqbmNDT0d1X0doMWwxbV9tSzJsX0lkeVhDVF9HQ2Z6RnE0WlRrUFo1ZXlkTkJBUFp1eEJMVWI0QnJNYjVpRGRaalQ3QWdHT2xScmVfd0lSSG1tS204VzluRGVRUVJtYklYTzIzSnVPdzkuQkRDYXJmcTJyX1VrOERITmZzTndTUS40RHVReDFjZkpYYWRIbnVkclZhQnNzNDV6eHlkNmlvdXVTelpVeU9lTTRpa0ZfN2hET2d3bWFDbWEtWjk3X1FaQko1RHpWbjlTSmhLVVRBcXBWUjNCUkdBeEpfSEFYVTVqYVRqWHFidlVheHNoN1o1VGdaOWVjazBGSW9lMWxrd3Y1MXhFdllxcVFfWG9qcjRNQUVtTHVNRV85QXJDSzltTmFNQURJek9qNFZvUXRhRFAxbDI2eXRvY2Mtb0VOaWZCUllHdTI4TGJKTGt5UUt6eVF5NkZ1QU90V2pMTTBXQ1hWNy1vX2R2ajZxZmVZSE5CRDdZQlN4eXFkZ0Q4ZGN4TUJOZDJzSzczWXNaUEhFYTBWMS04eno3aG0zYkgzdFplbHB3UFdTY3FMTFdfU1VINTg2YzBGVmVJNmdndnF6amZMWl9ZNmVRaWJWU2RYZk90SkJrMjJRckxzdUNYYlJLOEcxdzl0MjNQd3U4dWtVQXc0djBsN0hlYVdfMFNKeUtTUFFBTlJQODNNeUZiSzdmbXpUWWFXOVRZTjJKcktOLVBMcGQyZElGU20yR2FfRWZhQ3dOSkJtNFJETXpETnJm\n",
+                "totp": {
+                    "value": 14050471,
+                    "time": 1111111111
+                }
+            }
+            */
             char params[MAX_QR_SIZE + 90];
             char fw_version[32];
             get_version(fw_version);
 
             snprintf(params, sizeof(params), "{fw_version: \"%s\",qr_content: \"%s\"}", fw_version, msg->data.found_tui_qr.TUI_qr);
 
-            mqtt_send_rpc("seguimiento", params);
+            send_api_post("seguimiento", params);
             break;
         case DoProvisioning:
         {
@@ -301,7 +313,6 @@ void mqtt_task(void *arg)
 
             {
                 mqtt_send_rpc("tb_ping", "");
-
                 break;
             }
 
@@ -309,17 +320,17 @@ void mqtt_task(void *arg)
         }
         case LogInToServer:
         {
-            char params[80];
+            char *request_body = alloca(strlen(msg->data.login.name) + 40);
 
-            snprintf(params, sizeof(params), "{\"nombre\":\"%s\",\"espacioId\":%d}", msg->data.login.name, msg->data.login.space_id);
+            snprintf(request_body, strlen(msg->data.login.name) + 40, "{\"nombre\":\"%s\",\"espacioId\":%d}", msg->data.login.name, msg->data.login.space_id);
 
-            mqtt_send_rpc("devices", params);
+            send_api_post("devices", request_body);
 
             break;
         }
         case SendPingToServer:
         {
-            mqtt_send_rpc("ping", "");
+            send_api_post("ping", "{}");
             break;
         }
 

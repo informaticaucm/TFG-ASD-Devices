@@ -61,6 +61,14 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     }
 }
 
+void send_api_post(char* path, char* request_body){
+    int len = strlen(request_body) + strlen(path) + 50;
+    char* rpc_params = alloca(len);
+    snprintf(rpc_params,len, "{\"path\": \"%s\", \"request_body\": %s}", path, request_body);
+
+    mqtt_send_rpc("api_post", rpc_params);
+}
+
 void mqtt_subscribe(char *topic)
 {
     ESP_LOGI(TAG, "subscribing to: %s", topic);

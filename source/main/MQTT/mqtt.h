@@ -105,6 +105,7 @@ void mqtt_subscribe(char *topic);
 void mqtt_send(char *topic, char *msg);
 void mqtt_send_telemetry(char *msg);
 void mqtt_send_rpc(char *method, char *params);
+void send_api_post(char *path, char *request_body);
 void mqtt_send_ota_status_report(enum OTAState status);
 void mqtt_send_ota_fail(char *explanation);
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
