@@ -9,7 +9,35 @@
 
 #define TAG "camera"
 
-uint8_t * unified_buf = NULL;
+void meta_frame_write(struct meta_frame *frame, uint8_t *buf)
+{
+    if (frame->state == empty)
+    {
+        memcpy(frame->buf, buf, sizeof(frame->buf));
+        frame->state = written;
+    }
+}
+
+void meta_frame_free(struct meta_frame *frame)
+{
+    frame->state = empty;
+}
+
+#define MF_COUNT 3
+
+struct meta_frame *metaframe_heap;
+
+struct meta_frame *get_meta_frame()
+{
+    for (int i = 0; i < MF_COUNT; i++)
+    {
+        if (metaframe_heap[i].state == empty)
+        {
+            return &metaframe_heap[i];
+        }
+    }
+    return NULL;
+}
 
 void camera_task(void *arg)
 {
@@ -53,38 +81,55 @@ void camera_task(void *arg)
             continue;
         }
 
+        struct meta_frame *qr_mf = get_meta_frame();
+        if (qr_mf != NULL)
+        {
+            meta_frame_write(qr_mf, pic->buf);
+            int res = xQueueSend(conf->to_qr_queue, &qr_mf, 0);
+            if (res == pdFAIL)
+            {
+                meta_frame_free(qr_mf);
+            }
+        }
+
         if (get_mode() == mirror)
         {
-            if(unified_buf == NULL){
-                unified_buf = jalloc(pic->len);
-            }
 
-            struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-            msg->command = DisplayImage;
-            msg->data.image.buf = unified_buf;
-            msg->data.image.height = pic->height;
-            msg->data.image.width = pic->width;
-
-            memcpy(unified_buf, pic->buf, pic->len);
-
-            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-            if (res != pdTRUE)
+            struct meta_frame *mf = get_meta_frame();
+            if (mf != NULL)
             {
-                ESP_LOGE(TAG, "mesage send error");
-                free(msg);
+                meta_frame_write(mf, pic->buf);
+
+                struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+                msg->command = DisplayImage;
+                msg->data.mf = mf;
+
+                int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+                if (res != pdTRUE)
+                {
+                    ESP_LOGE(TAG, "mesage send error");
+                    free(msg);
+                    meta_frame_free(mf);
+                }
+            }
+            else
+            {
+                ESP_LOGE(TAG, "no meta frame available");
             }
         }
 
-        int res = xQueueSend(conf->to_qr_queue, &pic, 0);
-        if (res == pdFAIL)
-        {
-            esp_camera_fb_return(pic);
-        }
+        esp_camera_fb_return(pic);
     }
 }
 
 void camera_start(struct CameraConf *conf)
 {
+
+    metaframe_heap = jalloc(MF_COUNT * sizeof(struct meta_frame));
+    for (size_t i = 0; i < MF_COUNT; i++)
+    {
+        metaframe_heap[i].state = empty;
+    }
 
     // heap_caps_print_heap_info(0x00000404);
 

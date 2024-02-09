@@ -23,21 +23,19 @@
 #include "../common.h"
 #include "esp_log.h"
 #include "../icon/icon.h"
+#include "../Camera/camera.h"
 #include "../SYS_MODE/sys_mode.h"
 
 #define TAG "screen"
 
 int last_bar_progress = 0;
 
-struct ScreenMsg *current_state;
+struct meta_frame *held_mf;
 
 void screen_task(void *arg)
 {
+    held_mf = NULL;
     struct ScreenConf *conf = arg;
-
-    current_state = jalloc(sizeof(struct ScreenMsg));
-    current_state->command = Empty;
-    uint8_t *canvas_buf = NULL;
 
     static lv_style_t style_bar_bg;
 
@@ -67,10 +65,9 @@ void screen_task(void *arg)
 
         struct ScreenMsg *msg;
 
-        if (xQueueReceive(conf->to_screen_queue, &msg, get_rt_task_delay()) == pdPASS)
+        if (xQueueReceive(conf->to_screen_queue, &msg, get_rt_task_delay()) != pdPASS)
         {
-            free(current_state);
-            current_state = msg;
+            continue;
         }
 
         bsp_display_lock(0);
@@ -84,7 +81,7 @@ void screen_task(void *arg)
         // lv_obj_add_style(time, &label_style, LV_PART_MAIN);
         // ESP_LOGI(TAG, "screen task tick");
 
-        switch (current_state->command)
+        switch (msg->command)
         {
         case Empty:
         {
@@ -103,7 +100,7 @@ void screen_task(void *arg)
             lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Aviso: %s", current_state->data.text);
+            lv_label_set_text_fmt(lable, "Aviso: %s", msg->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -117,7 +114,7 @@ void screen_task(void *arg)
             lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Exito: %s", current_state->data.text);
+            lv_label_set_text_fmt(lable, "Exito: %s", msg->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -131,7 +128,7 @@ void screen_task(void *arg)
             lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Error: %s", current_state->data.text);
+            lv_label_set_text_fmt(lable, "Error: %s", msg->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -142,7 +139,7 @@ void screen_task(void *arg)
         {
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "%s", current_state->data.text);
+            lv_label_set_text_fmt(lable, "%s", msg->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -153,7 +150,7 @@ void screen_task(void *arg)
         {
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "%s \n(%f%%)", current_state->data.progress.text, current_state->data.progress.progress * 100.);
+            lv_label_set_text_fmt(lable, "%s \n(%f%%)", msg->data.progress.text, msg->data.progress.progress * 100.);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, -30);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -174,7 +171,7 @@ void screen_task(void *arg)
         {
 
             lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text(lable, current_state->data.text);
+            lv_label_set_text(lable, msg->data.text);
             lv_obj_set_width(lable, 150);
             lv_obj_align(lable, LV_ALIGN_CENTER, 0, -30);
             lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
@@ -197,7 +194,7 @@ void screen_task(void *arg)
 
             lv_obj_t *qr = lv_qrcode_create(lv_scr_act(), 240, lv_color_black(), lv_color_white());
             /*Set data*/
-            lv_qrcode_update(qr, current_state->data.text, strlen(current_state->data.text));
+            lv_qrcode_update(qr, msg->data.text, strlen(msg->data.text));
             lv_obj_center(qr);
 
             break;
@@ -205,31 +202,32 @@ void screen_task(void *arg)
         case DisplayImage:
         {
 
-            lv_obj_t *icon = lv_img_create(lv_scr_act());
+            lv_obj_t *img_obj = lv_img_create(lv_scr_act());
 
             lv_img_dsc_t img = {
                 .header.always_zero = 0,
                 .header.cf = LV_IMG_CF_TRUE_COLOR,
-                .header.w = current_state->data.image.width,
-                .header.h = current_state->data.image.height,
-                .data_size = current_state->data.image.width * current_state->data.image.height * 2,
-                .data = current_state->data.image.buf,
+                .header.w = IMG_WIDTH,
+                .header.h = IMG_HEIGHT,
+                .data_size = sizeof(msg->data.mf->buf),
+                .data = msg->data.mf->buf,
             };
 
-            int max_side = max(current_state->data.image.width, current_state->data.image.height);
+            int max_side = max(IMG_WIDTH, IMG_HEIGHT);
             float scale = 240.0 / (float)max_side;
 
-            lv_img_set_src(icon, &img);
-            
-            lv_img_set_zoom(icon, (int)(255.0 * scale));
-            lv_img_set_antialias(icon, false); // Antialiasing destroys the image
+            lv_img_set_src(img_obj, &img);
 
-            // ESP_LOGI(TAG, "sample: %p %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", img.data, img.data[0], img.data[1], img.data[2], img.data[3], img.data[4], img.data[5], img.data[6], img.data[7], img.data[8], img.data[9], img.data[10], img.data[11], img.data[12], img.data[13], img.data[14], img.data[15], img.data[16], img.data[17], img.data[18], img.data[19]);
+            lv_img_set_zoom(img_obj, (int)(255.0 * scale));
+            lv_img_set_antialias(img_obj, false); // Antialiasing destroys the image
 
-            // lv_canvas_transform(image_canvas, &img, 0, 256, 0, 0, current_state->data.image.width / 2, current_state->data.image.height / 2, false);
-            lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_align(img_obj, LV_ALIGN_CENTER, 0, 0);
 
-            // lv_obj_invalidate(image_canvas);
+            if (held_mf != NULL)
+            {
+                meta_frame_free(held_mf);
+            }
+            held_mf = msg->data.mf;
             break;
         }
         }

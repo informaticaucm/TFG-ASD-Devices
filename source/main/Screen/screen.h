@@ -4,6 +4,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "../common.h"
+#include "../Camera/camera.h"
 
 enum ScreenCommand
 {
@@ -30,12 +31,7 @@ struct ScreenMsg
             char text[90];
             float progress;
         } progress;
-        struct
-        {
-            uint8_t *buf;
-            int width;
-            int height;
-        } image;
+        struct meta_frame *mf;
     } data;
 };
 

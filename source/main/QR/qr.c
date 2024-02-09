@@ -25,6 +25,7 @@
 #include "../SYS_MODE/sys_mode.h"
 
 #include "../common.h"
+#include "../Camera/camera.h"
 
 #define TAG "qr"
 
@@ -76,11 +77,11 @@ static void qr_task(void *arg)
             continue;
         }
 
-        camera_fb_t *pic;
+        struct meta_frame *mf;
         uint8_t *qr_buf = quirc_begin(qr, NULL, NULL);
 
         // Get the next frame from the queue
-        int res = xQueueReceive(conf->to_qr_queue, &pic, 0);
+        int res = xQueueReceive(conf->to_qr_queue, &mf, 0);
         if (res != pdPASS)
         {
             continue;
@@ -88,10 +89,10 @@ static void qr_task(void *arg)
 
         // Convert the frame to grayscale. We could have asked the camera for a grayscale frame,
         // but then the image on the display would be grayscale too.
-        rgb565_to_grayscale_buf(pic->buf, qr_buf, IMG_WIDTH, IMG_HEIGHT);
+        rgb565_to_grayscale_buf(mf->buf, qr_buf, IMG_WIDTH, IMG_HEIGHT);
 
         // Return the frame buffer to the camera driver ASAP to avoid DMA errors
-        esp_camera_fb_return(pic);
+        meta_frame_free(mf);
 
         // Process the frame. This step find the corners of the QR code (capstones)
         // ESP_LOGE("D", "%p : %p at %d", (void *)qr, (void *)qr->flood_fill_vars, (int)((void *)&(qr->flood_fill_vars) - (void *)qr));
