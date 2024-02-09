@@ -66,7 +66,6 @@ static void qr_task(void *arg)
 
     struct quirc *qr = conf->qr;
 
-    int frame = 0;
     ESP_LOGI(TAG, "Processing task ready");
     while (1)
     {
@@ -99,7 +98,6 @@ static void qr_task(void *arg)
         // ESP_LOGE("define log", "%d %d %d", QUIRC_MAX_REGIONS, QUIRC_MAX_CAPSTONES, QUIRC_MAX_GRIDS);
 
         quirc_end(qr);
-        ++frame;
         int count = quirc_count(qr);
         quirc_decode_error_t err = QUIRC_ERROR_DATA_UNDERFLOW;
 

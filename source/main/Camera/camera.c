@@ -23,7 +23,7 @@ void meta_frame_free(struct meta_frame *frame)
     frame->state = empty;
 }
 
-#define MF_COUNT 3
+#define MF_COUNT 5
 
 struct meta_frame *metaframe_heap;
 

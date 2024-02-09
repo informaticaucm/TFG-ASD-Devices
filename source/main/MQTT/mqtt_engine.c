@@ -188,8 +188,11 @@ void mqtt_task(void *arg)
             "OTA_state_update",
             "Found_TUI_qr",
             "Start",
+            "LogInToServer",
             "Disconect",
-            "DoProvisioning"};
+            "DoProvisioning",
+            "SendPingToServer",
+        };
 
         ESP_LOGI(TAG, "a message %s was recieved at mqtt module", mqtt_command_to_string[msg->command]);
 
@@ -224,8 +227,11 @@ void mqtt_task(void *arg)
             break;
         case DoProvisioning:
         {
+            ESP_LOGI(TAG, "doProvisioning client %d", (int)client);
+
             if (client != 0)
             {
+                ESP_LOGI(TAG, "doProvisioning stopping client");
                 esp_mqtt_client_stop(client);
                 esp_mqtt_client_destroy(client);
                 client = 0;
@@ -312,7 +318,7 @@ void mqtt_task(void *arg)
             }
 
             {
-                mqtt_send_rpc("tb_ping", "");
+                mqtt_send_rpc("tb_ping", "{}");
                 break;
             }
 

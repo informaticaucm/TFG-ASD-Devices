@@ -19,13 +19,13 @@
 // #define IMG_HEIGHT 600
 // #define CAM_FRAME_SIZE FRAMESIZE_SVGA
 
-#define IMG_WIDTH 240
-#define IMG_HEIGHT 240
-#define CAM_FRAME_SIZE FRAMESIZE_240X240
+// #define IMG_WIDTH 240
+// #define IMG_HEIGHT 240
+// #define CAM_FRAME_SIZE FRAMESIZE_240X240
 
-// #define IMG_WIDTH 400
-// #define IMG_HEIGHT 296
-// #define CAM_FRAME_SIZE FRAMESIZE_CIF // 400x296
+#define IMG_WIDTH 400
+#define IMG_HEIGHT 296
+#define CAM_FRAME_SIZE FRAMESIZE_CIF // 400x296
 
 #define nvs_conf_tag "ConnParams"
 

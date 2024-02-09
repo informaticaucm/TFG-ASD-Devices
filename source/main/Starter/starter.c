@@ -35,13 +35,12 @@ enum StarterState starterState = NoQRConfig;
 int tries = 0;
 int cooldown = 0;
 
-char *state_string[] = {
-    "NoQRConfig",
-    "NoWifi",
-    "NoAuth",
-    "NoMQTT",
-    "Success",
-};
+char *state_string[] = {"NoQRConfig",
+                        "NoWifi",
+                        "NoAuth",
+                        "NoTB",
+                        "NoBackend",
+                        "Success"};
 
 void crash_wifi()
 {
@@ -257,12 +256,14 @@ void try_tb_auth(struct StarterConf *conf)
     memcpy(msg->data.provisioning.device_name, parameters.qr_info.device_name, 50);
     memcpy(msg->data.provisioning.provisioning_device_secret, parameters.qr_info.provisioning_device_secret, 21);
     memcpy(msg->data.provisioning.provisioning_device_key, parameters.qr_info.provisioning_device_key, 21);
+
     int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
     if (res == pdFAIL)
     {
         ESP_LOGE(TAG, "mesage send fail");
         free(msg);
     }
+    ESP_LOGI(TAG, "sent DoProvisioning message");
 }
 
 bool is_tb_authenticated(struct StarterConf *conf)
@@ -301,11 +302,22 @@ void invalidate_tb_auth()
     j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 }
 
+void invalidate_tb_ping()
+{
+    set_last_tb_ping_time(-1);
+}
+
+void invalidate_backend_ping()
+{
+    set_last_ping_time(-1);
+}
+
 void dont() {}
 
 bool is_tb_connected()
 {
-    return time(0) - get_last_tb_ping_time() > 10;
+    ESP_LOGI(TAG, "checking if tb is connected %d %d", (int)time(0), get_last_tb_ping_time());
+    return get_last_tb_ping_time() != -1 && time(0) - get_last_tb_ping_time() > 10;
 }
 
 void try_backend_connect(struct StarterConf *conf)
@@ -345,7 +357,9 @@ int exponential_backoff(int tries)
 
 bool is_backend_connected()
 {
-    return time(0) - get_last_ping_time() > 10;
+    ESP_LOGI(TAG, "checking if backend is connected %d %d", (int)time(0), get_last_ping_time());
+
+    return get_last_ping_time() != -1 && time(0) - get_last_ping_time() > 10;
 }
 
 void send_ping_to_backend(struct StarterConf *conf)
@@ -366,7 +380,7 @@ bool is_qr_valid()
 {
     struct ConnectionParameters parameters;
     int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-    return err == ESP_OK && !parameters.qr_valid;
+    return err == ESP_OK && parameters.qr_valid;
 }
 
 void try_read_qr(struct StarterConf *conf)
@@ -421,15 +435,15 @@ void starter_task(void *arg)
             break;
 
         case NoTB:
-            manage_state(&is_tb_connected, &try_tb_connect, &invalidate_tb_auth, &constant_backoff, NoBackend, NoAuth, conf, 10);
+            manage_state(&is_tb_connected, &try_tb_connect, &invalidate_tb_auth, &constant_backoff, NoBackend, NoAuth, conf, 3); 
             break;
 
         case NoBackend:
-            manage_state(&is_backend_connected, &try_backend_connect, &dont, &constant_backoff, Success, NoTB, conf, 10);
+            manage_state(&is_backend_connected, &try_backend_connect, &invalidate_tb_ping, &constant_backoff, Success, NoTB, conf, 10);
             break;
 
         case Success:
-            manage_state(&is_backend_connected, &send_ping_to_backend, &dont, &constant_backoff, Success, NoBackend, conf, 10);
+            manage_state(&is_backend_connected, &send_ping_to_backend, &invalidate_backend_ping, &constant_backoff, Success, NoBackend, conf, 10);
             break;
 
         default:
@@ -461,6 +475,8 @@ void starter_task(void *arg)
             memcpy(&parameters.qr_info, &msg->data.qr, sizeof(struct QRInfo));
 
             j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+
+            print_ConnectionParameters(&parameters);
 
             break;
         }

@@ -17,8 +17,8 @@ struct sys_mode_state state = {
     .ota_running = false,
     .totp_ready = false,
     .mqtt_normal_operation = false,
-    .last_ping_time = 0,
-    .last_tb_ping_time = 0,
+    .last_ping_time = -1,
+    .last_tb_ping_time = -1,
 }
 ;
 SemaphoreHandle_t xSemaphore;
