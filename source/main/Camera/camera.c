@@ -9,6 +9,8 @@
 
 #define TAG "camera"
 
+uint8_t * unified_buf = NULL;
+
 void camera_task(void *arg)
 {
     struct CameraConf *conf = arg;
@@ -53,19 +55,22 @@ void camera_task(void *arg)
 
         if (get_mode() == mirror)
         {
+            if(unified_buf == NULL){
+                unified_buf = jalloc(pic->len);
+            }
+
             struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
             msg->command = DisplayImage;
-            msg->data.image.buf = jalloc(pic->len);
+            msg->data.image.buf = unified_buf;
             msg->data.image.height = pic->height;
             msg->data.image.width = pic->width;
 
-            memcpy(msg->data.image.buf, pic->buf, pic->len);
+            memcpy(unified_buf, pic->buf, pic->len);
 
             int res = xQueueSend(conf->to_screen_queue, &msg, 0);
             if (res != pdTRUE)
             {
                 ESP_LOGE(TAG, "mesage send error");
-                free(msg->data.image.buf);
                 free(msg);
             }
         }

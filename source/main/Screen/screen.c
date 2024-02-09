@@ -37,7 +37,7 @@ void screen_task(void *arg)
 
     current_state = jalloc(sizeof(struct ScreenMsg));
     current_state->command = Empty;
-    uint8_t *canvas_buf = jalloc(1);
+    uint8_t *canvas_buf = NULL;
 
     static lv_style_t style_bar_bg;
 
@@ -69,10 +69,6 @@ void screen_task(void *arg)
 
         if (xQueueReceive(conf->to_screen_queue, &msg, get_rt_task_delay()) == pdPASS)
         {
-            if (current_state->command == DisplayImage)
-            {
-                free(current_state->data.image.buf);
-            }
             free(current_state);
             current_state = msg;
         }
@@ -209,15 +205,31 @@ void screen_task(void *arg)
         case DisplayImage:
         {
 
-            lv_obj_t *image_canvas = lv_canvas_create(lv_scr_act());
-            lv_obj_center(image_canvas);
-            free(canvas_buf);
-            canvas_buf = jalloc(current_state->data.image.width * current_state->data.image.height * 2);
+            lv_obj_t *icon = lv_img_create(lv_scr_act());
 
-            lv_canvas_set_buffer(image_canvas, canvas_buf, current_state->data.image.width, current_state->data.image.height, LV_IMG_CF_TRUE_COLOR);
-            lv_canvas_copy_buf(image_canvas, current_state->data.image.buf, 0, 0, current_state->data.image.width, current_state->data.image.height);
+            lv_img_dsc_t img = {
+                .header.always_zero = 0,
+                .header.cf = LV_IMG_CF_TRUE_COLOR,
+                .header.w = current_state->data.image.width,
+                .header.h = current_state->data.image.height,
+                .data_size = current_state->data.image.width * current_state->data.image.height * 2,
+                .data = current_state->data.image.buf,
+            };
 
-            lv_obj_invalidate(image_canvas);
+            int max_side = max(current_state->data.image.width, current_state->data.image.height);
+            float scale = 240.0 / (float)max_side;
+
+            lv_img_set_src(icon, &img);
+            
+            lv_img_set_zoom(icon, (int)(255.0 * scale));
+            lv_img_set_antialias(icon, false); // Antialiasing destroys the image
+
+            // ESP_LOGI(TAG, "sample: %p %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", img.data, img.data[0], img.data[1], img.data[2], img.data[3], img.data[4], img.data[5], img.data[6], img.data[7], img.data[8], img.data[9], img.data[10], img.data[11], img.data[12], img.data[13], img.data[14], img.data[15], img.data[16], img.data[17], img.data[18], img.data[19]);
+
+            // lv_canvas_transform(image_canvas, &img, 0, 256, 0, 0, current_state->data.image.width / 2, current_state->data.image.height / 2, false);
+            lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
+
+            // lv_obj_invalidate(image_canvas);
             break;
         }
         }

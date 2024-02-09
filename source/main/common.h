@@ -11,10 +11,17 @@
 // #define IMG_HEIGHT 480
 // #define CAM_FRAME_SIZE FRAMESIZE_VGA // 640x480
 
-#define IMG_WIDTH 240
-#define IMG_HEIGHT 240
-#define CAM_FRAME_SIZE FRAMESIZE_240X240 // 240x240
+// #define IMG_WIDTH 1024
+// #define IMG_HEIGHT 768
+// #define CAM_FRAME_SIZE FRAMESIZE_XGA // 1024x768
 
+#define IMG_WIDTH 800
+#define IMG_HEIGHT 600
+#define CAM_FRAME_SIZE FRAMESIZE_SVGA
+
+// #define IMG_WIDTH 240
+// #define IMG_HEIGHT 240
+// #define CAM_FRAME_SIZE FRAMESIZE_240X240
 
 // #define IMG_WIDTH 400
 // #define IMG_HEIGHT 296
@@ -34,6 +41,7 @@
 #define OTA_URL_SIZE 256
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
+#define max(a,b) (((a) > (b)) ? (a) : (b))
 
 #define jTaskCreate xTaskCreateCap
 #define jalloc(x) heap_caps_malloc(x, MALLOC_CAP_SPIRAM);

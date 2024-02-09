@@ -217,6 +217,6 @@ void app_main(void)
     start_totp(totp_conf);
     ESP_LOGI(TAG, "TOTP started");
 
-    set_mode(self_managed);
+    set_mode(mirror);
 
 }
