@@ -21,6 +21,8 @@
 #include "buttons.h"
 #include "esp_heap_caps.h"
 #include "../SYS_MODE/sys_mode.h"
+#include "bsp/esp-bsp.h"
+
 
 // ADC Channels
 #define ADC1_EXAMPLE_CHAN0 ADC_CHANNEL_0
@@ -134,6 +136,8 @@ static void adc_button_task(void *arg)
         {
             if ((voltage >= adc_buttons[i].min) && (voltage <= adc_buttons[i].max))
             {
+                bsp_led_set(BSP_LED_GREEN, true);
+
                 int button_pressed = adc_buttons[i].button_index;
                 set_mode(adc_buttons[i].mode);
 
@@ -145,6 +149,9 @@ static void adc_button_task(void *arg)
                 };
 
                 ESP_LOGI(TAG, "Button %d pressed -> changing to mode %s", button_pressed, string_mode[adc_buttons[i].mode]);
+                vTaskDelay(100 / portTICK_PERIOD_MS);
+
+                bsp_led_set(BSP_LED_GREEN, false);
             }
         }
     }

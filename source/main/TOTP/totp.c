@@ -23,7 +23,7 @@ static void totp_task(void *arg)
     while (1)
     {
         vTaskDelay(get_task_delay());
-        
+
         if (is_ota_running())
         {
             ESP_LOGE(TAG, "OTA running, I sleep");
@@ -36,8 +36,9 @@ static void totp_task(void *arg)
             char url[MAX_QR_SIZE];
 
             if (is_totp_ready()) // TODO check if we have the qr. If not, dont display the error to allow the "please show the qr" message
-
             {
+                ESP_LOGI(TAG, "TOTP ready");
+
                 time_t now;
                 time(&now);
 
@@ -57,21 +58,6 @@ static void totp_task(void *arg)
 
                     msg->command = DrawQr;
                     strcpy(msg->data.text, url);
-
-                    int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-                    if (res == pdFAIL)
-                    {
-                        free(msg);
-                    }
-                }
-            }
-            else
-            {
-                {
-                    struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-
-                    msg->command = StateError;
-                    strcpy(msg->data.text, "El QR está desactivado debido a un error en la conexión con el servidor");
 
                     int res = xQueueSend(conf->to_screen_queue, &msg, 0);
                     if (res == pdFAIL)

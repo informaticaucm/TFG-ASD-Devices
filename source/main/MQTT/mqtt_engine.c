@@ -64,7 +64,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             }
         }
 
-        if (strcmp(method, "dispositivos"))
+        if (0 == strcmp(method, "dispositivos"))
         {
             json_obj_get_object(&jctx, "response");
 

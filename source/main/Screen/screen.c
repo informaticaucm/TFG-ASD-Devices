@@ -70,11 +70,6 @@ void screen_task(void *arg)
     lv_obj_t *qr_obj = lv_qrcode_create(lv_scr_act(), 240, lv_color_black(), lv_color_white());
     lv_obj_center(qr_obj);
 
-    lv_obj_t *qr_err_lable = lv_label_create(lv_scr_act());
-    lv_obj_set_width(qr_err_lable, 150);
-    lv_obj_align(qr_err_lable, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_add_style(qr_err_lable, &label_style, LV_PART_MAIN);
-
     lv_obj_t *mirror_img = lv_img_create(lv_scr_act());
     int max_side = max(IMG_WIDTH, IMG_HEIGHT);
     float scale = 240.0 / (float)max_side;
@@ -93,12 +88,6 @@ void screen_task(void *arg)
         }
 
         bsp_display_lock(0);
-
-        lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(qr_err_lable, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
 
         switch (msg->command)
         {
@@ -153,6 +142,10 @@ void screen_task(void *arg)
         {
         case state_display:
         {
+            lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+
             if (state_icon != NULL)
             {
                 lv_obj_clear_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
@@ -175,26 +168,35 @@ void screen_task(void *arg)
 
             //     lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
             // }
-            // break;
+            break;
         }
 
         case qr_display:
         {
+            lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+
+            lv_obj_clear_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
+
             if (valid_qr_data)
             {
-                lv_obj_clear_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
                 lv_qrcode_update(qr_obj, qr_data, strlen(qr_data));
             }
             else
             {
-                lv_obj_clear_flag(qr_err_lable, LV_OBJ_FLAG_HIDDEN);
-                lv_label_set_text_fmt(qr_err_lable, "%s", "No QR data");
+                char err[] = "no tenemos el totp todavía";
+                lv_qrcode_update(qr_obj, err, sizeof(err));
             }
 
             break;
         }
         case mirror:
         {
+            lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
+
             lv_obj_clear_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
 
             lv_img_dsc_t img = {

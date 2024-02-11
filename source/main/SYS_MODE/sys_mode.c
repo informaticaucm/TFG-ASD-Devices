@@ -119,7 +119,8 @@ void set_idle_task_delay(int idle_task_delay)
 int get_idle_task_delay()
 {
     int ret = 0;
-    critical_section(ret = state.idle_task_delay); return ret;
+    critical_section(ret = state.idle_task_delay);
+    return ret;
 }
 
 void set_ota_running(bool ota_running)
@@ -130,7 +131,8 @@ void set_ota_running(bool ota_running)
 bool is_ota_running()
 {
     bool ret = false;
-    critical_section(ret = state.ota_running); return ret;
+    critical_section(ret = state.ota_running);
+    return ret;
 }
 
 // void set_qr_url_template(char qr_url_template[URL_SIZE])
@@ -161,7 +163,8 @@ void set_TOTP_t0(int t0)
 int get_TOTP_t0()
 {
     int ret = 0;
-    critical_section(ret = state.TOTP_t0); return ret;
+    critical_section(ret = state.TOTP_t0);
+    return ret;
 }
 
 void set_TOTP_ready(bool totp_ready)
@@ -172,7 +175,8 @@ void set_TOTP_ready(bool totp_ready)
 bool is_totp_ready()
 {
     bool ret = false;
-    critical_section(ret = state.totp_ready); return ret;
+    critical_section(ret = state.totp_ready);
+    return ret;
 }
 
 void set_mqtt_normal_operation(bool mqtt_normal_operation)
@@ -183,7 +187,8 @@ void set_mqtt_normal_operation(bool mqtt_normal_operation)
 bool is_mqtt_normal_operation()
 {
     bool ret = false;
-    critical_section(ret = state.mqtt_normal_operation); return ret;
+    critical_section(ret = state.mqtt_normal_operation);
+    return ret;
 }
 
 void set_last_ping_time(int last_ping_time)
@@ -194,7 +199,8 @@ void set_last_ping_time(int last_ping_time)
 int get_last_ping_time()
 {
     int ret = 0;
-    critical_section(ret = state.last_ping_time); return ret;
+    critical_section(ret = state.last_ping_time);
+    return ret;
 }
 
 void set_last_tb_ping_time(int last_tb_ping_time)
@@ -205,5 +211,6 @@ void set_last_tb_ping_time(int last_tb_ping_time)
 int get_last_tb_ping_time()
 {
     int ret = 0;
-    critical_section(ret = state.last_tb_ping_time); return ret;
+    critical_section(ret = state.last_tb_ping_time);
+    return ret;
 }

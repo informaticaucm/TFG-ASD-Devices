@@ -70,7 +70,11 @@
     "set": "c",
     "ios": "c",
     "portmacro.h": "c",
-    "freertos.h": "c"
+    "freertos.h": "c",
+    "esp_gap_bt_api.h": "c",
+    "esp_bt_device.h": "c",
+    "esp_bt.h": "c",
+    "esp_bt_main.h": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }
