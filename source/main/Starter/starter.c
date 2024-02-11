@@ -54,40 +54,11 @@ void crash_wifi()
 
 void setState(enum StarterState state, struct StarterConf *conf)
 {
-    if (starterState == state)
-    {
-        return;
-    }
-
     tries = 0;
     cooldown = 0;
     starterState = state;
 
     ESP_LOGI(TAG, "starter state changed to %s", state_string[state]);
-
-    struct ConnectionParameters parameters;
-    j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-    switch (state)
-    {
-    case NoQRConfig:
-        parameters.qr_valid = false;
-    case NoWifi:
-    case NoAuth:
-    case NoTB:
-        struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
-        msg->command = Disconect;
-
-        int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
-        if (res == pdFAIL)
-        {
-            ESP_LOGE(TAG, "mesage send fail");
-            free(msg);
-        }
-    default:
-        break;
-    }
-
-    j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 }
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -200,6 +171,15 @@ void print_ConnectionParameters(struct ConnectionParameters *cp)
 void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(struct StarterConf *), void (*prepare_to_go_to_fail_state)(), int (*backoff_function)(int), enum StarterState next_state, enum StarterState fail_state, struct StarterConf *conf, int max_tryes)
 {
 
+    struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+    msg->command = StateWarning;
+    strcpy(msg->data.text, state_string[starterState]);
+    int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+    if (res == pdFAIL)
+    {
+        free(msg);
+    }
+
     if (!is_next_state_ready())
     {
 
@@ -211,6 +191,7 @@ void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(
             cooldown = backoff_function(tries);
             if (tries > max_tryes)
             {
+                prepare_to_go_to_fail_state();
                 setState(fail_state, conf);
             }
         }
@@ -222,7 +203,6 @@ void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(
     }
     else
     {
-        prepare_to_go_to_fail_state();
         setState(next_state, conf);
     }
 }
@@ -312,12 +292,20 @@ void invalidate_backend_ping()
     set_last_ping_time(-1);
 }
 
+void invalidate_qr()
+{
+    struct ConnectionParameters parameters;
+    j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+    parameters.qr_valid = false;
+    j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+}
+
 void dont() {}
 
 bool is_tb_connected()
 {
     ESP_LOGI(TAG, "checking if tb is connected %d %d", (int)time(0), get_last_tb_ping_time());
-    return get_last_tb_ping_time() != -1 && time(0) - get_last_tb_ping_time() > 10;
+    return get_last_tb_ping_time() != -1 && time(0) - get_last_tb_ping_time() < 10;
 }
 
 void try_backend_connect(struct StarterConf *conf)
@@ -359,7 +347,7 @@ bool is_backend_connected()
 {
     ESP_LOGI(TAG, "checking if backend is connected %d %d", (int)time(0), get_last_ping_time());
 
-    return get_last_ping_time() != -1 && time(0) - get_last_ping_time() > 10;
+    return get_last_ping_time() != -1 && time(0) - get_last_ping_time() < 10;
 }
 
 void send_ping_to_backend(struct StarterConf *conf)
@@ -388,7 +376,7 @@ void try_read_qr(struct StarterConf *conf)
     ESP_LOGI(TAG, "trying to read qr");
 
     struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-    msg->command = DisplayText;
+    msg->command = StateText;
     strcpy(msg->data.text, "Please scan QR code");
     int res = xQueueSend(conf->to_screen_queue, &msg, 0);
     if (res == pdFAIL)
@@ -427,7 +415,7 @@ void starter_task(void *arg)
             break;
 
         case NoWifi:
-            manage_state(&is_wifi_connected, &try_connect_wifi, &dont, &constant_backoff, NoAuth, NoQRConfig, conf, 10);
+            manage_state(&is_wifi_connected, &try_connect_wifi, &invalidate_qr, &constant_backoff, NoAuth, NoWifi, conf, 10); // latches
             break;
 
         case NoAuth:
@@ -435,7 +423,7 @@ void starter_task(void *arg)
             break;
 
         case NoTB:
-            manage_state(&is_tb_connected, &try_tb_connect, &invalidate_tb_auth, &constant_backoff, NoBackend, NoAuth, conf, 3); 
+            manage_state(&is_tb_connected, &try_tb_connect, &invalidate_tb_auth, &constant_backoff, NoBackend, NoAuth, conf, 3);
             break;
 
         case NoBackend:

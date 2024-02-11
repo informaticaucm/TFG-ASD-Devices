@@ -39,7 +39,6 @@ enum MQTTCommand
     Found_TUI_qr,
     Start,
     LogInToServer,
-    Disconect,
     DoProvisioning,
     SendPingToServer,
 };

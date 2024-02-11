@@ -1,6 +1,6 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
-  "idf.portWin": "COM6",
+  "idf.portWin": "COM4",
   "idf.flashType": "UART",
   "idf.adapterTargetName": "esp32s3",
   "idf.openOcdConfigs": [
@@ -68,7 +68,9 @@
     "buttons.h": "c",
     "mutex": "c",
     "set": "c",
-    "ios": "c"
+    "ios": "c",
+    "portmacro.h": "c",
+    "freertos.h": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

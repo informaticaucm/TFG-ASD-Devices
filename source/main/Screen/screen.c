@@ -28,14 +28,20 @@
 
 #define TAG "screen"
 
-int last_bar_progress = 0;
-
-struct meta_frame *held_mf;
-
 void screen_task(void *arg)
 {
-    held_mf = NULL;
     struct ScreenConf *conf = arg;
+
+    struct meta_frame *held_mf = NULL;
+
+    bool valid_qr_data = false;
+    char qr_data[MAX_QR_SIZE] = {0};
+
+    char state_text[MAX_QR_SIZE] = {0};
+    lv_img_dsc_t *state_icon = NULL;
+
+    char log_queue[10][30] = {0};
+    int log_queue_index = 0;
 
     static lv_style_t style_bar_bg;
 
@@ -46,19 +52,35 @@ void screen_task(void *arg)
     lv_style_set_radius(&style_bar_bg, 6);
     lv_style_set_anim_time(&style_bar_bg, 1000);
 
-    static lv_style_t style_bar_indic;
-
-    lv_style_init(&style_bar_indic);
-    lv_style_set_bg_opa(&style_bar_indic, LV_OPA_COVER);
-    lv_style_set_bg_color(&style_bar_indic, lv_palette_main(LV_PALETTE_ORANGE));
-    lv_style_set_radius(&style_bar_indic, 3);
-
     static lv_style_t bg_style;
     lv_style_set_bg_color(&bg_style, lv_color_white());
     lv_obj_add_style(lv_scr_act(), &bg_style, LV_PART_MAIN);
 
     static lv_style_t label_style;
     lv_style_set_text_color(&label_style, lv_color_black());
+
+    lv_obj_t *state_bg = lv_img_create(lv_scr_act());
+    lv_obj_align(state_bg, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_t *state_lable = lv_label_create(lv_scr_act());
+    lv_obj_set_width(state_lable, 150);
+    lv_obj_align(state_lable, LV_ALIGN_CENTER, 0, 60);
+    lv_obj_add_style(state_lable, &label_style, LV_PART_MAIN);
+
+    lv_obj_t *qr_obj = lv_qrcode_create(lv_scr_act(), 240, lv_color_black(), lv_color_white());
+    lv_obj_center(qr_obj);
+
+    lv_obj_t *qr_err_lable = lv_label_create(lv_scr_act());
+    lv_obj_set_width(qr_err_lable, 150);
+    lv_obj_align(qr_err_lable, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_style(qr_err_lable, &label_style, LV_PART_MAIN);
+
+    lv_obj_t *mirror_img = lv_img_create(lv_scr_act());
+    int max_side = max(IMG_WIDTH, IMG_HEIGHT);
+    float scale = 240.0 / (float)max_side;
+    lv_img_set_zoom(mirror_img, (int)(255.0 * scale));
+    lv_img_set_antialias(mirror_img, false); // Antialiasing destroys the image
+    lv_obj_align(mirror_img, LV_ALIGN_CENTER, 0, 0);
 
     while (1)
     {
@@ -72,162 +94,120 @@ void screen_task(void *arg)
 
         bsp_display_lock(0);
 
-        lv_obj_clean(lv_scr_act());
-
-        // lv_obj_t *time = lv_label_create(lv_scr_act());
-        // lv_label_set_text_fmt(time, "time: %llds", esp_timer_get_time()/1000000);
-        // lv_obj_set_width(time, 150);
-        // lv_obj_align(time, LV_ALIGN_CENTER, 0, -90);
-        // lv_obj_add_style(time, &label_style, LV_PART_MAIN);
-        // ESP_LOGI(TAG, "screen task tick");
+        lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(qr_err_lable, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
 
         switch (msg->command)
         {
-        case Empty:
+        case StateWarning:
         {
-
-            lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text(lable, "Empty");
-            lv_obj_set_width(lable, 150);
-            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
-            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
+            memcpy(state_text, msg->data.text, MAX_QR_SIZE);
+            state_icon = &warning;
             break;
         }
-        case DisplayWarning:
+        case StateSuccess:
         {
-            lv_obj_t *icon = lv_img_create(lv_scr_act());
-            lv_img_set_src(icon, &warning);
-            lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
-
-            lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Aviso: %s", msg->data.text);
-            lv_obj_set_width(lable, 150);
-            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
-            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
+            memcpy(state_text, msg->data.text, MAX_QR_SIZE);
+            state_icon = &success;
             break;
         }
-        case DisplaySuccess:
+        case StateError:
         {
-
-            lv_obj_t *icon = lv_img_create(lv_scr_act());
-            lv_img_set_src(icon, &success);
-            lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
-
-            lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Exito: %s", msg->data.text);
-            lv_obj_set_width(lable, 150);
-            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
-            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
-
+            memcpy(state_text, msg->data.text, MAX_QR_SIZE);
+            state_icon = &failure;
             break;
         }
-        case DisplayError:
+        case StateText:
         {
-            lv_obj_t *icon = lv_img_create(lv_scr_act());
-            lv_img_set_src(icon, &failure);
-            lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
-
-            lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "Error: %s", msg->data.text);
-            lv_obj_set_width(lable, 150);
-            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 60);
-            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
-
-            break;
-        }
-        case DisplayText:
-        {
-
-            lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "%s", msg->data.text);
-            lv_obj_set_width(lable, 150);
-            lv_obj_align(lable, LV_ALIGN_CENTER, 0, 0);
-            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
-
-            break;
-        }
-        case DisplayProgress:
-        {
-
-            lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text_fmt(lable, "%s \n(%f%%)", msg->data.progress.text, msg->data.progress.progress * 100.);
-            lv_obj_set_width(lable, 150);
-            lv_obj_align(lable, LV_ALIGN_CENTER, 0, -30);
-            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
-
-            lv_obj_t *bar = lv_bar_create(lv_scr_act());
-            lv_obj_set_size(bar, 200, 20);
-            lv_obj_align(bar, LV_ALIGN_CENTER, 0, 30);
-            lv_obj_add_style(bar, &style_bar_bg, 0);
-            lv_obj_add_style(bar, &style_bar_indic, LV_PART_INDICATOR);
-
-            int bar_progress = (int)(msg->data.progress.progress * 100.);
-            lv_bar_set_value(bar, last_bar_progress, LV_ANIM_OFF);
-            last_bar_progress = bar_progress;
-            lv_bar_set_value(bar, bar_progress, LV_ANIM_ON);
-            break;
-        }
-        case DisplayProcessing:
-        {
-
-            lv_obj_t *lable = lv_label_create(lv_scr_act());
-            lv_label_set_text(lable, msg->data.text);
-            lv_obj_set_width(lable, 150);
-            lv_obj_align(lable, LV_ALIGN_CENTER, 0, -30);
-            lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
-
-            lv_obj_t *bar = lv_bar_create(lv_scr_act());
-            lv_obj_set_size(bar, 200, 20);
-            lv_obj_align(bar, LV_ALIGN_CENTER, 0, 30);
-            lv_obj_add_style(bar, &style_bar_bg, 0);
-            lv_obj_add_style(bar, &style_bar_indic, LV_PART_INDICATOR);
-
-            int bar_progress = esp_timer_get_time() / 10000 % 100;
-
-            lv_bar_set_value(bar, bar_progress, LV_ANIM_ON);
-            break;
-
+            memcpy(state_text, msg->data.text, MAX_QR_SIZE);
+            state_icon = NULL;
             break;
         }
         case DrawQr:
         {
+            memcpy(qr_data, msg->data.text, MAX_QR_SIZE);
+            break;
+        }
+        case Mirror:
+        {
+            if (held_mf != NULL)
+            {
+                meta_frame_free(held_mf);
+            }
+            held_mf = msg->data.mf;
+            break;
+        }
+        case PushLog:
+        {
+            memcpy(log_queue[log_queue_index], msg->data.text, 30);
+            log_queue_index = (log_queue_index + 1) % 10;
+            break;
+        }
+        }
+        bsp_display_unlock();
 
-            lv_obj_t *qr = lv_qrcode_create(lv_scr_act(), 240, lv_color_black(), lv_color_white());
-            /*Set data*/
-            lv_qrcode_update(qr, msg->data.text, strlen(msg->data.text));
-            lv_obj_center(qr);
+        switch (get_mode())
+        {
+        case state_display:
+        {
+            if (state_icon != NULL)
+            {
+                lv_obj_clear_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
+                lv_img_set_src(state_bg, state_icon);
+            }
+            lv_obj_clear_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text_fmt(state_lable, "%s", state_text);
 
             break;
         }
-        case DisplayImage:
+        case log_queue_display:
         {
 
-            lv_obj_t *img_obj = lv_img_create(lv_scr_act());
+            // for (int i = 0; i < 10; i++)
+            // {
+            //     lv_obj_t *lable = lv_label_create(lv_scr_act());
+            //     lv_label_set_text_fmt(lable, "%s", log_queue[i]);
+            //     lv_obj_set_width(lable, 150);
+            //     lv_obj_align(lable, LV_ALIGN_CENTER, 0, 24 * 1);
+
+            //     lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
+            // }
+            // break;
+        }
+
+        case qr_display:
+        {
+            if (valid_qr_data)
+            {
+                lv_obj_clear_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
+                lv_qrcode_update(qr_obj, qr_data, strlen(qr_data));
+            }
+            else
+            {
+                lv_obj_clear_flag(qr_err_lable, LV_OBJ_FLAG_HIDDEN);
+                lv_label_set_text_fmt(qr_err_lable, "%s", "No QR data");
+            }
+
+            break;
+        }
+        case mirror:
+        {
+            lv_obj_clear_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
 
             lv_img_dsc_t img = {
                 .header.always_zero = 0,
                 .header.cf = LV_IMG_CF_TRUE_COLOR,
                 .header.w = IMG_WIDTH,
                 .header.h = IMG_HEIGHT,
-                .data_size = sizeof(msg->data.mf->buf),
-                .data = msg->data.mf->buf,
+                .data_size = sizeof(held_mf->buf),
+                .data = held_mf->buf,
             };
 
-            int max_side = max(IMG_WIDTH, IMG_HEIGHT);
-            float scale = 240.0 / (float)max_side;
+            lv_img_set_src(mirror_img, &img);
 
-            lv_img_set_src(img_obj, &img);
-
-            lv_img_set_zoom(img_obj, (int)(255.0 * scale));
-            lv_img_set_antialias(img_obj, false); // Antialiasing destroys the image
-
-            lv_obj_align(img_obj, LV_ALIGN_CENTER, 0, 0);
-
-            if (held_mf != NULL)
-            {
-                meta_frame_free(held_mf);
-            }
-            held_mf = msg->data.mf;
             break;
         }
         }

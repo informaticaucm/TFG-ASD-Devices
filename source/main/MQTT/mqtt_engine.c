@@ -189,7 +189,6 @@ void mqtt_task(void *arg)
             "Found_TUI_qr",
             "Start",
             "LogInToServer",
-            "Disconect",
             "DoProvisioning",
             "SendPingToServer",
         };
@@ -330,27 +329,13 @@ void mqtt_task(void *arg)
 
             snprintf(request_body, strlen(msg->data.login.name) + 40, "{\"nombre\":\"%s\",\"espacioId\":%d}", msg->data.login.name, msg->data.login.space_id);
 
-            send_api_post("devices", request_body);
+            send_api_post("dispositivos", request_body);
 
             break;
         }
         case SendPingToServer:
         {
             send_api_post("ping", "{}");
-            break;
-        }
-
-        case Disconect:
-        {
-
-            printf("disconecting %d\n", (int)client);
-            if (client != 0)
-            {
-                esp_mqtt_client_stop(client);
-                esp_mqtt_client_destroy(client);
-            }
-            set_mqtt_normal_operation(false);
-            client = 0;
             break;
         }
         }

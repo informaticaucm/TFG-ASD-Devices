@@ -49,7 +49,7 @@ void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
     }
     {
         struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-        msg->command = DisplayProcessing;
+        msg->command = PushLog;
         char *ota_state_to_text[] = {
             "ota state is DOWNLOADING",
             "ota state is DOWNLOADED",
@@ -82,7 +82,7 @@ void command_ota_fail(char *error, struct OTAConf *conf)
     }
     {
         struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-        msg->command = DisplayError;
+        msg->command = StateError;
         strcpy(msg->data.text, error);
 
         int res = xQueueSend(conf->to_screen_queue, &msg, 0);
@@ -178,10 +178,8 @@ void ota_routine(char *url, struct OTAConf *conf)
     err = validate_image_header(&app_desc);
     if (err != ESP_OK)
     {
-        set_tmp_mode(self_managed, 20, qr_display);
-
         struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-        msg->command = DisplayError;
+        msg->command = StateError;
         strcpy(msg->data.text, "la version del ota es la misma que la versión actual");
         int res = xQueueSend(conf->to_screen_queue, &msg, 0);
         if (res == pdFAIL)
@@ -218,9 +216,8 @@ void ota_routine(char *url, struct OTAConf *conf)
 
         {
             struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-            msg->command = DisplayProgress;
-            strcpy(msg->data.progress.text, "descargando:");
-            msg->data.progress.progress = progress;
+            msg->command = PushLog;
+            snprintf(msg->data.text, sizeof(msg->data.text), "Image bytes downloaded: %f%%", progress*100);
 
             int res = xQueueSend(conf->to_screen_queue, &msg, 0);
             if (res != pdTRUE)
@@ -338,7 +335,6 @@ void ota_task(void *arg)
         case Update:
         {
             set_ota_running(true);
-            set_mode(self_managed);
             ota_routine(msg->url, conf);
             set_ota_running(false);
             break;

@@ -8,15 +8,16 @@
 
 enum ScreenCommand
 {
-    Empty,
     DrawQr,
-    DisplayWarning,
-    DisplaySuccess,
-    DisplayError,
-    DisplayText,
-    DisplayProgress,
-    DisplayProcessing,
-    DisplayImage,
+
+    StateWarning,
+    StateSuccess,
+    StateError,
+    StateText,
+
+    PushLog,
+
+    Mirror,
 };
 
 
@@ -26,11 +27,6 @@ struct ScreenMsg
     union
     {
         char text[MAX_QR_SIZE];
-        struct
-        {
-            char text[90];
-            float progress;
-        } progress;
         struct meta_frame *mf;
     } data;
 };

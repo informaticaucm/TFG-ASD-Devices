@@ -19,8 +19,7 @@ struct sys_mode_state state = {
     .mqtt_normal_operation = false,
     .last_ping_time = -1,
     .last_tb_ping_time = -1,
-}
-;
+};
 SemaphoreHandle_t xSemaphore;
 bool started = false;
 
@@ -37,19 +36,23 @@ void init()
     init();                                        \
     if (xSemaphoreTake(xSemaphore, portMAX_DELAY)) \
     {                                              \
-        {section} xSemaphoreGive(xSemaphore);      \
-    }
+        {                                          \
+            section;                               \
+        }                                          \
+        xSemaphoreGive(xSemaphore);                \
+    }                                              \
+    int _ = 0
 
 void set_mode(enum sys_mode mode)
 {
-    critical_section(state.mode = mode;)
+    critical_section(state.mode = mode);
 }
 
 void set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode)
 {
     critical_section(state.tmp_mode = mode;
                      state.tmp_mode_expiration = time(0) + sec_duration;
-                     state.mode = next_mode;)
+                     state.mode = next_mode);
 }
 
 enum sys_mode get_mode()
@@ -60,144 +63,147 @@ enum sys_mode get_mode()
             ret = state.tmp_mode;
         } else {
             ret = state.mode;
-        }) return ret;
+        });
+    return ret;
 }
 
 void get_parameters(struct ConnectionParameters *parameters)
 {
-    critical_section(memcpy(parameters, &state.parameters, sizeof(struct ConnectionParameters));)
+    critical_section(memcpy(parameters, &state.parameters, sizeof(struct ConnectionParameters)));
 }
 
 void set_parameters(struct ConnectionParameters *parameters)
 {
-    critical_section(memcpy(&state.parameters, parameters, sizeof(struct ConnectionParameters));)
+    critical_section(memcpy(&state.parameters, parameters, sizeof(struct ConnectionParameters)));
 }
 
 void set_version(char version[32])
 {
-    critical_section(strcpy(state.version, version);)
+    critical_section(strcpy(state.version, version));
 }
 
 void get_version(char version[32])
 {
-    critical_section(strcpy(version, state.version);)
+    critical_section(strcpy(version, state.version));
 }
 
 void set_rt_task_delay(int rt_task_delay)
 {
-    critical_section(state.rt_task_delay = rt_task_delay;)
+    critical_section(state.rt_task_delay = rt_task_delay);
 }
 
 int get_rt_task_delay()
 {
     int ret = 0;
-    critical_section(ret = state.rt_task_delay;) return ret;
+    critical_section(ret = state.rt_task_delay);
+    return ret;
 }
 
 void set_task_delay(int task_delay)
 {
-    critical_section(state.task_delay = task_delay;)
+    critical_section(state.task_delay = task_delay);
 }
 
 int get_task_delay()
 {
     int ret = 0;
-    critical_section(ret = state.task_delay;) return ret;
+    critical_section(ret = state.task_delay);
+    return ret;
 }
 
 void set_idle_task_delay(int idle_task_delay)
 {
-    critical_section(state.idle_task_delay = idle_task_delay;)
+    critical_section(state.idle_task_delay = idle_task_delay);
 }
 
 int get_idle_task_delay()
 {
     int ret = 0;
-    critical_section(ret = state.idle_task_delay;) return ret;
+    critical_section(ret = state.idle_task_delay); return ret;
 }
 
 void set_ota_running(bool ota_running)
 {
-    critical_section(state.ota_running = ota_running;)
+    critical_section(state.ota_running = ota_running);
 }
 
 bool is_ota_running()
 {
     bool ret = false;
-    critical_section(ret = state.ota_running;) return ret;
+    critical_section(ret = state.ota_running); return ret;
 }
 
 // void set_qr_url_template(char qr_url_template[URL_SIZE])
 // {
-//     critical_section(strcpy(state.qr_url_template, qr_url_template);)
+//     critical_section(strcpy(state.qr_url_template, qr_url_template));
 // }
 
 // void get_qr_url_template(char qr_url_template[URL_SIZE])
 // {
-//     critical_section(strcpy(qr_url_template, state.qr_url_template);)
+//     critical_section(strcpy(qr_url_template, state.qr_url_template));
 // }
 
 void set_TOTP_secret(char TOTP_secret[17])
 {
-    critical_section(strcpy(state.TOTP_secret, TOTP_secret);)
+    critical_section(strcpy(state.TOTP_secret, TOTP_secret));
 }
 
 void get_TOTP_secret(char TOTP_secret[17])
 {
-    critical_section(strcpy(TOTP_secret, state.TOTP_secret);)
+    critical_section(strcpy(TOTP_secret, state.TOTP_secret));
 }
 
 void set_TOTP_t0(int t0)
 {
-    critical_section(state.TOTP_t0 = t0;)
+    critical_section(state.TOTP_t0 = t0);
 }
 
 int get_TOTP_t0()
 {
     int ret = 0;
-    critical_section(ret = state.TOTP_t0;) return ret;
+    critical_section(ret = state.TOTP_t0); return ret;
 }
 
 void set_TOTP_ready(bool totp_ready)
 {
-    critical_section(state.totp_ready = totp_ready;)
+    critical_section(state.totp_ready = totp_ready);
 }
 
 bool is_totp_ready()
 {
     bool ret = false;
-    critical_section(ret = state.totp_ready;) return ret;
+    critical_section(ret = state.totp_ready); return ret;
 }
 
 void set_mqtt_normal_operation(bool mqtt_normal_operation)
 {
-    critical_section(state.mqtt_normal_operation = mqtt_normal_operation;)
+    critical_section(state.mqtt_normal_operation = mqtt_normal_operation);
 }
 
 bool is_mqtt_normal_operation()
 {
     bool ret = false;
-    critical_section(ret = state.mqtt_normal_operation;) return ret;
+    critical_section(ret = state.mqtt_normal_operation); return ret;
 }
 
 void set_last_ping_time(int last_ping_time)
 {
-    critical_section(state.last_ping_time = last_ping_time;)
+    critical_section(state.last_ping_time = last_ping_time);
 }
 
 int get_last_ping_time()
 {
     int ret = 0;
-    critical_section(ret = state.last_ping_time;) return ret;
+    critical_section(ret = state.last_ping_time); return ret;
 }
 
 void set_last_tb_ping_time(int last_tb_ping_time)
 {
-    critical_section(state.last_tb_ping_time = last_tb_ping_time;)
+    critical_section(state.last_tb_ping_time = last_tb_ping_time);
 }
 
 int get_last_tb_ping_time()
 {
     int ret = 0;
-    critical_section(ret = state.last_tb_ping_time;) return ret;
+    critical_section(ret = state.last_tb_ping_time); return ret;
 }

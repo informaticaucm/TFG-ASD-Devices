@@ -101,7 +101,7 @@ void camera_task(void *arg)
                 meta_frame_write(mf, pic->buf);
 
                 struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-                msg->command = DisplayImage;
+                msg->command = Mirror;
                 msg->data.mf = mf;
 
                 int res = xQueueSend(conf->to_screen_queue, &msg, 0);

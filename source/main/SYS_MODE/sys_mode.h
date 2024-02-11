@@ -7,8 +7,8 @@ enum sys_mode
 {
     mirror,
     qr_display,
-    message,
-    self_managed,
+    state_display,
+    log_queue_display,
 };
 
 struct sys_mode_state

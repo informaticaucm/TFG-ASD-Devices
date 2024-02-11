@@ -2,6 +2,8 @@
 
 #include "mqtt.h"
 #include "mqtt_engine.c"
+#include <sys/param.h>
+
 
 #define TAG "mqtt"
 

@@ -70,7 +70,7 @@ static void totp_task(void *arg)
                 {
                     struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
 
-                    msg->command = DisplayError;
+                    msg->command = StateError;
                     strcpy(msg->data.text, "El QR está desactivado debido a un error en la conexión con el servidor");
 
                     int res = xQueueSend(conf->to_screen_queue, &msg, 0);
