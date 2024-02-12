@@ -1,309 +1,446 @@
 /*
+ * BLE Combined Advertising and Scanning Example.
+ *
  * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
-
-
-
-/****************************************************************************
-*
-* This file is for Classic Bluetooth device and service discovery Demo.
-*
-****************************************************************************/
-
-#include <stdint.h>
+#include <stdio.h>
 #include <string.h>
-#include <inttypes.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "nvs.h"
-#include "nvs_flash.h"
-#include "esp_system.h"
-#include "esp_log.h"
 #include "esp_bt.h"
-#include "esp_bt_main.h"
-#include "esp_bt_device.h"
-#include "esp_gap_bt_api.h"
+#include "esp_log.h"
+#include "esp_timer.h"
+#include "nvs_flash.h"
+#include "freertos/queue.h"
+#include "bt_hci_common.h"
 
-
-#define GAP_TAG          "GAP"
-
-typedef enum {
-    APP_GAP_STATE_IDLE = 0,
-    APP_GAP_STATE_DEVICE_DISCOVERING,
-    APP_GAP_STATE_DEVICE_DISCOVER_COMPLETE,
-    APP_GAP_STATE_SERVICE_DISCOVERING,
-    APP_GAP_STATE_SERVICE_DISCOVER_COMPLETE,
-} app_gap_state_t;
+static const char *TAG = "BLE_ADV_SCAN";
 
 typedef struct {
-    bool dev_found;
-    uint8_t bdname_len;
-    uint8_t eir_len;
-    uint8_t rssi;
-    uint32_t cod;
-    uint8_t eir[ESP_BT_GAP_EIR_DATA_LEN];
-    uint8_t bdname[ESP_BT_GAP_MAX_BDNAME_LEN + 1];
-    esp_bd_addr_t bda;
-    app_gap_state_t state;
-} app_gap_cb_t;
+    char scan_local_name[32];
+    uint8_t name_len;
+} ble_scan_local_name_t;
 
-static app_gap_cb_t m_dev_info;
+typedef struct {
+    uint8_t *q_data;
+    uint16_t q_data_len;
+} host_rcv_data_t;
 
-static char *bda2str(esp_bd_addr_t bda, char *str, size_t size)
+static uint8_t hci_cmd_buf[128];
+
+static uint16_t scanned_count = 0;
+static QueueHandle_t adv_queue;
+
+static void periodic_timer_callback(void *arg)
 {
-    if (bda == NULL || str == NULL || size < 18) {
-        return NULL;
-    }
-
-    uint8_t *p = bda;
-    sprintf(str, "%02x:%02x:%02x:%02x:%02x:%02x",
-            p[0], p[1], p[2], p[3], p[4], p[5]);
-    return str;
+    ESP_LOGI(TAG, "Number of received advertising reports: %d", scanned_count);
 }
 
-static char *uuid2str(esp_bt_uuid_t *uuid, char *str, size_t size)
+/*
+ * @brief: BT controller callback function, used to notify the upper layer that
+ *         controller is ready to receive command
+ */
+static void controller_rcv_pkt_ready(void)
 {
-    if (uuid == NULL || str == NULL) {
-        return NULL;
-    }
-
-    if (uuid->len == 2 && size >= 5) {
-        sprintf(str, "%04x", uuid->uuid.uuid16);
-    } else if (uuid->len == 4 && size >= 9) {
-        sprintf(str, "%08"PRIx32, uuid->uuid.uuid32);
-    } else if (uuid->len == 16 && size >= 37) {
-        uint8_t *p = uuid->uuid.uuid128;
-        sprintf(str, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                p[15], p[14], p[13], p[12], p[11], p[10], p[9], p[8],
-                p[7], p[6], p[5], p[4], p[3], p[2], p[1], p[0]);
-    } else {
-        return NULL;
-    }
-
-    return str;
+    ESP_LOGI(TAG, "controller rcv pkt ready");
 }
 
-static bool get_name_from_eir(uint8_t *eir, uint8_t *bdname, uint8_t *bdname_len)
+/*
+ * @brief: BT controller callback function to transfer data packet to
+ *         the host
+ */
+static int host_rcv_pkt(uint8_t *data, uint16_t len)
 {
-    uint8_t *rmt_bdname = NULL;
-    uint8_t rmt_bdname_len = 0;
-
-    if (!eir) {
-        return false;
-    }
-
-    rmt_bdname = esp_bt_gap_resolve_eir_data(eir, ESP_BT_EIR_TYPE_CMPL_LOCAL_NAME, &rmt_bdname_len);
-    if (!rmt_bdname) {
-        rmt_bdname = esp_bt_gap_resolve_eir_data(eir, ESP_BT_EIR_TYPE_SHORT_LOCAL_NAME, &rmt_bdname_len);
-    }
-
-    if (rmt_bdname) {
-        if (rmt_bdname_len > ESP_BT_GAP_MAX_BDNAME_LEN) {
-            rmt_bdname_len = ESP_BT_GAP_MAX_BDNAME_LEN;
-        }
-
-        if (bdname) {
-            memcpy(bdname, rmt_bdname, rmt_bdname_len);
-            bdname[rmt_bdname_len] = '\0';
-        }
-        if (bdname_len) {
-            *bdname_len = rmt_bdname_len;
-        }
-        return true;
-    }
-
-    return false;
-}
-
-static void update_device_info(esp_bt_gap_cb_param_t *param)
-{
-    char bda_str[18];
-    uint32_t cod = 0;
-    int32_t rssi = -129; /* invalid value */
-    uint8_t *bdname = NULL;
-    uint8_t bdname_len = 0;
-    uint8_t *eir = NULL;
-    uint8_t eir_len = 0;
-    esp_bt_gap_dev_prop_t *p;
-
-    ESP_LOGI(GAP_TAG, "Device found: %s", bda2str(param->disc_res.bda, bda_str, 18));
-    for (int i = 0; i < param->disc_res.num_prop; i++) {
-        p = param->disc_res.prop + i;
-        switch (p->type) {
-        case ESP_BT_GAP_DEV_PROP_COD:
-            cod = *(uint32_t *)(p->val);
-            ESP_LOGI(GAP_TAG, "--Class of Device: 0x%"PRIx32, cod);
-            break;
-        case ESP_BT_GAP_DEV_PROP_RSSI:
-            rssi = *(int8_t *)(p->val);
-            ESP_LOGI(GAP_TAG, "--RSSI: %"PRId32, rssi);
-            break;
-        case ESP_BT_GAP_DEV_PROP_BDNAME:
-            bdname_len = (p->len > ESP_BT_GAP_MAX_BDNAME_LEN) ? ESP_BT_GAP_MAX_BDNAME_LEN :
-                          (uint8_t)p->len;
-            bdname = (uint8_t *)(p->val);
-            break;
-        case ESP_BT_GAP_DEV_PROP_EIR: {
-            eir_len = p->len;
-            eir = (uint8_t *)(p->val);
-            break;
-        }
-        default:
-            break;
+    host_rcv_data_t send_data;
+    uint8_t *data_pkt;
+    /* Check second byte for HCI event. If event opcode is 0x0e, the event is
+     * HCI Command Complete event. Sice we have recieved "0x0e" event, we can
+     * check for byte 4 for command opcode and byte 6 for it's return status. */
+    if (data[1] == 0x0e) {
+        if (data[6] == 0) {
+            ESP_LOGI(TAG, "Event opcode 0x%02x success.", data[4]);
+        } else {
+            ESP_LOGE(TAG, "Event opcode 0x%02x fail with reason: 0x%02x.", data[4], data[6]);
+            return ESP_FAIL;
         }
     }
 
-    /* search for device with Major device type "PHONE" or "Audio/Video" in COD */
-    app_gap_cb_t *p_dev = &m_dev_info;
-    if (p_dev->dev_found) {
-        return;
+    data_pkt = (uint8_t *)malloc(sizeof(uint8_t) * len);
+    if (data_pkt == NULL) {
+        ESP_LOGE(TAG, "Malloc data_pkt failed!");
+        return ESP_FAIL;
     }
-
-    if (!esp_bt_gap_is_valid_cod(cod) ||
-	    (!(esp_bt_gap_get_cod_major_dev(cod) == ESP_BT_COD_MAJOR_DEV_PHONE) &&
-             !(esp_bt_gap_get_cod_major_dev(cod) == ESP_BT_COD_MAJOR_DEV_AV))) {
-        return;
+    memcpy(data_pkt, data, len);
+    send_data.q_data = data_pkt;
+    send_data.q_data_len = len;
+    if (xQueueSend(adv_queue, (void *)&send_data, ( TickType_t ) 0) != pdTRUE) {
+        ESP_LOGD(TAG, "Failed to enqueue advertising report. Queue full.");
+        /* If data sent successfully, then free the pointer in `xQueueReceive'
+         * after processing it. Or else if enqueue in not successful, free it
+         * here. */
+        free(data_pkt);
     }
-
-    memcpy(p_dev->bda, param->disc_res.bda, ESP_BD_ADDR_LEN);
-    p_dev->dev_found = true;
-
-    p_dev->cod = cod;
-    p_dev->rssi = rssi;
-    if (bdname_len > 0) {
-        memcpy(p_dev->bdname, bdname, bdname_len);
-        p_dev->bdname[bdname_len] = '\0';
-        p_dev->bdname_len = bdname_len;
-    }
-    if (eir_len > 0) {
-        memcpy(p_dev->eir, eir, eir_len);
-        p_dev->eir_len = eir_len;
-    }
-
-    if (p_dev->bdname_len == 0) {
-        get_name_from_eir(p_dev->eir, p_dev->bdname, &p_dev->bdname_len);
-    }
-
-    ESP_LOGI(GAP_TAG, "Found a target device, address %s, name %s", bda_str, p_dev->bdname);
-    p_dev->state = APP_GAP_STATE_DEVICE_DISCOVER_COMPLETE;
-    ESP_LOGI(GAP_TAG, "Cancel device discovery ...");
-    esp_bt_gap_cancel_discovery();
+    return ESP_OK;
 }
 
-static void bt_app_gap_init(void)
-{
-    app_gap_cb_t *p_dev = &m_dev_info;
-    memset(p_dev, 0, sizeof(app_gap_cb_t));
+static esp_vhci_host_callback_t vhci_host_cb = {
+    controller_rcv_pkt_ready,
+    host_rcv_pkt
+};
 
-    p_dev->state = APP_GAP_STATE_IDLE;
+static void hci_cmd_send_reset(void)
+{
+    uint16_t sz = make_cmd_reset (hci_cmd_buf);
+    esp_vhci_host_send_packet(hci_cmd_buf, sz);
 }
 
-static void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
+static void hci_cmd_send_set_evt_mask(void)
 {
-    app_gap_cb_t *p_dev = &m_dev_info;
-    char bda_str[18];
-    char uuid_str[37];
+    /* Set bit 61 in event mask to enable LE Meta events. */
+    uint8_t evt_mask[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20};
+    uint16_t sz = make_cmd_set_evt_mask(hci_cmd_buf, evt_mask);
+    esp_vhci_host_send_packet(hci_cmd_buf, sz);
+}
 
-    switch (event) {
-    case ESP_BT_GAP_DISC_RES_EVT: {
-        update_device_info(param);
-        break;
+static void hci_cmd_send_ble_scan_params(void)
+{
+    /* Set scan type to 0x01 for active scanning and 0x00 for passive scanning. */
+    uint8_t scan_type = 0x01;
+
+    /* Scan window and Scan interval are set in terms of number of slots. Each slot is of 625 microseconds. */
+    uint16_t scan_interval = 0x50; /* 50 ms */
+    uint16_t scan_window = 0x30; /* 30 ms */
+
+    uint8_t own_addr_type = 0x00; /* Public Device Address (default). */
+    uint8_t filter_policy = 0x00; /* Accept all packets excpet directed advertising packets (default). */
+    uint16_t sz = make_cmd_ble_set_scan_params(hci_cmd_buf, scan_type, scan_interval, scan_window, own_addr_type, filter_policy);
+    esp_vhci_host_send_packet(hci_cmd_buf, sz);
+}
+
+static void hci_cmd_send_ble_scan_start(void)
+{
+    uint8_t scan_enable = 0x01; /* Scanning enabled. */
+    uint8_t filter_duplicates = 0x00; /* Duplicate filtering disabled. */
+    uint16_t sz = make_cmd_ble_set_scan_enable(hci_cmd_buf, scan_enable, filter_duplicates);
+    esp_vhci_host_send_packet(hci_cmd_buf, sz);
+    ESP_LOGI(TAG, "BLE Scanning started..");
+}
+
+static void hci_cmd_send_ble_adv_start(void)
+{
+    uint16_t sz = make_cmd_ble_set_adv_enable (hci_cmd_buf, 1);
+    esp_vhci_host_send_packet(hci_cmd_buf, sz);
+    ESP_LOGI(TAG, "BLE Advertising started..");
+}
+
+static void hci_cmd_send_ble_set_adv_param(void)
+{
+    /* Minimum and maximum Advertising interval are set in terms of slots. Each slot is of 625 microseconds. */
+    uint16_t adv_intv_min = 0x100;
+    uint16_t adv_intv_max = 0x100;
+
+    /* Connectable undirected advertising (ADV_IND). */
+    uint8_t adv_type = 0;
+
+    /* Own address is public address. */
+    uint8_t own_addr_type = 0;
+
+    /* Public Device Address */
+    uint8_t peer_addr_type = 0;
+    uint8_t peer_addr[6] = {0x80, 0x81, 0x82, 0x83, 0x84, 0x85};
+
+    /* Channel 37, 38 and 39 for advertising. */
+    uint8_t adv_chn_map = 0x07;
+
+    /* Process scan and connection requests from all devices (i.e., the White List is not in use). */
+    uint8_t adv_filter_policy = 0;
+
+    uint16_t sz = make_cmd_ble_set_adv_param(hci_cmd_buf,
+                  adv_intv_min,
+                  adv_intv_max,
+                  adv_type,
+                  own_addr_type,
+                  peer_addr_type,
+                  peer_addr,
+                  adv_chn_map,
+                  adv_filter_policy);
+    esp_vhci_host_send_packet(hci_cmd_buf, sz);
+}
+
+static void hci_cmd_send_ble_set_adv_data(void)
+{
+    char *adv_name = "ESP-BLE-1";
+    uint8_t name_len = (uint8_t)strlen(adv_name);
+    uint8_t adv_data[31] = {0x02, 0x01, 0x06, 0x0, 0x09};
+    uint8_t adv_data_len;
+
+    adv_data[3] = name_len + 1;
+    for (int i = 0; i < name_len; i++) {
+        adv_data[5 + i] = (uint8_t)adv_name[i];
     }
-    case ESP_BT_GAP_DISC_STATE_CHANGED_EVT: {
-        if (param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STOPPED) {
-            ESP_LOGI(GAP_TAG, "Device discovery stopped.");
-            if ( (p_dev->state == APP_GAP_STATE_DEVICE_DISCOVER_COMPLETE ||
-                    p_dev->state == APP_GAP_STATE_DEVICE_DISCOVERING)
-                    && p_dev->dev_found) {
-                p_dev->state = APP_GAP_STATE_SERVICE_DISCOVERING;
-                ESP_LOGI(GAP_TAG, "Discover services ...");
-                esp_bt_gap_get_remote_services(p_dev->bda);
+    adv_data_len = 5 + name_len;
+
+    uint16_t sz = make_cmd_ble_set_adv_data(hci_cmd_buf, adv_data_len, (uint8_t *)adv_data);
+    esp_vhci_host_send_packet(hci_cmd_buf, sz);
+    ESP_LOGI(TAG, "Starting BLE advertising with name \"%s\"", adv_name);
+}
+
+static esp_err_t get_local_name (uint8_t *data_msg, uint8_t data_len, ble_scan_local_name_t *scanned_packet)
+{
+    uint8_t curr_ptr = 0, curr_len, curr_type;
+    while (curr_ptr < data_len) {
+        curr_len = data_msg[curr_ptr++];
+        curr_type = data_msg[curr_ptr++];
+        if (curr_len == 0) {
+            return ESP_FAIL;
+        }
+
+        /* Search for current data type and see if it contains name as data (0x08 or 0x09). */
+        if (curr_type == 0x08 || curr_type == 0x09) {
+            for (uint8_t i = 0; i < curr_len - 1; i += 1) {
+                scanned_packet->scan_local_name[i] = data_msg[curr_ptr + i];
             }
-        } else if (param->disc_st_chg.state == ESP_BT_GAP_DISCOVERY_STARTED) {
-            ESP_LOGI(GAP_TAG, "Discovery started.");
+            scanned_packet->name_len = curr_len - 1;
+            return ESP_OK;
+        } else {
+            /* Search for next data. Current length includes 1 octate for AD Type (2nd octate). */
+            curr_ptr += curr_len - 1;
         }
-        break;
     }
-    case ESP_BT_GAP_RMT_SRVCS_EVT: {
-        if (memcmp(param->rmt_srvcs.bda, p_dev->bda, ESP_BD_ADDR_LEN) == 0 &&
-                p_dev->state == APP_GAP_STATE_SERVICE_DISCOVERING) {
-            p_dev->state = APP_GAP_STATE_SERVICE_DISCOVER_COMPLETE;
-            if (param->rmt_srvcs.stat == ESP_BT_STATUS_SUCCESS) {
-                ESP_LOGI(GAP_TAG, "Services for device %s found",  bda2str(p_dev->bda, bda_str, 18));
-                for (int i = 0; i < param->rmt_srvcs.num_uuids; i++) {
-                    esp_bt_uuid_t *u = param->rmt_srvcs.uuid_list + i;
-                    ESP_LOGI(GAP_TAG, "--%s", uuid2str(u, uuid_str, 37));
+    return ESP_FAIL;
+}
+
+void hci_evt_process(void *pvParameters)
+{
+    host_rcv_data_t *rcv_data = (host_rcv_data_t *)malloc(sizeof(host_rcv_data_t));
+    if (rcv_data == NULL) {
+        ESP_LOGE(TAG, "Malloc rcv_data failed!");
+        return;
+    }
+    esp_err_t ret;
+
+    while (1) {
+        uint8_t sub_event, num_responses, total_data_len, data_msg_ptr, hci_event_opcode;
+        uint8_t *queue_data = NULL, *event_type = NULL, *addr_type = NULL, *addr = NULL, *data_len = NULL, *data_msg = NULL;
+        short int *rssi = NULL;
+        uint16_t data_ptr;
+        ble_scan_local_name_t *scanned_name = NULL;
+        total_data_len = 0;
+        data_msg_ptr = 0;
+        if (xQueueReceive(adv_queue, rcv_data, portMAX_DELAY) != pdPASS) {
+            ESP_LOGE(TAG, "Queue receive error");
+        } else {
+            /* `data_ptr' keeps track of current position in the received data. */
+            data_ptr = 0;
+            queue_data = rcv_data->q_data;
+
+            /* Parsing `data' and copying in various fields. */
+            hci_event_opcode = queue_data[++data_ptr];
+            if (hci_event_opcode == LE_META_EVENTS) {
+                /* Set `data_ptr' to 4th entry, which will point to sub event. */
+                data_ptr += 2;
+                sub_event = queue_data[data_ptr++];
+                /* Check if sub event is LE advertising report event. */
+                if (sub_event == HCI_LE_ADV_REPORT) {
+
+                    scanned_count += 1;
+
+                    /* Get number of advertising reports. */
+                    num_responses = queue_data[data_ptr++];
+                    event_type = (uint8_t *)malloc(sizeof(uint8_t) * num_responses);
+                    if (event_type == NULL) {
+                        ESP_LOGE(TAG, "Malloc event_type failed!");
+                        goto reset;
+                    }
+                    for (uint8_t i = 0; i < num_responses; i += 1) {
+                        event_type[i] = queue_data[data_ptr++];
+                    }
+
+                    /* Get advertising type for every report. */
+                    addr_type = (uint8_t *)malloc(sizeof(uint8_t) * num_responses);
+                    if (addr_type == NULL) {
+                        ESP_LOGE(TAG, "Malloc addr_type failed!");
+                        goto reset;
+                    }
+                    for (uint8_t i = 0; i < num_responses; i += 1) {
+                        addr_type[i] = queue_data[data_ptr++];
+                    }
+
+                    /* Get BD address in every advetising report and store in
+                     * single array of length `6 * num_responses' as each address
+                     * will take 6 spaces. */
+                    addr = (uint8_t *)malloc(sizeof(uint8_t) * 6 * num_responses);
+                    if (addr == NULL) {
+                        ESP_LOGE(TAG, "Malloc addr failed!");
+                        goto reset;
+                    }
+                    for (int i = 0; i < num_responses; i += 1) {
+                        for (int j = 0; j < 6; j += 1) {
+                            addr[(6 * i) + j] = queue_data[data_ptr++];
+                        }
+                    }
+
+                    /* Get length of data for each advertising report. */
+                    data_len = (uint8_t *)malloc(sizeof(uint8_t) * num_responses);
+                    if (data_len == NULL) {
+                        ESP_LOGE(TAG, "Malloc data_len failed!");
+                        goto reset;
+                    }
+                    for (uint8_t i = 0; i < num_responses; i += 1) {
+                        data_len[i] = queue_data[data_ptr];
+                        total_data_len += queue_data[data_ptr++];
+                    }
+
+                    if (total_data_len != 0) {
+                        /* Get all data packets. */
+                        data_msg = (uint8_t *)malloc(sizeof(uint8_t) * total_data_len);
+                        if (data_msg == NULL) {
+                            ESP_LOGE(TAG, "Malloc data_msg failed!");
+                            goto reset;
+                        }
+                        for (uint8_t i = 0; i < num_responses; i += 1) {
+                            for (uint8_t j = 0; j < data_len[i]; j += 1) {
+                                data_msg[data_msg_ptr++] = queue_data[data_ptr++];
+                            }
+                        }
+                    }
+
+                    /* Counts of advertisements done. This count is set in advertising data every time before advertising. */
+                    rssi = (short int *)malloc(sizeof(short int) * num_responses);
+                    if (data_len == NULL) {
+                        ESP_LOGE(TAG, "Malloc rssi failed!");
+                        goto reset;
+                    }
+                    for (uint8_t i = 0; i < num_responses; i += 1) {
+                        rssi[i] = -(0xFF - queue_data[data_ptr++]);
+                    }
+
+                    /* Extracting advertiser's name. */
+                    data_msg_ptr = 0;
+                    scanned_name = (ble_scan_local_name_t *)malloc(num_responses * sizeof(ble_scan_local_name_t));
+                    if (data_len == NULL) {
+                        ESP_LOGE(TAG, "Malloc scanned_name failed!");
+                        goto reset;
+                    }
+                    for (uint8_t i = 0; i < num_responses; i += 1) {
+                        ret = get_local_name(&data_msg[data_msg_ptr], data_len[i], scanned_name);
+
+                        /* Print the data if adv report has a valid name. */
+                        if (ret == ESP_OK) {
+                            printf("******** Response %d/%d ********\n", i + 1, num_responses);
+                            printf("Event type: %02x\nAddress type: %02x\nAddress: ", event_type[i], addr_type[i]);
+                            for (int j = 5; j >= 0; j -= 1) {
+                                printf("%02x", addr[(6 * i) + j]);
+                                if (j > 0) {
+                                    printf(":");
+                                }
+                            }
+
+                            printf("\nData length: %d", data_len[i]);
+                            data_msg_ptr += data_len[i];
+                            printf("\nAdvertisement Name: ");
+                            for (int k = 0; k < scanned_name->name_len; k += 1 ) {
+                                printf("%c", scanned_name->scan_local_name[k]);
+                            }
+                            printf("\nRSSI: %ddB\n", rssi[i]);
+                        }
+                    }
+
+                    /* Freeing all spaces allocated. */
+reset:
+                    free(scanned_name);
+                    free(rssi);
+                    free(data_msg);
+                    free(data_len);
+                    free(addr);
+                    free(addr_type);
+                    free(event_type);
                 }
-            } else {
-                ESP_LOGI(GAP_TAG, "Services for device %s not found",  bda2str(p_dev->bda, bda_str, 18));
             }
+#if (CONFIG_LOG_DEFAULT_LEVEL_DEBUG || CONFIG_LOG_DEFAULT_LEVEL_VERBOSE)
+            printf("Raw Data:");
+            for (uint8_t j = 0; j < rcv_data->q_data_len; j += 1) {
+                printf(" %02x", queue_data[j]);
+            }
+            printf("\nQueue free size: %d\n", uxQueueSpacesAvailable(adv_queue));
+#endif
+            free(queue_data);
         }
-        break;
+        memset(rcv_data, 0, sizeof(host_rcv_data_t));
     }
-    case ESP_BT_GAP_RMT_SRVC_REC_EVT:
-    default: {
-        ESP_LOGI(GAP_TAG, "event: %d", event);
-        break;
-    }
-    }
-    return;
 }
 
-static void bt_app_gap_start_up(void)
+void bt_start(void)
 {
-    /* register GAP callback function */
-    esp_bt_gap_register_callback(bt_app_gap_cb);
+    bool continue_commands = 1;
+    int cmd_cnt = 0;
 
-    char *dev_name = "ESP_GAP_INQRUIY";
-    esp_bt_dev_set_device_name(dev_name);
+    const esp_timer_create_args_t periodic_timer_args = {
+        .callback = &periodic_timer_callback,
+        .name = "periodic"
+    };
 
-    /* set discoverable and connectable mode, wait to be connected */
-    esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
+    /* Create timer for logging scanned devices. */
+    esp_timer_handle_t periodic_timer;
+    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
 
-    /* inititialize device information and status */
-    bt_app_gap_init();
+    /* Start periodic timer for 5 sec. */
+    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 5000000));
 
-    /* start to discover nearby Bluetooth devices */
-    app_gap_cb_t *p_dev = &m_dev_info;
-    p_dev->state = APP_GAP_STATE_DEVICE_DISCOVERING;
-    esp_bt_gap_start_discovery(ESP_BT_INQ_MODE_GENERAL_INQUIRY, 10, 0);
-}
-
-void app_main(void)
-{
-    /* Initialize NVS — it is used to store PHY calibration data and save key-value pairs in flash memory*/
+    /* Initialize NVS — it is used to store PHY calibration data */
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK( ret );
-
-    ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
-
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+
+    ret = esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
+    if (ret) {
+        ESP_LOGI(TAG, "Bluetooth controller release classic bt memory failed: %s", esp_err_to_name(ret));
+        return;
+    }
+
     if ((ret = esp_bt_controller_init(&bt_cfg)) != ESP_OK) {
-        ESP_LOGE(GAP_TAG, "%s initialize controller failed: %s", __func__, esp_err_to_name(ret));
+        ESP_LOGI(TAG, "Bluetooth controller initialize failed: %s", esp_err_to_name(ret));
         return;
     }
 
-    if ((ret = esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT)) != ESP_OK) {
-        ESP_LOGE(GAP_TAG, "%s enable controller failed: %s", __func__, esp_err_to_name(ret));
+    if ((ret = esp_bt_controller_enable(ESP_BT_MODE_BLE)) != ESP_OK) {
+        ESP_LOGI(TAG, "Bluetooth controller enable failed: %s", esp_err_to_name(ret));
         return;
     }
 
-    esp_bluedroid_config_t bluedroid_cfg = BT_BLUEDROID_INIT_CONFIG_DEFAULT();
-    if ((ret = esp_bluedroid_init_with_cfg(&bluedroid_cfg)) != ESP_OK) {
-        ESP_LOGE(GAP_TAG, "%s initialize bluedroid failed: %s", __func__, esp_err_to_name(ret));
+    /* A queue for storing received HCI packets. */
+    adv_queue = xQueueCreate(15, sizeof(host_rcv_data_t));
+    if (adv_queue == NULL) {
+        ESP_LOGE(TAG, "Queue creation failed");
         return;
     }
 
-    if ((ret = esp_bluedroid_enable()) != ESP_OK) {
-        ESP_LOGE(GAP_TAG, "%s enable bluedroid failed: %s", __func__, esp_err_to_name(ret));
-        return;
-    }
+    esp_vhci_host_register_callback(&vhci_host_cb);
+    while (continue_commands) {
+        if (continue_commands && esp_vhci_host_check_send_available()) {
+            switch (cmd_cnt) {
+            case 0: hci_cmd_send_reset(); ++cmd_cnt; break;
+            case 1: hci_cmd_send_set_evt_mask(); ++cmd_cnt; break;
 
-    bt_app_gap_start_up();
+            /* Send advertising commands. */
+            case 2: hci_cmd_send_ble_set_adv_param(); ++cmd_cnt; break;
+            case 3: hci_cmd_send_ble_set_adv_data(); ++cmd_cnt; break;
+            case 4: hci_cmd_send_ble_adv_start(); ++cmd_cnt; break;
+
+            /* Send scan commands. */
+            case 5: hci_cmd_send_ble_scan_params(); ++cmd_cnt; break;
+            case 6: hci_cmd_send_ble_scan_start(); ++cmd_cnt; break;
+            default: continue_commands = 0; break;
+            }
+            ESP_LOGI(TAG, "BLE Advertise, cmd_sent: %d", cmd_cnt);
+        }
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+    xTaskCreatePinnedToCore(&hci_evt_process, "hci_evt_process", 2048, NULL, 6, NULL, 0);
 }

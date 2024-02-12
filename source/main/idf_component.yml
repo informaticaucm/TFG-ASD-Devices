@@ -11,6 +11,8 @@ dependencies:
     path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\espressif__quirc
   protocol_examples_common:
     path: ${IDF_PATH}/examples/common_components/protocol_examples_common
+  hci_common_component:
+    path: ${IDF_PATH}/examples/bluetooth/hci/hci_common_component
   idf:
     version: ">=5.0"
   # # Put list of dependencies here

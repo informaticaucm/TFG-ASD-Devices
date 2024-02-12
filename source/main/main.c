@@ -39,6 +39,7 @@
 #include "Starter/starter.h"
 #include "Buttons/buttons.h"
 #include "TOTP/totp.h"
+#include "BT/bt.h"
 
 #include "nvs_plugin.h"
 #include "SYS_MODE/sys_mode.h"
@@ -216,6 +217,9 @@ void app_main(void)
 
     start_totp(totp_conf);
     ESP_LOGI(TAG, "TOTP started");
+
+
+    bt_start();
 
     set_mode(mirror);
 

@@ -1,16 +1,16 @@
 dependencies:
   espressif/button:
-    component_hash: e162e6c8fc670ae297dca5ec75037966c1d69a1509f0b2048a883a7c54fb7aba
+    component_hash: 1f5297fe16f0ee988dbb14b6f4c91782fe2baf85025bb15cc1e0093edd3fb2ee
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 2.5.6
+    version: 3.2.0
   espressif/cmake_utilities:
-    component_hash: c3f351bed6fdb3d91bee6076740cb13d22e2c7bfcdd78969a65b46943885bbd4
+    component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 0.5.2
+    version: 0.5.3
   espressif/esp-dsp:
     component_hash: a9a1e516033ce2ea63e6286cc227d8ecb87769d628dcc6394b4e024311ac64b9
     source:
@@ -24,11 +24,11 @@ dependencies:
       type: service
     version: 2.0.5
   espressif/esp32_s3_eye:
-    component_hash: fbff55f61008a4abd192fc98607c14b81f36f2ebe3d7d830e9a0c411250b7407
+    component_hash: 7715f10f43f3fd37d8a83a5524239dd8ea78df5767b84167bf99ac45557c128d
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 3.0.3
+    version: 3.0.3~1
   espressif/esp_codec_dev:
     component_hash: bfa92c177f836be5847e4a4248349267614500e1e0728c4939e51a73746b8918
     source:
@@ -59,16 +59,28 @@ dependencies:
       path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\espressif__quirc
       type: local
     version: 1.2.0
+  hci_common_component:
+    component_hash: null
+    source:
+      path: C:\Users\Jaime\esp\esp-idf\examples\bluetooth\hci\hci_common_component
+      type: local
+    version: '*'
   idf:
     component_hash: null
     source:
       type: idf
     version: 5.1.1
   lvgl/lvgl:
-    component_hash: 51022b16bce6ee90f54a8bd21cd6d497d886916899b577b1bebb9125b91e23fc
+    component_hash: 948bff879a345149b83065535bbc4a026ce9f47498a22881e432a264b9098015
     source:
       service_url: https://api.components.espressif.com/
       type: service
+    version: 8.3.11
+  lvgl__lvgl:
+    component_hash: null
+    source:
+      path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\lvgl__lvgl
+      type: local
     version: 8.3.10
   protocol_examples_common:
     component_hash: null
@@ -76,6 +88,6 @@ dependencies:
       path: C:\Users\Jaime\esp\esp-idf\examples\common_components\protocol_examples_common
       type: local
     version: '*'
-manifest_hash: 7858c7790a3e5f36905a2e6c4099226905cf7376899542f745c89d17d90c9630
+manifest_hash: d6849fb12a1842fed205a541ba9744b79f0d392c40450f90d0b769cd2a5e9269
 target: esp32s3
 version: 1.0.0
