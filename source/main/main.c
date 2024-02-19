@@ -208,7 +208,7 @@ void app_main(void)
     struct ButtonsConf *buttons_conf = jalloc(sizeof(struct ButtonsConf));
 
     buttons_start(buttons_conf);
-    ESP_LOGI(TAG, "starter started");
+    ESP_LOGI(TAG, "buttons started");
 
     // Initialize TOTP
 
@@ -218,8 +218,11 @@ void app_main(void)
     start_totp(totp_conf);
     ESP_LOGI(TAG, "TOTP started");
 
+    struct BTConf *bt_conf = jalloc(sizeof(struct BTConf));
+    bt_conf->to_screen_queue = to_screen_queue;
 
-    bt_start();
+    bt_start(bt_conf);
+    ESP_LOGI(TAG, "BT started");
 
     set_mode(mirror);
 

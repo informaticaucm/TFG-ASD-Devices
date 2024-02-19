@@ -171,6 +171,12 @@ void print_ConnectionParameters(struct ConnectionParameters *cp)
 void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(struct StarterConf *), void (*prepare_to_go_to_fail_state)(), int (*backoff_function)(int), enum StarterState next_state, enum StarterState fail_state, struct StarterConf *conf, int max_tryes)
 {
 
+    // ESP_LOGI(TAG, "trying to connect to wifi");
+    // struct ConnectionParameters parameters;
+    // j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+
+    // print_ConnectionParameters(&parameters);
+
     struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
     msg->command = StateWarning;
     strcpy(msg->data.text, state_string[starterState]);
@@ -405,8 +411,10 @@ void starter_task(void *arg)
         else
         {
             vTaskDelay(get_task_delay());
-            ESP_LOGE(TAG, "starter is on state %s with tries %d (%d)", state_string[starterState], tries, cooldown);
+            // ESP_LOGE(TAG, "starter is on state %s with tries %d (%d)", state_string[starterState], tries, cooldown);
         }
+
+        ESP_LOGI(TAG, "managin state: %s", state_string[starterState]);
 
         switch (starterState)
         {
@@ -427,7 +435,7 @@ void starter_task(void *arg)
             break;
 
         case NoBackend:
-            manage_state(&is_backend_connected, &try_backend_connect, &invalidate_tb_ping, &constant_backoff, Success, NoTB, conf, 10);
+            manage_state(&is_totp_ready, &try_backend_connect, &invalidate_tb_ping, &constant_backoff, Success, NoTB, conf, 10);
             break;
 
         case Success:

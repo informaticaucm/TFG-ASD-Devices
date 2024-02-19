@@ -44,14 +44,18 @@ static void totp_task(void *arg)
 
                 char secret[17];
                 // char url_template[URL_SIZE];
-                int t0;
 
                 get_TOTP_secret(secret);
-                t0 = get_TOTP_t0();
+                int t0 = get_TOTP_t0();
+
+                ESP_LOGE(TAG, "secret: %s, %d %d", secret, t0, (int)now);
+
                 // get_qr_url_template(url_template);
 
                 int totp = do_the_totp_thing(now - t0, secret, 30, 6);
                 snprintf(url, sizeof(url), "http://lo.que.sea.com/?nonce=%d&aula=%s", totp, "TODO");
+
+                ESP_LOGE(TAG, "display qr: %s", url);
 
                 {
                     struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));

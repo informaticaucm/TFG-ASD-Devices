@@ -52,7 +52,7 @@ struct button_adc_config_t
 struct button_adc_config_t adc_buttons[4] = {
     {1, 2800, 3000, qr_display},
     {2, 2250, 2450, state_display},
-    {3, 300, 500, log_queue_display},
+    {3, 300, 500, BT_list},
     {4, 850, 1050, mirror}};
 int adc_button_num = 4;
 

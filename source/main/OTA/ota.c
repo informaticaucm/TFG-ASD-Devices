@@ -49,7 +49,7 @@ void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
     }
     {
         struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-        msg->command = PushLog;
+        msg->command = StateText;
         char *ota_state_to_text[] = {
             "ota state is DOWNLOADING",
             "ota state is DOWNLOADED",
@@ -216,7 +216,7 @@ void ota_routine(char *url, struct OTAConf *conf)
 
         {
             struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-            msg->command = PushLog;
+            msg->command = StateText;
             snprintf(msg->data.text, sizeof(msg->data.text), "Image bytes downloaded: %f%%", progress*100);
 
             int res = xQueueSend(conf->to_screen_queue, &msg, 0);

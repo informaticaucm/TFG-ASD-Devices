@@ -1,6 +1,7 @@
 #ifndef __SYS_MODE_H__
 #define __SYS_MODE_H__
 #include "../Starter/starter.h"
+#include "../common.h"
 #include <time.h>
 
 enum sys_mode
@@ -8,7 +9,7 @@ enum sys_mode
     mirror,
     qr_display,
     state_display,
-    log_queue_display,
+    BT_list,
 };
 
 struct sys_mode_state
@@ -30,6 +31,7 @@ struct sys_mode_state
     int last_tb_ping_time;
 
     struct ConnectionParameters parameters;
+
 };
 
 enum sys_mode get_mode();

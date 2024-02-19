@@ -28,20 +28,21 @@
 
 #define TAG "screen"
 
+#define ALLOWED_AGE_FOR_QR 10
 void screen_task(void *arg)
 {
+
+    bt_device_record_t *bt_device_history = jalloc(BT_DEVICE_HISTORY_SIZE * sizeof(bt_device_record_t));
+
     struct ScreenConf *conf = arg;
 
     struct meta_frame *held_mf = NULL;
 
-    bool valid_qr_data = false;
+    int qr_timestamp = 0;
     char qr_data[MAX_QR_SIZE] = {0};
 
     char state_text[MAX_QR_SIZE] = {0};
     lv_img_dsc_t *state_icon = NULL;
-
-    char log_queue[10][30] = {0};
-    int log_queue_index = 0;
 
     static lv_style_t style_bar_bg;
 
@@ -76,6 +77,12 @@ void screen_task(void *arg)
     lv_img_set_zoom(mirror_img, (int)(255.0 * scale));
     lv_img_set_antialias(mirror_img, false); // Antialiasing destroys the image
     lv_obj_align(mirror_img, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_t *bt_table = lv_table_create(lv_scr_act());
+    lv_obj_set_width(state_lable, 240);
+    lv_obj_set_height(state_lable, 240);
+    lv_obj_align(state_lable, LV_ALIGN_CENTER, 0, 60);
+    lv_obj_add_style(state_lable, &label_style, LV_PART_MAIN);
 
     while (1)
     {
@@ -118,6 +125,7 @@ void screen_task(void *arg)
         case DrawQr:
         {
             memcpy(qr_data, msg->data.text, MAX_QR_SIZE);
+            qr_timestamp = time(0);
             break;
         }
         case Mirror:
@@ -129,14 +137,12 @@ void screen_task(void *arg)
             held_mf = msg->data.mf;
             break;
         }
-        case PushLog:
+        case BTUpdate:
         {
-            memcpy(log_queue[log_queue_index], msg->data.text, 30);
-            log_queue_index = (log_queue_index + 1) % 10;
+            memcpy(bt_device_history, msg->data.bt_devices, BT_DEVICE_HISTORY_SIZE * sizeof(bt_device_record_t));
             break;
         }
         }
-        bsp_display_unlock();
 
         switch (get_mode())
         {
@@ -145,6 +151,7 @@ void screen_task(void *arg)
             lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(bt_table, LV_OBJ_FLAG_HIDDEN);
 
             if (state_icon != NULL)
             {
@@ -156,18 +163,32 @@ void screen_task(void *arg)
 
             break;
         }
-        case log_queue_display:
+        case BT_list:
         {
 
-            // for (int i = 0; i < 10; i++)
-            // {
-            //     lv_obj_t *lable = lv_label_create(lv_scr_act());
-            //     lv_label_set_text_fmt(lable, "%s", log_queue[i]);
-            //     lv_obj_set_width(lable, 150);
-            //     lv_obj_align(lable, LV_ALIGN_CENTER, 0, 24 * 1);
+            lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
 
-            //     lv_obj_add_style(lable, &label_style, LV_PART_MAIN);
-            // }
+            lv_obj_clear_flag(bt_table, LV_OBJ_FLAG_HIDDEN);
+
+            lv_table_set_col_cnt(bt_table, 2);
+            lv_table_set_row_cnt(bt_table, BT_DEVICE_HISTORY_SIZE + 1);
+            lv_table_set_col_width(bt_table, 0, 120);
+            lv_table_set_col_width(bt_table, 1, 120);
+            lv_table_set_cell_value(bt_table, 0, 0, "Name");
+            lv_table_set_cell_value(bt_table, 0, 1, "Address");
+
+            for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
+            {
+                bt_device_record_t record = bt_device_history[i];
+                lv_table_set_cell_value(bt_table, i + 1, 0, record.name);
+                char address[18];
+                sprintf(address, "%02x:%02x:%02x:%02x:%02x:%02x", record.address[0], record.address[1], record.address[2], record.address[3], record.address[4], record.address[5]);
+                lv_table_set_cell_value(bt_table, i + 1, 1, address);
+            }
+
             break;
         }
 
@@ -176,10 +197,12 @@ void screen_task(void *arg)
             lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(bt_table, LV_OBJ_FLAG_HIDDEN);
 
             lv_obj_clear_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
 
-            if (valid_qr_data)
+            if (ALLOWED_AGE_FOR_QR > time(0) - qr_timestamp)
+                
             {
                 lv_qrcode_update(qr_obj, qr_data, strlen(qr_data));
             }
@@ -196,6 +219,7 @@ void screen_task(void *arg)
             lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(bt_table, LV_OBJ_FLAG_HIDDEN);
 
             lv_obj_clear_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
 

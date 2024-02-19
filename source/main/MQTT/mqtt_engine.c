@@ -33,7 +33,6 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         }
         if (0 == strcmp(method, "ping"))
         {
-            set_last_ping_time(time(0));
 
             bool failure = false;
             int epoch;
@@ -325,9 +324,9 @@ void mqtt_task(void *arg)
         }
         case LogInToServer:
         {
-            char *request_body = alloca(strlen(msg->data.login.name) + 40);
+            char *request_body = alloca(strlen(msg->data.login.name) + 80);
 
-            snprintf(request_body, strlen(msg->data.login.name) + 40, "{\"nombre\":\"%s\",\"espacioId\":%d}", msg->data.login.name, msg->data.login.space_id);
+            snprintf(request_body, strlen(msg->data.login.name) + 80, "{\"nombre\":\"%s\",\"espacioId\":7,\"idExternoDispositivo\":\"<th_id>\"}", msg->data.login.name); // msg->data.login.space_id
 
             send_api_post("dispositivos", request_body);
 
