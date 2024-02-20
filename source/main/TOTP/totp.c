@@ -53,7 +53,7 @@ static void totp_task(void *arg)
                 // get_qr_url_template(url_template);
 
                 int totp = do_the_totp_thing(now - t0, secret, 30, 6);
-                snprintf(url, sizeof(url), "http://lo.que.sea.com/?nonce=%d&aula=%s", totp, "TODO");
+                snprintf(url, sizeof(url), "http://lo.que.sea.com/?nonce=%06d&aula=%s", totp, "TODO");
 
                 ESP_LOGE(TAG, "display qr: %s", url);
 

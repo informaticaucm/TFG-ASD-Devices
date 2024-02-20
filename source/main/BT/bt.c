@@ -21,9 +21,8 @@
 #include "../Screen/screen.h"
 #include "common.h"
 
-static const char *TAG = "BLE_ADV_SCAN";
+static const char *TAG = "BT_BACKEND";
 
-bt_device_record_t device_history[BT_DEVICE_HISTORY_SIZE];
 
 typedef struct
 {
@@ -40,30 +39,6 @@ typedef struct
 static uint8_t hci_cmd_buf[128];
 
 static QueueHandle_t adv_queue;
-
-static void periodic_timer_callback(void *arg)
-{
-    struct BTConf *conf = (struct BTConf *)arg;
-
-    ESP_LOGI(TAG, "Sending BTUpdate to screen queue");
-    struct ScreenMsg *msg = (struct ScreenMsg *)jalloc(sizeof(struct ScreenMsg));
-    msg->command = BTUpdate;
-    memcpy(msg->data.bt_devices, device_history, BT_DEVICE_HISTORY_SIZE * sizeof(bt_device_record_t));
-
-    int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-    if (res != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to send BTUpdate to screen queue");
-        free(msg);
-    }
-
-    // // print history
-    // for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
-    // {
-    //     printf("Device %d: %s, %02x:%02x:%02x:%02x:%02x:%02x, %d\n", i, device_history[i].name, device_history[i].address[0], device_history[i].address[1], device_history[i].address[2], device_history[i].address[3], device_history[i].address[4], device_history[i].address[5], device_history[i].time);   
-    // }
-
-}
 
 /*
  * @brief: BT controller callback function, used to notify the upper layer that
@@ -414,57 +389,7 @@ void hci_evt_process(void *arg)
                             // }
                             // printf("\nRSSI: %ddB\n", rssi[i]);
 
-                            bool found = false;
-                            // check if device is already in history
-                            int j = 0;
-                            for (; j < BT_DEVICE_HISTORY_SIZE; j++)
-                            {
-                                if (memcmp(device_history[j].address, addr, 6) == 0)
-                                {
-                                    found = true;
-                                    break;
-                                }
-                            }
-
-
-                            if (found)
-                            {
-                                // update the time
-                                device_history[j].time = esp_timer_get_time();
-                            }
-                            else
-                            {
-                                int oldest_record = 0;
-                                int oldest_time = esp_timer_get_time();
-                                // find the record with the oldest time
-                                for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
-                                {
-                                    if (device_history[i].time < oldest_time)
-                                    {
-                                        oldest_time = device_history[i].time;
-                                        oldest_record = i;
-                                    }
-                                }
-
-                                /* Store the scanned device in history. */
-                                device_history[oldest_record].time = esp_timer_get_time();
-                                memcpy(device_history[oldest_record].name, scanned_name->scan_local_name, scanned_name->name_len);
-                                memcpy(device_history[oldest_record].address, addr, 6);
-                            }
-
-                            // sort the history by time treating
-                            for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
-                            {
-                                for (int j = i + 1; j < BT_DEVICE_HISTORY_SIZE; j++)
-                                {
-                                    if (device_history[i].time < device_history[j].time)
-                                    {
-                                        bt_device_record_t temp = device_history[i];
-                                        device_history[i] = device_history[j];
-                                        device_history[j] = temp;
-                                    }
-                                }
-                            }
+                            device_seen(scanned_name->scan_local_name, scanned_name->name_len, addr + (6 * i), rssi[i]);
                         }
                     }
 
@@ -491,7 +416,7 @@ void bt_start(struct BTConf *conf)
     int cmd_cnt = 0;
 
     const esp_timer_create_args_t periodic_timer_args = {
-        .callback = &periodic_timer_callback,
+        .callback = &fast_timer_callback,
         .name = "periodic",
         .arg = conf};
 

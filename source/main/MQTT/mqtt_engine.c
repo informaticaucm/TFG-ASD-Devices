@@ -35,16 +35,16 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         {
 
             bool failure = false;
-            int epoch;
+            long long int epoch;
             int err = json_obj_get_object(&jctx, "response");
             if (err == OS_SUCCESS)
             {
-                err = json_obj_get_int(&jctx, "epoch", &epoch);
+                err = json_obj_get_int64(&jctx, "epoch", &epoch);
                 if (err == OS_SUCCESS)
                 {
                     struct timeval now = {.tv_sec = epoch};
                     settimeofday(&now, NULL);
-                    ESP_LOGI(TAG, "epoch is: %d", epoch);
+                    ESP_LOGI(TAG, "epoch is: %lld", epoch);
                 }
                 else
                 {
