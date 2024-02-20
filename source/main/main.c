@@ -119,7 +119,7 @@ void app_main(void)
     // build queues
     QueueHandle_t to_qr_queue = xQueueCreate(1, sizeof(camera_fb_t *));
     QueueHandle_t to_starter_queue = xQueueCreate(10, sizeof(struct StarterMsg *));
-    QueueHandle_t to_screen_queue = xQueueCreate(10, sizeof(struct ScreenMsg *));
+    QueueHandle_t to_screen_queue = xQueueCreate(100, sizeof(struct ScreenMsg *));
     QueueHandle_t to_mqtt_queue = xQueueCreate(10, sizeof(struct MQTTMsg *));
     QueueHandle_t to_ota_queue = xQueueCreate(10, sizeof(struct OTAMsg *));
 

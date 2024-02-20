@@ -79,10 +79,10 @@ void screen_task(void *arg)
     lv_obj_align(mirror_img, LV_ALIGN_CENTER, 0, 0);
 
     lv_obj_t *bt_table = lv_table_create(lv_scr_act());
-    lv_obj_set_width(state_lable, 240);
-    lv_obj_set_height(state_lable, 240);
-    lv_obj_align(state_lable, LV_ALIGN_CENTER, 0, 60);
-    lv_obj_add_style(state_lable, &label_style, LV_PART_MAIN);
+    lv_obj_set_width(bt_table, 240);
+    lv_obj_set_height(bt_table, 240);
+    lv_obj_align(bt_table, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_style(bt_table, &label_style, LV_PART_MAIN);
 
     while (1)
     {
@@ -143,6 +143,8 @@ void screen_task(void *arg)
             break;
         }
         }
+
+        free(msg);
 
         switch (get_mode())
         {

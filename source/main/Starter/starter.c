@@ -431,7 +431,7 @@ void starter_task(void *arg)
             break;
 
         case NoTB:
-            manage_state(&is_tb_connected, &try_tb_connect, &invalidate_tb_auth, &constant_backoff, NoBackend, NoAuth, conf, 3);
+            manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackend, NoAuth, conf, 3);
             break;
 
         case NoBackend:
@@ -474,6 +474,12 @@ void starter_task(void *arg)
 
             print_ConnectionParameters(&parameters);
 
+            invalidate_tb_auth();
+            invalidate_tb_ping();
+            invalidate_backend_ping();
+
+            starterState = NoQRConfig;
+
             break;
         }
         case AuthInfo:
@@ -491,6 +497,8 @@ void starter_task(void *arg)
             setState(NoQRConfig, conf);
             break;
         }
+
+        free(msg);
     }
     ESP_LOGE(TAG, "starter task ended");
 }

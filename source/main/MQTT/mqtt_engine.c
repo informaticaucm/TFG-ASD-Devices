@@ -1,5 +1,4 @@
 #pragma once
-#include "esp_random.h"
 #include "mqtt.h"
 
 esp_mqtt_client_handle_t client = 0;
@@ -263,12 +262,11 @@ void mqtt_task(void *arg)
 
             char msg_buffer[200];
             snprintf(msg_buffer, sizeof(msg_buffer), "{"
-                                                     "\"deviceName\": \"%s_%d\","
+                                                     "\"deviceName\": \"%s\","
                                                      "\"provisionDeviceKey\": \"%s\","
                                                      "\"provisionDeviceSecret\": \"%s\""
                                                      "}",
                      msg->data.provisioning.device_name,
-                     (int)esp_random(),
                      msg->data.provisioning.provisioning_device_key,
                      msg->data.provisioning.provisioning_device_secret);
 

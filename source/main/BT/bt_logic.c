@@ -17,6 +17,7 @@
 #define TAG "BT_LOGIC"
 
 #define MAX_DISTANCE_BETWEEN_SCANS 60 * 10 // 10 minutes
+#define VALID_ENTRY(x) (esp_timer_get_time() - x.last_time - x.first_time > 0)
 
 bt_device_record_t device_history[BT_DEVICE_HISTORY_SIZE];
 
@@ -39,7 +40,7 @@ void fast_timer_callback(void *arg)
 
 void slow_timer_callback(void *arg)
 {
-  
+
 }
 
 void device_seen(char* scanned_name, int name_len, uint8_t* addr, int rssi)
@@ -47,9 +48,10 @@ void device_seen(char* scanned_name, int name_len, uint8_t* addr, int rssi)
     bool found = false;
     // check if device is already in history
     int j = 0;
+    int now = esp_timer_get_time();
     for (; j < BT_DEVICE_HISTORY_SIZE; j++)
     {
-        if (memcmp(device_history[j].address, addr, 6) == 0)
+        if (memcmp(device_history[j].address, addr, 6) == 0 && VALID_ENTRY(device_history[j]))
         {
             found = true;
             break;
@@ -59,12 +61,12 @@ void device_seen(char* scanned_name, int name_len, uint8_t* addr, int rssi)
     if (found)
     {
         // update the time
-        device_history[j].last_time = esp_timer_get_time();
+        device_history[j].last_time = now;
     }
     else
     {
         int oldest_record = 0;
-        int oldest_time = esp_timer_get_time();
+        int oldest_time = now;
         // find the record with the oldest time
         for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
         {
@@ -76,13 +78,13 @@ void device_seen(char* scanned_name, int name_len, uint8_t* addr, int rssi)
         }
 
         /* Store the scanned device in history. */
-        device_history[oldest_record].last_time = esp_timer_get_time();
-        device_history[oldest_record].first_time = esp_timer_get_time();
+        device_history[oldest_record].last_time = now;
+        device_history[oldest_record].first_time = now;
         memcpy(device_history[oldest_record].name, scanned_name, name_len);
         memcpy(device_history[oldest_record].address, addr, 6);
     }
 
-    // sort the history by time treating
+    // sort the history by last_time 
     for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
     {
         for (int j = i + 1; j < BT_DEVICE_HISTORY_SIZE; j++)

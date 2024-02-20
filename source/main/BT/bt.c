@@ -23,7 +23,6 @@
 
 static const char *TAG = "BT_BACKEND";
 
-
 typedef struct
 {
     char scan_local_name[32];
@@ -415,17 +414,33 @@ void bt_start(struct BTConf *conf)
     bool continue_commands = 1;
     int cmd_cnt = 0;
 
-    const esp_timer_create_args_t periodic_timer_args = {
-        .callback = &fast_timer_callback,
-        .name = "periodic",
-        .arg = conf};
+    { // fast
+        const esp_timer_create_args_t periodic_timer_args = {
+            .callback = &fast_timer_callback,
+            .name = "periodic",
+            .arg = conf};
 
-    /* Create timer for logging scanned devices. */
-    esp_timer_handle_t periodic_timer;
-    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+        /* Create timer for logging scanned devices. */
+        esp_timer_handle_t periodic_timer;
+        ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
 
-    /* Start periodic timer for 5 sec. */
-    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 5000000));
+        /* Start periodic timer for 5 sec. */
+        ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 5000000)); // 5sec
+    }
+
+    { // slow
+        const esp_timer_create_args_t periodic_timer_args = {
+            .callback = &slow_timer_callback,
+            .name = "periodic",
+            .arg = conf};
+
+        /* Create timer for logging scanned devices. */
+        esp_timer_handle_t periodic_timer;
+        ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+
+        /* Start periodic timer for 5 sec. */
+        ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 60000000)); // 60 sec
+    }
 
     /* Initialize NVS — it is used to store PHY calibration data */
     esp_err_t ret = nvs_flash_init();
@@ -507,7 +522,7 @@ void bt_start(struct BTConf *conf)
                 continue_commands = 0;
                 break;
             }
-            ESP_LOGI(TAG, "BLE Advertise, cmd_sent: %d", cmd_cnt);
+            // ESP_LOGI(TAG, "BLE Advertise, cmd_sent: %d", cmd_cnt);
         }
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }

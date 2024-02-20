@@ -6,9 +6,9 @@ dependencies:
   espressif/esp32_s3_eye: "*"
   lvgl/lvgl: "*"
   espressif/esp_lvgl_port: 
-    path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\espressif__esp_lvgl_port
+    path:  ../components/espressif__esp_lvgl_port
   espressif/quirc: 
-    path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\espressif__quirc
+    path: ../components/espressif__quirc
   protocol_examples_common:
     path: ${IDF_PATH}/examples/common_components/protocol_examples_common
   hci_common_component:

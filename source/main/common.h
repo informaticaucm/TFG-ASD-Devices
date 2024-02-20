@@ -40,7 +40,7 @@
 #define URL_SIZE 100
 #define OTA_URL_SIZE 256
 
-#define BT_DEVICE_HISTORY_SIZE 100
+#define BT_DEVICE_HISTORY_SIZE 20
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
