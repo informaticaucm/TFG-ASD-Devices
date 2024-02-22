@@ -10,6 +10,7 @@ enum sys_mode
     qr_display,
     state_display,
     BT_list,
+    button_test,
 };
 
 struct sys_mode_state

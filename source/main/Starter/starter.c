@@ -260,6 +260,14 @@ bool is_tb_authenticated(struct StarterConf *conf)
     return parameters.access_token_valid;
 }
 
+bool is_backend_authenticated(struct StarterConf *conf)
+{
+    struct ConnectionParameters parameters;
+    j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+
+    return parameters.totp_seed_valid;
+}
+
 void try_tb_connect(struct StarterConf *conf)
 {
     ESP_LOGI(TAG, "trying to connect to tb");
@@ -288,12 +296,20 @@ void invalidate_tb_auth()
     j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 }
 
+void invalidate_backend_auth()
+{
+    struct ConnectionParameters parameters;
+    j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+    parameters.totp_seed_valid = false;
+    j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+}
+
 void invalidate_tb_ping()
 {
     set_last_tb_ping_time(-1);
 }
 
-void invalidate_backend_ping()
+void invalidate_backend_auth_ping()
 {
     set_last_ping_time(-1);
 }
@@ -314,7 +330,7 @@ bool is_tb_connected()
     return get_last_tb_ping_time() != -1 && time(0) - get_last_tb_ping_time() < 10;
 }
 
-void try_backend_connect(struct StarterConf *conf)
+void try_backend_auth(struct StarterConf *conf)
 {
     ESP_LOGI(TAG, "trying to connect to backend");
 
@@ -433,13 +449,15 @@ void starter_task(void *arg)
         case NoTB:
             manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackend, NoAuth, conf, 3);
             break;
-
+        case NoBackendAuth:
+            manage_state(&is_backend_authenticated, &try_backend_auth, &invalidate_backend_auth_ping, &constant_backoff, NoBackend, NoAuth, conf, 3);
+            break;
         case NoBackend:
-            manage_state(&is_totp_ready, &try_backend_connect, &invalidate_tb_ping, &constant_backoff, Success, NoTB, conf, 10);
+            manage_state(&is_backend_connected, &send_ping_to_backend, &dont, &constant_backoff, Success, NoTB, conf, 10);
             break;
 
         case Success:
-            manage_state(&is_backend_connected, &send_ping_to_backend, &invalidate_backend_ping, &constant_backoff, Success, NoBackend, conf, 10);
+            manage_state(&is_backend_connected, &send_ping_to_backend, &invalidate_backend_auth_ping, &constant_backoff, Success, NoBackend, conf, 10);
             break;
 
         default:
@@ -468,15 +486,24 @@ void starter_task(void *arg)
             struct ConnectionParameters parameters;
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
             parameters.qr_valid = true;
-            memcpy(&parameters.qr_info, &msg->data.qr, sizeof(struct QRInfo));
+            memcpy(&parameters.qr_info, &msg->data.qr.qr_info, sizeof(struct QRInfo));
 
             j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
             print_ConnectionParameters(&parameters);
 
-            invalidate_tb_auth();
             invalidate_tb_ping();
-            invalidate_backend_ping();
+            invalidate_backend_auth_ping();
+
+            if (msg->data.qr.invalidate_thingsboard_auth)
+            {
+                invalidate_tb_auth();
+            }
+
+            if (msg->data.qr.invalidate_backend_auth)
+            {
+                invalidate_backend_auth();
+            }
 
             starterState = NoQRConfig;
 

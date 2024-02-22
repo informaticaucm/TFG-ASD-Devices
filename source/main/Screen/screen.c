@@ -150,7 +150,6 @@ void screen_task(void *arg)
         {
         case state_display:
         {
-            lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(bt_table, LV_OBJ_FLAG_HIDDEN);
@@ -159,6 +158,10 @@ void screen_task(void *arg)
             {
                 lv_obj_clear_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
                 lv_img_set_src(state_bg, state_icon);
+            }
+            else
+            {
+                lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
             }
             lv_obj_clear_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
             lv_label_set_text_fmt(state_lable, "%s", state_text);
@@ -204,7 +207,7 @@ void screen_task(void *arg)
             lv_obj_clear_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
 
             if (ALLOWED_AGE_FOR_QR > time(0) - qr_timestamp)
-                
+
             {
                 lv_qrcode_update(qr_obj, qr_data, strlen(qr_data));
             }
@@ -235,6 +238,18 @@ void screen_task(void *arg)
             };
 
             lv_img_set_src(mirror_img, &img);
+
+            break;
+        }
+        case button_test:
+        {
+            lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(bt_table, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
+
+            lv_obj_clear_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
+            lv_label_set_text_fmt(state_lable, "pulse los 4 botones para continuar");
 
             break;
         }

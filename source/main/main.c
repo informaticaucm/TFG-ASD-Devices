@@ -60,6 +60,7 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     bsp_i2c_init();
+
     bsp_display_cfg_t cfg = {
         .lvgl_port_cfg = {
             .task_priority = 0,
@@ -67,6 +68,12 @@ void app_main(void)
             .task_affinity = -1,
             .timer_period_ms = get_task_delay(),
             .task_max_sleep_ms = get_task_delay() * 2,
+        },
+        .buffer_size = BSP_LCD_DRAW_BUFF_SIZE,
+        .double_buffer = BSP_LCD_DRAW_BUFF_DOUBLE,
+        .flags = {
+            .buff_dma = true,
+            .buff_spiram = false,
         }};
     bsp_display_start_with_config(&cfg);
     bsp_leds_init();
@@ -224,6 +231,5 @@ void app_main(void)
     bt_start(bt_conf);
     ESP_LOGI(TAG, "BT started");
 
-    set_mode(mirror);
-
+    set_mode(button_test);
 }

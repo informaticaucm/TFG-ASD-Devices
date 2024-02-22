@@ -23,7 +23,6 @@
 #include "../SYS_MODE/sys_mode.h"
 #include "bsp/esp-bsp.h"
 
-
 // ADC Channels
 #define ADC1_EXAMPLE_CHAN0 ADC_CHANNEL_0
 // ADC Attenuation
@@ -99,6 +98,8 @@ static bool adc_calibration_init(adc_cali_handle_t *out_handle)
     return calibrated;
 }
 
+int presed_buttons = 0;
+
 static void adc_button_task(void *arg)
 {
 
@@ -139,18 +140,33 @@ static void adc_button_task(void *arg)
                 bsp_led_set(BSP_LED_GREEN, true);
 
                 int button_pressed = adc_buttons[i].button_index;
-                set_mode(adc_buttons[i].mode);
 
-                const char *string_mode[] = {
-                    "mirror",
-                    "qr_display",
-                    "state_display",
-                    "log_queue_display",
-                };
+                if (get_mode() == button_test)
+                {
+                    ESP_LOGE(TAG, "Button %d pressed", button_pressed);
+                    presed_buttons = presed_buttons | (1 << i);
+                    if(presed_buttons == 0b1111)
+                    {
+                        set_mode(mirror);
+                        presed_buttons = 0;
+                    }
+                    ESP_LOGE(TAG, "presed_buttons: %d", presed_buttons);
 
-                ESP_LOGI(TAG, "Button %d pressed -> changing to mode %s", button_pressed, string_mode[adc_buttons[i].mode]);
+                }
+                else
+                {
+                    set_mode(adc_buttons[i].mode);
+
+                    const char *string_mode[] = {
+                        "mirror",
+                        "qr_display",
+                        "state_display",
+                        "log_queue_display",
+                    };
+
+                    ESP_LOGI(TAG, "Button %d pressed -> changing to mode %s", button_pressed, string_mode[adc_buttons[i].mode]);
+                }
                 vTaskDelay(100 / portTICK_PERIOD_MS);
-
                 bsp_led_set(BSP_LED_GREEN, false);
             }
         }

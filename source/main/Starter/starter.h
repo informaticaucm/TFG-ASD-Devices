@@ -12,6 +12,7 @@ enum StarterState
     NoWifi,
     NoAuth,
     NoTB,
+    NoBackendAuth,
     NoBackend,
     Success,
 };
@@ -40,7 +41,12 @@ struct StarterMsg
     enum StarterCommand command;
     union
     {
-        struct QRInfo qr;
+        struct
+        {
+            bool invalidate_backend_auth;
+            bool invalidate_thingsboard_auth;
+            struct QRInfo qr_info;
+        } qr;
         char access_token[21];
 
     } data;
