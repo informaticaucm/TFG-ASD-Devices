@@ -23,10 +23,6 @@ struct sys_mode_state
     enum sys_mode tmp_mode;
     int tmp_mode_expiration;
     char version[32];
-    char TOTP_secret[17];
-    int TOTP_t0;
-    // char qr_url_template[URL_SIZE];
-    bool totp_ready;
     bool mqtt_normal_operation;
     int last_ping_time;
     int last_tb_ping_time;
@@ -56,15 +52,6 @@ int get_idle_task_delay();
 
 void set_ota_running(bool ota_running);
 bool is_ota_running();
-
-void set_TOTP_secret(char TOTP_secret[17]);
-void get_TOTP_secret(char TOTP_secret[17]);
-
-void set_TOTP_t0(int TOTP_t0);
-int get_TOTP_t0();
-
-void set_TOTP_ready(bool totp_ready);
-bool is_totp_ready();
 
 void set_mqtt_normal_operation(bool mqtt_normal_operation);
 bool is_mqtt_normal_operation();

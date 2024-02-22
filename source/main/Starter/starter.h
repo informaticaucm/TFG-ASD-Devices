@@ -20,7 +20,8 @@ enum StarterState
 enum StarterCommand
 {
     QrInfo,
-    AuthInfo,
+    TBAuthInfo,
+    TOTPInfo,
     InvalidateConfig,
 };
 
@@ -47,6 +48,11 @@ struct StarterMsg
             bool invalidate_thingsboard_auth;
             struct QRInfo qr_info;
         } qr;
+        struct
+        {
+            char totp_seed[17];
+            int totp_t0;
+        } totp;
         char access_token[21];
 
     } data;
@@ -60,6 +66,7 @@ struct ConnectionParameters
     char access_token[21];
     bool totp_seed_valid;
     char totp_seed[17];
+    int totp_t0;
 };
 
 struct StarterConf

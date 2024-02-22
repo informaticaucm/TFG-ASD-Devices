@@ -227,9 +227,9 @@ void app_main(void)
 
     struct BTConf *bt_conf = jalloc(sizeof(struct BTConf));
     bt_conf->to_screen_queue = to_screen_queue;
+    set_mode(button_test);
 
     bt_start(bt_conf);
     ESP_LOGI(TAG, "BT started");
 
-    set_mode(button_test);
 }

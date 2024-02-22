@@ -25,7 +25,6 @@ void fast_timer_callback(void *arg)
 {
     struct BTConf *conf = (struct BTConf *)arg;
 
-    ESP_LOGI(TAG, "Sending BTUpdate to screen queue");
     struct ScreenMsg *msg = (struct ScreenMsg *)jalloc(sizeof(struct ScreenMsg));
     msg->command = BTUpdate;
     memcpy(msg->data.bt_devices, device_history, BT_DEVICE_HISTORY_SIZE * sizeof(bt_device_record_t));

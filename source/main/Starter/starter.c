@@ -35,12 +35,14 @@ enum StarterState starterState = NoQRConfig;
 int tries = 0;
 int cooldown = 0;
 
-char *state_string[] = {"NoQRConfig",
-                        "NoWifi",
-                        "NoAuth",
-                        "NoTB",
-                        "NoBackend",
-                        "Success"};
+char *state_string[] = {
+    "NoQRConfig",
+    "NoWifi",
+    "NoAuth",
+    "NoTB",
+    "NoBackendAuth",
+    "NoBackend",
+    "Success"};
 
 void crash_wifi()
 {
@@ -168,7 +170,7 @@ void print_ConnectionParameters(struct ConnectionParameters *cp)
     ESP_LOGI(TAG, "      totp_seed: %s", cp->totp_seed);
 }
 
-void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(struct StarterConf *), void (*prepare_to_go_to_fail_state)(), int (*backoff_function)(int), enum StarterState next_state, enum StarterState fail_state, struct StarterConf *conf, int max_tryes)
+void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(struct StarterConf *), void (*prepare_to_go_to_fail_state)(), int (*backoff_function)(int), enum StarterState next_state, enum StarterState fail_state, struct StarterConf *conf, int max_tries)
 {
 
     // ESP_LOGI(TAG, "trying to connect to wifi");
@@ -176,6 +178,8 @@ void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(
     // j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
     // print_ConnectionParameters(&parameters);
+
+    ESP_LOGE(TAG, "tries: %d", tries);
 
     struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
     msg->command = StateWarning;
@@ -195,7 +199,7 @@ void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(
 
             tries++;
             cooldown = backoff_function(tries);
-            if (tries > max_tryes)
+            if (tries > max_tries)
             {
                 prepare_to_go_to_fail_state();
                 setState(fail_state, conf);
@@ -252,7 +256,7 @@ void try_tb_auth(struct StarterConf *conf)
     ESP_LOGI(TAG, "sent DoProvisioning message");
 }
 
-bool is_tb_authenticated(struct StarterConf *conf)
+bool is_tb_authenticated()
 {
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
@@ -260,7 +264,7 @@ bool is_tb_authenticated(struct StarterConf *conf)
     return parameters.access_token_valid;
 }
 
-bool is_backend_authenticated(struct StarterConf *conf)
+bool is_backend_authenticated()
 {
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
@@ -447,10 +451,10 @@ void starter_task(void *arg)
             break;
 
         case NoTB:
-            manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackend, NoAuth, conf, 3);
+            manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackendAuth, NoAuth, conf, 3);
             break;
         case NoBackendAuth:
-            manage_state(&is_backend_authenticated, &try_backend_auth, &invalidate_backend_auth_ping, &constant_backoff, NoBackend, NoAuth, conf, 3);
+            manage_state(&is_backend_authenticated, &try_backend_auth, &invalidate_backend_auth_ping, &constant_backoff, NoBackend, NoAuth, conf, 10);
             break;
         case NoBackend:
             manage_state(&is_backend_connected, &send_ping_to_backend, &dont, &constant_backoff, Success, NoTB, conf, 10);
@@ -472,10 +476,9 @@ void starter_task(void *arg)
 
         char *starter_command_to_string[] = {
             "QrInfo",
-            "AuthInfo",
-            "InvalidateConfig",
-            "PingLost",
-        };
+            "TBAuthInfo",
+            "TOTPInfo",
+            "InvalidateConfig"};
 
         ESP_LOGI(TAG, "starter received message %s", starter_command_to_string[msg->command]);
 
@@ -509,12 +512,24 @@ void starter_task(void *arg)
 
             break;
         }
-        case AuthInfo:
+        case TBAuthInfo:
         {
             struct ConnectionParameters parameters;
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
             parameters.access_token_valid = true;
             memcpy(&parameters.access_token, &msg->data.access_token, 21);
+
+            j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+
+            break;
+        }
+        case TOTPInfo:
+        {
+            struct ConnectionParameters parameters;
+            j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+            parameters.totp_seed_valid = true;
+            parameters.totp_t0 = msg->data.totp.totp_t0;
+            memcpy(parameters.totp_seed, &msg->data.totp.totp_seed, 17);
 
             j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 

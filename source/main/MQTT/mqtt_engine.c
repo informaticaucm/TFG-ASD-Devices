@@ -32,7 +32,6 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         }
         if (0 == strcmp(method, "ping"))
         {
-
             bool failure = false;
             long long int epoch;
             int err = json_obj_get_object(&jctx, "response");
@@ -60,6 +59,8 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             {
                 ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
             }
+
+            set_last_ping_time(time(0));
         }
 
         if (0 == strcmp(method, "dispositivos"))
@@ -73,9 +74,17 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             json_obj_get_string(&jctx, "secret", totp_secret, 17);
             json_obj_get_int(&jctx, "t0", &t0);
 
-            set_TOTP_secret(totp_secret);
-            set_TOTP_t0(t0);
-            set_TOTP_ready(true);
+            struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
+            msg->command = TOTPInfo;
+
+            msg->data.totp.totp_t0 = t0;
+            memcpy(msg->data.totp.totp_seed, totp_secret, 17);
+
+            int res = xQueueSend(conf->to_starter_queue, &msg, 0);
+            if (res != pdTRUE)
+            {
+                free(msg);
+            }
         }
     }
     else if (strcmp(topic, "v1/devices/me/attributes") == 0)
@@ -140,7 +149,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         {
             {
                 struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-                msg->command = AuthInfo;
+                msg->command = TBAuthInfo;
 
                 memcpy(msg->data.access_token, access_token, 21);
 

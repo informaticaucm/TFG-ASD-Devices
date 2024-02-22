@@ -15,7 +15,6 @@ struct sys_mode_state state = {
     .task_delay = DEFAULT_TASK_DELAY,
     .idle_task_delay = DEFAULT_IDLE_TASK_DELAY,
     .ota_running = false,
-    .totp_ready = false,
     .mqtt_normal_operation = false,
     .last_ping_time = -1,
     .last_tb_ping_time = -1,
@@ -132,50 +131,6 @@ bool is_ota_running()
 {
     bool ret = false;
     critical_section(ret = state.ota_running);
-    return ret;
-}
-
-// void set_qr_url_template(char qr_url_template[URL_SIZE])
-// {
-//     critical_section(strcpy(state.qr_url_template, qr_url_template));
-// }
-
-// void get_qr_url_template(char qr_url_template[URL_SIZE])
-// {
-//     critical_section(strcpy(qr_url_template, state.qr_url_template));
-// }
-
-void set_TOTP_secret(char TOTP_secret[17])
-{
-    critical_section(strcpy(state.TOTP_secret, TOTP_secret));
-}
-
-void get_TOTP_secret(char TOTP_secret[17])
-{
-    critical_section(strcpy(TOTP_secret, state.TOTP_secret));
-}
-
-void set_TOTP_t0(int t0)
-{
-    critical_section(state.TOTP_t0 = t0);
-}
-
-int get_TOTP_t0()
-{
-    int ret = 0;
-    critical_section(ret = state.TOTP_t0);
-    return ret;
-}
-
-void set_TOTP_ready(bool totp_ready)
-{
-    critical_section(state.totp_ready = totp_ready);
-}
-
-bool is_totp_ready()
-{
-    bool ret = false;
-    critical_section(ret = state.totp_ready);
     return ret;
 }
 

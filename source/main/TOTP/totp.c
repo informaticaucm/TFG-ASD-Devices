@@ -16,6 +16,7 @@
 
 #define TAG "totp"
 
+
 static void totp_task(void *arg)
 {
     struct TOTPConf *conf = arg;
@@ -33,42 +34,34 @@ static void totp_task(void *arg)
         if (get_mode() == qr_display)
         {
 
-            char url[MAX_QR_SIZE];
+            struct ConnectionParameters parameters;
+            j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
-            if (is_totp_ready()) // TODO check if we have the qr. If not, dont display the error to allow the "please show the qr" message
+            if (parameters.totp_seed_valid)
             {
-                ESP_LOGI(TAG, "TOTP ready");
+
+                struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+                msg->command = DrawQr;
 
                 time_t now;
                 time(&now);
 
-                char secret[17];
-                // char url_template[URL_SIZE];
-
-                get_TOTP_secret(secret);
-                int t0 = get_TOTP_t0();
-
-                ESP_LOGE(TAG, "secret: %s, %d %d", secret, t0, (int)now);
+                char *secret = parameters.totp_seed;
+                int t0 = parameters.totp_t0;
 
                 // get_qr_url_template(url_template);
 
                 int totp = do_the_totp_thing(now - t0, secret, 30, 6);
-                snprintf(url, sizeof(url), "http://lo.que.sea.com/?nonce=%06d&aula=%s", totp, "TODO");
+                snprintf(msg->data.text, sizeof(msg->data.text), "http://lo.que.sea.com/?nonce=%06d&aula=%s", totp, "TODO");
 
-                ESP_LOGE(TAG, "display qr: %s", url);
-
+                int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+                if (res == pdFAIL)
                 {
-                    struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-
-                    msg->command = DrawQr;
-                    strcpy(msg->data.text, url);
-
-                    int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-                    if (res == pdFAIL)
-                    {
-                        free(msg);
-                    }
+                    free(msg);
                 }
+            }
+            else
+            {
             }
         }
     }
