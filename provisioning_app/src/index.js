@@ -1,4 +1,5 @@
-const QRCode = require('qrcode')
+const QRCode = require('qrcode');
+const { cli } = require('webpack');
 
 let payload = "";
 
@@ -70,6 +71,7 @@ function wait(ms) {
 }
 
 function wait_click() {
+    click = false;
     return new Promise(resolve => {
         const interval = setInterval(() => {
             if (click) {
