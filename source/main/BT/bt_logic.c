@@ -80,6 +80,7 @@ void device_seen(char* scanned_name, int name_len, uint8_t* addr, int rssi)
         device_history[oldest_record].last_time = now;
         device_history[oldest_record].first_time = now;
         memcpy(device_history[oldest_record].name, scanned_name, name_len);
+        device_history[oldest_record].name[name_len] = '\0';
         memcpy(device_history[oldest_record].address, addr, 6);
     }
 

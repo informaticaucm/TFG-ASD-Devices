@@ -1,47 +1,75 @@
 const QRCode = require('qrcode')
 
-window.addEventListener('load', function () {
+let payload = "";
 
-    let conf_defaults = {
-        "thingsboard_url": "https://thingsboard.asd:8080",
-        "device_name": "name_here",
-        "space_id": 10,
-        "mqtt_broker_url": "mqtts://thingsboard.asd:8883",
-        "provisioning_device_key": "o7l9pkujk2xgnixqlimv",
-        "provisioning_device_secret": "of8htwr0xmh65wjpz7qe",
-        "wifi_psw": "1234567890",
-        "wifi_ssid": "tfgseguimientodocente",
-        "invalidate_backend_auth_auth": "false",
-        "invalidate_thingsboard_auth_auth": "false",
-    };
+const segment_size = 100;
+const conf_defaults = {
+    "thingsboard_url": "https://thingsboard.asd:8080",
+    "device_name": "name_here",
+    "space_id": 10,
+    "mqtt_broker_url": "mqtts://thingsboard.asd:8883",
+    "provisioning_device_key": "o7l9pkujk2xgnixqlimv",
+    "provisioning_device_secret": "of8htwr0xmh65wjpz7qe",
+    "wifi_psw": "1234567890",
+    "wifi_ssid": "tfgseguimientodocente",
+    "invalidate_backend_auth_auth": "0",
+    "invalidate_thingsboard_auth_auth": "0",
+};
+
+const transmision_interval = 2000;
+
+const refresh_payload = () => {
+    conf = {}
     for (const key in conf_defaults) {
-        const input = this.document.getElementById(key);
-        input.value = conf_defaults[key];
-
-        const refresh_qr = () => {
-            conf = {}
-            for (const key in conf_defaults) {
-                const input = this.document.getElementById(key);
-                conf[key] = input.value == "true" ? true : input.value == "false" ? false : input.value;
-            }
-
-            let qr_payload = `reconf` + JSON.stringify(conf)
-            set_text(qr_payload);
-        }
-
-        input.addEventListener("input", refresh_qr)
-        refresh_qr()
+        const input = document.getElementById(key);
+        conf[key] = input.value == "true" ? true : input.value == "false" ? false : input.value;
     }
 
+    payload = JSON.stringify(conf);
+    text_display.innerHTML = payload;
 
+}
+
+
+let click = false;
+
+window.addEventListener('load', function () {
+
+
+    for (const key in conf_defaults) {
+        const input = document.getElementById(key);
+        input.value = conf_defaults[key];
+        input.addEventListener("input", refresh_payload)
+        refresh_payload()
+    }
+
+    document.getElementById("start_transmision").addEventListener("click", async () => {
+        document.getElementById('data_input').style.display = 'none';
+        document.getElementById('qr_canvas').style.display = 'block';
+        click = false;
+
+        set_text("reconf" + JSON.stringify({ packet_type: "start", segment_size, segment_count: Math.ceil(payload.length/segment_size) }))
+        await wait(transmision_interval);
+        while (!click) {
+            for (let i = 0; i < payload.length; i += segment_size) {
+                set_text("reconf" + JSON.stringify({ packet_type: "segment", i, data: payload.slice(i, i + segment_size) }))
+                await wait(transmision_interval);
+            }
+        }
+
+        document.getElementById('data_input').style.display = 'block';
+        document.getElementById('qr_canvas').style.display = 'none';
+    });
 })
+
+this.document.addEventListener('click', () => click = true)
 
 function set_text(text) {
     const canvas = document.getElementById('qr_canvas')
 
-    QRCode.toCanvas(canvas, text, function (error) {
+    QRCode.toCanvas(canvas, text, { width: Math.min(canvas.clientWidth, canvas.clientHeight) }, function (error) {
         if (error) console.error(error)
         console.log('success!');
-        text_display.innerHTML = text;
     })
+
 }

@@ -121,65 +121,9 @@ static void qr_task(void *arg)
                 // Indicate that we have successfully decoded something by blinking an LED
                 bsp_led_set(BSP_LED_GREEN, true);
 
-                ESP_LOGI(TAG, "Processing task ready");
 
-                ESP_LOGI(TAG, "the contents were: %s", qr_data.payload);
 
-                // TODO decide qr meaning and send to Starter or MQTT modules
-
-                if (strncmp("reconf", (char *)qr_data.payload, 6) == 0)
-                {
-                    // reconf{"device_name":"DevicePrueba","thingsboard_url":"https://thingsboard.asd:8080","mqtt_broker_url":"mqtts://thingsboard.asd:8883","provisioning_device_key":"o7l9pkujk2xgnixqlimv","provisioning_device_secret":"of8htwr0xmh65wjpz7qe","wifi_psw":"1234567890","wifi_ssid":"tfgseguimientodocente"}
-                    struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-
-                    msg->command = QrInfo;
-
-                    jparse_ctx_t jctx;
-                    json_parse_start(&jctx, (char *)(qr_data.payload + 6), qr_data.payload_len - 6);
-
-                    json_obj_get_string(&jctx, "device_name", msg->data.qr.qr_info.device_name, 50);
-                    json_obj_get_int(&jctx, "space_id", &msg->data.qr.qr_info.space_id);
-                    json_obj_get_string(&jctx, "thingsboard_url", msg->data.qr.qr_info.thingsboard_url, URL_SIZE);
-                    json_obj_get_string(&jctx, "mqtt_broker_url", msg->data.qr.qr_info.mqtt_broker_url, URL_SIZE);
-                    json_obj_get_string(&jctx, "provisioning_device_key", msg->data.qr.qr_info.provisioning_device_key, 21);
-                    json_obj_get_string(&jctx, "provisioning_device_secret", msg->data.qr.qr_info.provisioning_device_secret, 21);
-                    json_obj_get_string(&jctx, "wifi_psw", msg->data.qr.qr_info.wifi_psw, 30);
-                    json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.qr_info.wifi_ssid, 30);
-
-                    ESP_LOGI(TAG, "json field device_name %s", msg->data.qr.qr_info.device_name);
-                    ESP_LOGI(TAG, "json field space_id %d", msg->data.qr.qr_info.space_id);
-                    ESP_LOGI(TAG, "json field thingsboard_url %s", msg->data.qr.qr_info.thingsboard_url);
-                    ESP_LOGI(TAG, "json field mqtt_broker_url %s", msg->data.qr.qr_info.mqtt_broker_url);
-                    ESP_LOGI(TAG, "json field provisioning_device_key %s", msg->data.qr.qr_info.provisioning_device_key);
-                    ESP_LOGI(TAG, "json field provisioning_device_secret %s", msg->data.qr.qr_info.provisioning_device_secret);
-                    ESP_LOGI(TAG, "json field wifi_psw %s", msg->data.qr.qr_info.wifi_psw);
-                    ESP_LOGI(TAG, "json field wifi_ssid %s", msg->data.qr.qr_info.wifi_ssid);
-
-                    msg->data.qr.invalidate_backend_auth = false;
-                    msg->data.qr.invalidate_thingsboard_auth = false;
-
-                    json_obj_get_bool(&jctx, "invalidate_backend_auth_auth", &msg->data.qr.invalidate_backend_auth);
-                    json_obj_get_bool(&jctx, "invalidate_thingsboard_auth_auth", &msg->data.qr.invalidate_thingsboard_auth);
-
-                    int res = xQueueSend(conf->to_starter_queue, &msg, 0);
-                    if (res != pdTRUE)
-                    {
-                        free(msg);
-                    }
-                }
-                else
-                {
-                    struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
-
-                    msg->command = Found_TUI_qr;
-                    strcpy((char *)msg->data.found_tui_qr.TUI_qr, (char *)qr_data.payload);
-
-                    int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
-                    if (res != pdTRUE)
-                    {
-                        free(msg);
-                    }
-                }
+                qr_seen(conf, (char *)qr_data.payload, qr_data.payload_len);
 
                 bsp_led_set(BSP_LED_GREEN, false);
             }

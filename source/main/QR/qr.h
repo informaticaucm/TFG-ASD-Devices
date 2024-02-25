@@ -16,3 +16,4 @@ struct QRConf
 };
 
 void qr_start(struct QRConf *conf);
+void qr_seen(struct QRConf *conf, char *data, int len);

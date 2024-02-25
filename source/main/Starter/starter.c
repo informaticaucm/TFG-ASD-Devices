@@ -318,14 +318,6 @@ void invalidate_backend_auth_ping()
     set_last_ping_time(-1);
 }
 
-void invalidate_qr()
-{
-    struct ConnectionParameters parameters;
-    j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-    parameters.qr_valid = false;
-    j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-}
-
 void dont() {}
 
 bool is_tb_connected()
@@ -397,23 +389,14 @@ bool is_qr_valid()
     return err == ESP_OK && parameters.qr_valid;
 }
 
-void try_read_qr(struct StarterConf *conf)
-{
-    ESP_LOGI(TAG, "trying to read qr");
-
-    struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-    msg->command = StateText;
-    strcpy(msg->data.text, "Please scan QR code");
-    int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-    if (res == pdFAIL)
-    {
-        ESP_LOGE(TAG, "mesage send fail");
-        free(msg);
-    }
-}
-
 void starter_task(void *arg)
 {
+    {
+        struct ConnectionParameters parameters;
+        j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+
+        print_ConnectionParameters(&parameters);
+    }
     struct StarterConf *conf = arg;
 
     while (1)
@@ -439,11 +422,11 @@ void starter_task(void *arg)
         switch (starterState)
         {
         case NoQRConfig:
-            manage_state(&is_qr_valid, &try_read_qr, &dont, &constant_backoff, NoWifi, NoQRConfig, conf, 10);
+            manage_state(&is_qr_valid, &dont, &dont, &constant_backoff, NoWifi, NoQRConfig, conf, 10);
             break;
 
         case NoWifi:
-            manage_state(&is_wifi_connected, &try_connect_wifi, &invalidate_qr, &constant_backoff, NoAuth, NoWifi, conf, 10); // latches
+            manage_state(&is_wifi_connected, &try_connect_wifi, &dont, &constant_backoff, NoAuth, NoWifi, conf, 10); // latches
             break;
 
         case NoAuth:
