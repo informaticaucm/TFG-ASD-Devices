@@ -2,7 +2,7 @@ const QRCode = require('qrcode');
 
 let payload = "";
 
-const segment_size = 140;
+const segment_size = 100;
 const conf_defaults = {
     "thingsboard_url": "https://thingsboard.asd:8080",
     "device_name": "name_here",
