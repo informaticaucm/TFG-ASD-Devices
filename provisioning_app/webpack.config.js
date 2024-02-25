@@ -4,7 +4,8 @@ const HtmlInlineScriptPlugin = require('html-inline-script-webpack-plugin');
 
 module.exports = {
     entry: './src/index.js',
-    mode: 'development',
+    // mode: 'development',
+    mode: 'production',
     optimization: {
         chunkIds: 'total-size',
         innerGraph: true,
