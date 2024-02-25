@@ -1,5 +1,4 @@
 const QRCode = require('qrcode');
-const { cli } = require('webpack');
 
 let payload = "";
 
@@ -47,6 +46,7 @@ window.addEventListener('load', function () {
     document.getElementById("start_transmision").addEventListener("click", async () => {
         document.getElementById('data_input').style.display = 'none';
         document.getElementById('qr_canvas').style.display = 'block';
+        await wait(1);
 
         set_text("reconf" + JSON.stringify({ packet_type: "start", segment_size, segment_count: Math.ceil(payload.length / segment_size) }))
         await wait_click();
@@ -56,6 +56,7 @@ window.addEventListener('load', function () {
             for (let i = 0; i < payload.length; i += segment_size) {
                 set_text("reconf" + JSON.stringify({ packet_type: "segment", i : i / segment_size, data: payload.slice(i, i + segment_size) }))
                 await wait(transmision_interval);
+                if(click) break;
             }
         } while (!click)
 
