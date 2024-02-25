@@ -121,9 +121,11 @@ static void qr_task(void *arg)
                 // Indicate that we have successfully decoded something by blinking an LED
                 bsp_led_set(BSP_LED_GREEN, true);
 
+                char* data = alloca(qr_data.payload_len + 1);
+                memcpy(data, qr_data.payload, qr_data.payload_len);
+                data[qr_data.payload_len] = 0;
 
-
-                qr_seen(conf, (char *)qr_data.payload, qr_data.payload_len);
+                qr_seen(conf, data);
 
                 bsp_led_set(BSP_LED_GREEN, false);
             }

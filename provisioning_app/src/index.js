@@ -48,12 +48,12 @@ window.addEventListener('load', function () {
         document.getElementById('qr_canvas').style.display = 'block';
 
         set_text("reconf" + JSON.stringify({ packet_type: "start", segment_size, segment_count: Math.ceil(payload.length / segment_size) }))
-        await wait(transmision_interval);
+        await wait_click();
         click = false;
         console.log("sending segments")
         do {
             for (let i = 0; i < payload.length; i += segment_size) {
-                set_text("reconf" + JSON.stringify({ packet_type: "segment", i, data: payload.slice(i, i + segment_size) }))
+                set_text("reconf" + JSON.stringify({ packet_type: "segment", i : i / segment_size, data: payload.slice(i, i + segment_size) }))
                 await wait(transmision_interval);
             }
         } while (!click)
@@ -67,6 +67,17 @@ document.addEventListener('click', () => { console.log("click"); click = true })
 
 function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function wait_click() {
+    return new Promise(resolve => {
+        const interval = setInterval(() => {
+            if (click) {
+                clearInterval(interval);
+                resolve();
+            }
+        }, 100);
+    });
 }
 
 function set_text(text) {

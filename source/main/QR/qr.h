@@ -10,10 +10,11 @@
 struct QRConf
 {
     QueueHandle_t to_qr_queue;
+    QueueHandle_t to_screen_queue;
     QueueHandle_t to_mqtt_queue;
     QueueHandle_t to_starter_queue;
     struct quirc *qr;
 };
 
 void qr_start(struct QRConf *conf);
-void qr_seen(struct QRConf *conf, char *data, int len);
+void qr_seen(struct QRConf *conf, char *data);

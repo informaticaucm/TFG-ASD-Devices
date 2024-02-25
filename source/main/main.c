@@ -146,6 +146,7 @@ void app_main(void)
     qr_conf->to_qr_queue = to_qr_queue;
     qr_conf->to_starter_queue = to_starter_queue;
     qr_conf->to_mqtt_queue = to_mqtt_queue;
+    qr_conf->to_screen_queue = to_screen_queue;
 
     qr_conf->qr = qr;
 

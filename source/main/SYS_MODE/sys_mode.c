@@ -31,16 +31,18 @@ void init()
     }
 }
 
-#define critical_section(section)                  \
-    init();                                        \
-    if (xSemaphoreTake(xSemaphore, portMAX_DELAY)) \
-    {                                              \
-        {                                          \
-            section;                               \
-        }                                          \
-        xSemaphoreGive(xSemaphore);                \
-    }                                              \
-    int _ = 0
+#define critical_section(section)                      \
+    do                                                 \
+    {                                                  \
+        init();                                        \
+        if (xSemaphoreTake(xSemaphore, portMAX_DELAY)) \
+        {                                              \
+            {                                          \
+                section;                               \
+            }                                          \
+            xSemaphoreGive(xSemaphore);                \
+        }                                              \
+    } while (0)
 
 void set_mode(enum sys_mode mode)
 {
