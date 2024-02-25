@@ -118,7 +118,7 @@ int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf *conf)
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    ESP_LOGI(WIFI_TAG, "wifi_init_sta finished.");
+    // ESP_LOGI(WIFI_TAG, "wifi_init_sta finished.");
 
     /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
      * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
@@ -179,7 +179,7 @@ void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(
 
     // print_ConnectionParameters(&parameters);
 
-    ESP_LOGE(TAG, "tries: %d", tries);
+    // ESP_LOGE(TAG, "tries: %d", tries);
 
     struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
     msg->command = StateWarning;
@@ -236,7 +236,7 @@ bool is_wifi_connected()
 
 void try_tb_auth(struct StarterConf *conf)
 {
-    ESP_LOGI(TAG, "trying to auth to tb");
+    // ESP_LOGI(TAG, "trying to auth to tb");
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
@@ -322,13 +322,13 @@ void dont() {}
 
 bool is_tb_connected()
 {
-    ESP_LOGI(TAG, "checking if tb is connected %d %d", (int)time(0), get_last_tb_ping_time());
+    // ESP_LOGI(TAG, "checking if tb is connected %d %d", (int)time(0), get_last_tb_ping_time());
     return get_last_tb_ping_time() != -1 && time(0) - get_last_tb_ping_time() < 10;
 }
 
 void try_backend_auth(struct StarterConf *conf)
 {
-    ESP_LOGI(TAG, "trying to connect to backend");
+    // ESP_LOGI(TAG, "trying to connect to backend");
 
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
@@ -363,14 +363,14 @@ int exponential_backoff(int tries)
 
 bool is_backend_connected()
 {
-    ESP_LOGI(TAG, "checking if backend is connected %d %d", (int)time(0), get_last_ping_time());
+    // ESP_LOGI(TAG, "checking if backend is connected %d %d", (int)time(0), get_last_ping_time());
 
     return get_last_ping_time() != -1 && time(0) - get_last_ping_time() < 10;
 }
 
 void send_ping_to_backend(struct StarterConf *conf)
 {
-    ESP_LOGI(TAG, "sending ping to backend");
+    // ESP_LOGI(TAG, "sending ping to backend");
 
     struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
     msg->command = SendPingToServer;
@@ -417,22 +417,19 @@ void starter_task(void *arg)
             // ESP_LOGE(TAG, "starter is on state %s with tries %d (%d)", state_string[starterState], tries, cooldown);
         }
 
-        ESP_LOGI(TAG, "managin state: %s", state_string[starterState]);
+        // ESP_LOGI(TAG, "managing state: %s", state_string[starterState]);
 
         switch (starterState)
         {
         case NoQRConfig:
             manage_state(&is_qr_valid, &dont, &dont, &constant_backoff, NoWifi, NoQRConfig, conf, 10);
             break;
-
         case NoWifi:
             manage_state(&is_wifi_connected, &try_connect_wifi, &dont, &constant_backoff, NoAuth, NoWifi, conf, 10); // latches
             break;
-
         case NoAuth:
             manage_state(&is_tb_authenticated, &try_tb_auth, &dont, &constant_backoff, NoTB, NoWifi, conf, 10);
             break;
-
         case NoTB:
             manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackendAuth, NoAuth, conf, 3);
             break;
