@@ -2,7 +2,7 @@ const QRCode = require('qrcode')
 
 let payload = "";
 
-const segment_size = 100;
+const segment_size = 40;
 const conf_defaults = {
     "thingsboard_url": "https://thingsboard.asd:8080",
     "device_name": "name_here",
@@ -16,7 +16,7 @@ const conf_defaults = {
     "invalidate_thingsboard_auth_auth": "0",
 };
 
-const transmision_interval = 2000;
+const transmision_interval = 1000;
 
 const refresh_payload = () => {
     conf = {}
@@ -46,23 +46,28 @@ window.addEventListener('load', function () {
     document.getElementById("start_transmision").addEventListener("click", async () => {
         document.getElementById('data_input').style.display = 'none';
         document.getElementById('qr_canvas').style.display = 'block';
-        click = false;
 
-        set_text("reconf" + JSON.stringify({ packet_type: "start", segment_size, segment_count: Math.ceil(payload.length/segment_size) }))
+        set_text("reconf" + JSON.stringify({ packet_type: "start", segment_size, segment_count: Math.ceil(payload.length / segment_size) }))
         await wait(transmision_interval);
-        while (!click) {
+        click = false;
+        console.log("sending segments")
+        do {
             for (let i = 0; i < payload.length; i += segment_size) {
                 set_text("reconf" + JSON.stringify({ packet_type: "segment", i, data: payload.slice(i, i + segment_size) }))
                 await wait(transmision_interval);
             }
-        }
+        } while (!click)
 
         document.getElementById('data_input').style.display = 'block';
         document.getElementById('qr_canvas').style.display = 'none';
     });
 })
 
-this.document.addEventListener('click', () => click = true)
+document.addEventListener('click', () => { console.log("click"); click = true })
+
+function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function set_text(text) {
     const canvas = document.getElementById('qr_canvas')

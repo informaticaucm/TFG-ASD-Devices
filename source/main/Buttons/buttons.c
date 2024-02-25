@@ -141,6 +141,7 @@ static void adc_button_task(void *arg)
 
                 int button_pressed = adc_buttons[i].button_index;
 
+
                 if (get_mode() == button_test)
                 {
                     ESP_LOGE(TAG, "Button %d pressed", button_pressed);
@@ -153,7 +154,7 @@ static void adc_button_task(void *arg)
                     ESP_LOGE(TAG, "presed_buttons: %d", presed_buttons);
 
                 }
-                else
+                else 
                 {
                     set_mode(adc_buttons[i].mode);
 

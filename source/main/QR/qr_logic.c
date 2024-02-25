@@ -27,16 +27,19 @@
 #include "../common.h"
 #include "../Camera/camera.h"
 
+#define CONFIG_TRANSIMISSION_TIMEOUT_SEC 20;
+
 void qr_seen(struct QRConf *conf, char *data, int len)
 {
     ESP_LOGI(TAG, "the contents were: %s", qr_data.payload);
 
     if (strncmp("reconf", (char *)qr_data.payload, 6) == 0)
     {
-        bool *payload_segment_validation = NULL;
+        char *payload_segment_validation = NULL;
         char *payload_buffer = NULL;
         int segment_size = 0;
         int segment_count = 0;
+        start_time = 0;
 
         char packet_type[20];
         jparse_ctx_t jctx;
@@ -46,10 +49,13 @@ void qr_seen(struct QRConf *conf, char *data, int len)
 
         if (strncmp(packet_type, "start", 5) == 0)
         {
+            start_time = time(0);
             json_obj_get_int(&jctx, "segment_size", &segment_size);
             json_obj_get_int(&jctx, "segment_count", &segment_count);
 
-            payload_segment_validation = jalloc(segment_count * sizeof(bool));
+            payload_segment_validation = jalloc(segment_count * sizeof(char) + 1);
+            memset(payload_segment_validation, '_', segment_count * sizeof(char));
+            payload_segment_validation[segment_count] = '\0';
             payload_buffer = jalloc(segment_count * segment_size);
         }
         else if (strncmp(packet_type, "segment", 7) == 0)
@@ -59,7 +65,7 @@ void qr_seen(struct QRConf *conf, char *data, int len)
                 int segment_id;
                 json_obj_get_int(&jctx, "segment_id", &segment_id);
                 json_obj_get_string(&jctx, "segment", payload_buffer + segment_id * segment_size, segment_size);
-                payload_segment_validation[segment_id] = true;
+                payload_segment_validation[segment_id] = '#';
             }
         }
 
@@ -67,12 +73,28 @@ void qr_seen(struct QRConf *conf, char *data, int len)
 
         for (int i = 0; i < segment_count; i++)
         {
-            if (!payload_segment_validation[i])
+            if (payload_segment_validation[i] == '_')
             {
                 complete_payload = false;
                 break;
             }
         }
+
+        {
+            ScreenMsg *msg = jalloc(sizeof(ScreenMsg));
+            msg->command = StateWarning;
+
+            snprintf(msg->data.text, sizeof(msg->data.text), "Recieving configuration\n%s", payload_segment_validation);
+            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+            if (res != pdTRUE)
+            {
+                free(msg);
+            }
+
+            set_tmp_mode(state_display, 1, mirror);
+        }
+
+        bool end_of_transimision = false;
 
         if (complete_payload)
         {
@@ -106,6 +128,26 @@ void qr_seen(struct QRConf *conf, char *data, int len)
             {
                 free(msg);
             }
+            end_of_transimision = true;
+        }
+
+        end_of_transimision |= (time(0) - start_time) > CONFIG_TRANSIMISSION_TIMEOUT_SEC;
+
+        if (end_of_transimision)
+        {
+            {
+                ScreenMsg *msg = jalloc(sizeof(ScreenMsg));
+                msg->command = StateWarning;
+
+                snprintf(msg->data.text, sizeof(msg->data.text), "Recieving configuration is over", payload_segment_validation);
+                int res = xQueueSend(conf->to_screen_queue, &msg, 0);
+                if (res != pdTRUE)
+                {
+                    free(msg);
+                }
+
+                set_tmp_mode(state_display, 1, mirror);
+            }
 
             free(payload_buffer);
             payload_buffer = NULL;
@@ -113,6 +155,8 @@ void qr_seen(struct QRConf *conf, char *data, int len)
             payload_segment_validation = NULL;
             segment_count = 0;
             segment_size = 0;
+
+            set_mode(mirror);
         }
     }
     else
