@@ -12,12 +12,13 @@
 #include "../SYS_MODE/sys_mode.h"
 #include "bt.h"
 #include "../Screen/screen.h"
+#include "../MQTT/mqtt.h"
 #include "common.h"
+#include "nvs_plugin.h"
 
 #define TAG "BT_LOGIC"
 
-#define MAX_DISTANCE_BETWEEN_SCANS 60 * 10 // 10 minutes
-#define VALID_ENTRY(x) (esp_timer_get_time() - x.last_time - x.first_time > 0)
+#define MAX_DISTANCE_BETWEEN_SCANS 60 * 30 // 10 minutes
 
 bt_device_record_t device_history[BT_DEVICE_HISTORY_SIZE];
 
@@ -39,10 +40,24 @@ void fast_timer_callback(void *arg)
 
 void slow_timer_callback(void *arg)
 {
+    struct ConnectionParameters parameters;
+    int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
+    if (get_last_ping_time() - esp_timer_get_time() > PING_RATE * 3)
+    {
+        return;
+    }
+
+    struct BTConf *conf = (struct BTConf *)arg;
+    struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
+
+    msg->command = FetchBTMacs;
+    msg->data.fetch_btmacs.space_id = parameters.qr_info.space_id;
+
+    int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
 }
 
-void device_seen(char* scanned_name, int name_len, uint8_t* addr, int rssi)
+void device_seen(char *scanned_name, int name_len, uint8_t *addr, int rssi)
 {
     bool found = false;
     // check if device is already in history
@@ -84,7 +99,7 @@ void device_seen(char* scanned_name, int name_len, uint8_t* addr, int rssi)
         memcpy(device_history[oldest_record].address, addr, 6);
     }
 
-    // sort the history by last_time 
+    // sort the history by last_time
     for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
     {
         for (int j = i + 1; j < BT_DEVICE_HISTORY_SIZE; j++)

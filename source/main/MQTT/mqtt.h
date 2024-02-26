@@ -41,8 +41,8 @@ enum MQTTCommand
     LogInToServer,
     DoProvisioning,
     SendPingToServer,
+    FetchBTMacs,
 };
-
 
 enum OTAState
 {
@@ -81,8 +81,12 @@ struct MQTTMsg
         struct
         {
             char name[50];
-            int space_id; 
+            int space_id;
         } login;
+        struct
+        {
+            int space_id;
+        } fetch_btmacs;
         struct
         {
             enum OTAState ota_state;

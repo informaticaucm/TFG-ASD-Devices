@@ -62,7 +62,6 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
             set_last_ping_time(time(0));
         }
-
         if (0 == strcmp(method, "dispositivos"))
         {
             json_obj_get_object(&jctx, "response");
@@ -84,6 +83,59 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             if (res != pdTRUE)
             {
                 free(msg);
+            }
+        }
+        if (0 == strcmp(method, "ble"))
+        {
+            struct ConnectionParameters parameters;
+            get_parameters(&parameters);
+
+            /*
+                {
+                    "usuarioId": 1,
+                    "nombre": "Grace",
+                    "apellidos": "Hopper",
+                    "macs": [
+                        "00:11:22:33:FF:EE",
+                        "11:22:33:44:AA:BB"
+                    ]
+                }
+            */
+            json_obj_get_object(&jctx, "response");
+            json_obj_get_array(&jctx, "macs");
+
+            int mac_count = json_arr_get_len(&jctx);
+            for (int i = 0; i < mac_count; i++)
+            {
+                char mac[18];
+                char decoded_mac[6];
+                json_arr_get_string(&jctx, i, mac, 18);
+                sscanf(mac, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &decoded_mac[0], &decoded_mac[1], &decoded_mac[2], &decoded_mac[3], &decoded_mac[4], &decoded_mac[5]);
+
+                for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
+                {
+                    if (memcmp(device_history[i].address, decoded_mac, 6) == 0 && VALID_ENTRY(device_history[i]))
+                    {
+                        /*
+                           {
+                                "tipo_registro": "RegistroSeguimientoDispositivoBle",
+                                "espacioId": 1,
+                                "mac": "00:11:22:33:FF:EE"
+                            }
+                        */
+                        char params[100];
+                        snprintf(params, sizeof(params), "{"
+                                                         "  \"tipo_registro\": \"RegistroSeguimientoDispositivoBle\","
+                                                         "  \"espacioId\": %d,"
+                                                         "  \"mac\": \"%s\","
+                                                         "}",
+                                 parameters.qr_info.space_id, parameters.qr_info.device_id, mac);
+
+                        send_api_post("seguimiento", params);
+
+                            break;
+                    }
+                }
             }
         }
     }
@@ -333,7 +385,7 @@ void mqtt_task(void *arg)
         {
             char *request_body = alloca(strlen(msg->data.login.name) + 80);
 
-            snprintf(request_body, strlen(msg->data.login.name) + 80, "{\"nombre\":\"%s\",\"espacioId\":7,\"idExternoDispositivo\":\"<th_id>\"}", msg->data.login.name); // msg->data.login.space_id
+            snprintf(request_body, strlen(msg->data.login.name) + 80, "{\"nombre\":\"%s\",\"espacioId\":%d,\"idExternoDispositivo\":\"<th_id>\"}", msg->data.login.name, msg->data.login.space_id);
 
             send_api_post("dispositivos", request_body);
 
@@ -344,8 +396,14 @@ void mqtt_task(void *arg)
             send_api_post("ping", "{}");
             break;
         }
+        case FetchBTMacs:
+        {
+            char *request_body = alloca(50);
+            snprintf(request_body, 50, "{\"espacioId\":%d}", msg->data.fetch_btmacs.space_id);
+            send_api_post("ble", request_body);
+            break;
         }
-
+        }
         free(msg);
     }
 }

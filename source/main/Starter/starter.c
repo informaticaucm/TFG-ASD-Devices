@@ -170,7 +170,15 @@ void print_ConnectionParameters(struct ConnectionParameters *cp)
     ESP_LOGI(TAG, "      totp_seed: %s", cp->totp_seed);
 }
 
-void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(struct StarterConf *), void (*prepare_to_go_to_fail_state)(), int (*backoff_function)(int), enum StarterState next_state, enum StarterState fail_state, struct StarterConf *conf, int max_tries)
+void manage_state(bool (*is_next_state_ready)(),
+                  void (*try_move_to_next_state)(struct StarterConf *),
+                  void (*prepare_to_go_to_fail_state)(),
+                  int (*backoff_function)(int),
+                  enum StarterState next_state,
+                  enum StarterState fail_state,
+                  struct StarterConf *conf,
+                  int max_tries,
+                  int time_bettween_tries)
 {
 
     // ESP_LOGI(TAG, "trying to connect to wifi");
@@ -198,7 +206,7 @@ void manage_state(bool (*is_next_state_ready)(), void (*try_move_to_next_state)(
             try_move_to_next_state(conf);
 
             tries++;
-            cooldown = backoff_function(tries);
+            cooldown = time_bettween_tries + backoff_function(tries);
             if (tries > max_tries)
             {
                 prepare_to_go_to_fail_state();
@@ -323,7 +331,7 @@ void dont() {}
 bool is_tb_connected()
 {
     // ESP_LOGI(TAG, "checking if tb is connected %d %d", (int)time(0), get_last_tb_ping_time());
-    return get_last_tb_ping_time() != -1 && time(0) - get_last_tb_ping_time() < 10;
+    return get_last_tb_ping_time() != -1 && time(0) - get_last_tb_ping_time() < PING_RATE * 3;
 }
 
 void try_backend_auth(struct StarterConf *conf)
@@ -348,7 +356,7 @@ void try_backend_auth(struct StarterConf *conf)
 
 int constant_backoff(int tries)
 {
-    return 10;
+    return 0;
 }
 
 int linear_backoff(int tries)
@@ -413,7 +421,7 @@ void starter_task(void *arg)
         }
         else
         {
-            vTaskDelay(get_task_delay());
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
             // ESP_LOGE(TAG, "starter is on state %s with tries %d (%d)", state_string[starterState], tries, cooldown);
         }
 
@@ -422,26 +430,25 @@ void starter_task(void *arg)
         switch (starterState)
         {
         case NoQRConfig:
-            manage_state(&is_qr_valid, &dont, &dont, &constant_backoff, NoWifi, NoQRConfig, conf, 10);
+            manage_state(&is_qr_valid, &dont, &dont, &constant_backoff, NoWifi, NoQRConfig, conf, 10, 10);
             break;
         case NoWifi:
-            manage_state(&is_wifi_connected, &try_connect_wifi, &dont, &constant_backoff, NoAuth, NoWifi, conf, 10); // latches
+            manage_state(&is_wifi_connected, &try_connect_wifi, &dont, &constant_backoff, NoAuth, NoWifi, conf, 10, 10); // latches
             break;
         case NoAuth:
-            manage_state(&is_tb_authenticated, &try_tb_auth, &dont, &constant_backoff, NoTB, NoWifi, conf, 10);
+            manage_state(&is_tb_authenticated, &try_tb_auth, &dont, &constant_backoff, NoTB, NoWifi, conf, 10, 10);
             break;
         case NoTB:
-            manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackendAuth, NoAuth, conf, 3);
+            manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackendAuth, NoAuth, conf, 3, 10);
             break;
         case NoBackendAuth:
-            manage_state(&is_backend_authenticated, &try_backend_auth, &invalidate_backend_auth_ping, &constant_backoff, NoBackend, NoAuth, conf, 10);
+            manage_state(&is_backend_authenticated, &try_backend_auth, &invalidate_backend_auth_ping, &constant_backoff, NoBackend, NoAuth, conf, 10, PING_RATE);
             break;
         case NoBackend:
-            manage_state(&is_backend_connected, &send_ping_to_backend, &dont, &constant_backoff, Success, NoTB, conf, 10);
+            manage_state(&is_backend_connected, &send_ping_to_backend, &dont, &constant_backoff, Success, NoTB, conf, 10, 10);
             break;
-
         case Success:
-            manage_state(&is_backend_connected, &send_ping_to_backend, &invalidate_backend_auth_ping, &constant_backoff, Success, NoBackend, conf, 10);
+            manage_state(&is_backend_connected, &send_ping_to_backend, &invalidate_backend_auth_ping, &constant_backoff, Success, NoBackend, conf, 10, PING_RATE);
             break;
 
         default:

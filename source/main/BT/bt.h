@@ -1,5 +1,7 @@
 #pragma once
 
+#define VALID_ENTRY(x) (esp_timer_get_time() - x.last_time - x.first_time > 0)
+
 typedef struct
 {
     char name[32];
@@ -11,7 +13,10 @@ typedef struct
 struct BTConf
 {
     QueueHandle_t to_screen_queue;
+    QueueHandle_t to_mqtt_queue;
 };
+
+bt_device_record_t device_history[BT_DEVICE_HISTORY_SIZE];
 
 void bt_start(struct BTConf *conf);
 

@@ -29,8 +29,7 @@
 
 #define nvs_conf_tag "ConnParams"
 
-#define PING_RATE 10
-#define PING_TIMEOUT 3
+#define PING_RATE 60
 
 #define DEFAULT_TASK_DELAY 50
 #define DEFAULT_RT_TASK_DELAY 1
