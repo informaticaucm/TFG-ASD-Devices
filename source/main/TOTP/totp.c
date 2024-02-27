@@ -51,8 +51,11 @@ static void totp_task(void *arg)
 
                 // get_qr_url_template(url_template);
 
-                int totp = do_the_totp_thing(now - t0, secret, 30, 6);
-                snprintf(msg->data.text, sizeof(msg->data.text), "http://lo.que.sea.com/?nonce=%06d&aula=%s", totp, "TODO");
+                struct ConnectionParameters parameters;
+                j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+
+                int totp = do_the_totp_thing(now - t0, secret, 60, 6);
+                snprintf(msg->data.text, sizeof(msg->data.text), "http://10.3.141.119:5500/formulario-end?totp=%06d&espacioId=%d&dispositivoId=%d", totp, parameters.qr_info.space_id, parameters.backend_info.device_id );
 
                 int res = xQueueSend(conf->to_screen_queue, &msg, 0);
                 if (res == pdFAIL)

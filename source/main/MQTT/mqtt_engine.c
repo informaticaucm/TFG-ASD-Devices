@@ -247,18 +247,6 @@ void mqtt_task(void *arg)
             continue;
         }
 
-        char *mqtt_command_to_string[] = {
-            "OTA_failure",
-            "OTA_state_update",
-            "Found_TUI_qr",
-            "Start",
-            "LogInToServer",
-            "DoProvisioning",
-            "SendPingToServer",
-        };
-
-        ESP_LOGI(TAG, "a message %s was recieved at mqtt module", mqtt_command_to_string[msg->command]);
-
         switch (msg->command)
         {
         case OTA_failure:
@@ -390,7 +378,7 @@ void mqtt_task(void *arg)
         {
             char *request_body = alloca(strlen(msg->data.login.name) + 80);
 
-            snprintf(request_body, strlen(msg->data.login.name) + 80, "{\"nombre\":\"%s\",\"espacioId\":%d,\"idExternoDispositivo\":\"<th_id>\"}", msg->data.login.name, msg->data.login.space_id);
+            snprintf(request_body, strlen(msg->data.login.name) + 80, "{\"nombre\":\"%s\",\"espacioId\":%d,\"idExternoDispositivo\":\"%s\"}", msg->data.login.name, msg->data.login.space_id, msg->data.login.name);
 
             send_api_post("dispositivos", request_body);
 
