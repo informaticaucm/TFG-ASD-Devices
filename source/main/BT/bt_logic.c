@@ -22,6 +22,7 @@
 
 void slow_timer_callback(void *arg)
 {
+
     struct ConnectionParameters parameters;
     int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
@@ -39,10 +40,12 @@ void slow_timer_callback(void *arg)
     int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
 }
 
-void device_seen(char *scanned_name, int name_len, uint8_t *addr, int rssi)
+void device_seen(char *scanned_name, uint8_t *addr, int rssi)
 {
     struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
     get_bt_device_history(device_history);
+
+    ESP_LOGE(TAG, "device seen %s", scanned_name);
 
     bool found = false;
     // check if device is already in history
@@ -79,8 +82,7 @@ void device_seen(char *scanned_name, int name_len, uint8_t *addr, int rssi)
         /* Store the scanned device in history. */
         device_history[oldest_record].last_time = now;
         device_history[oldest_record].first_time = now;
-        memcpy(device_history[oldest_record].name, scanned_name, name_len);
-        device_history[oldest_record].name[name_len] = '\0';
+        strcpy(device_history[oldest_record].name, scanned_name);
         memcpy(device_history[oldest_record].address, addr, 6);
     }
 

@@ -368,27 +368,31 @@ void hci_evt_process(void *arg)
                         /* Print the data if adv report has a valid name. */
                         if (ret == ESP_OK)
                         {
-                            // printf("******** Response %d/%d ********\n", i + 1, num_responses);
-                            // printf("Event type: %02x\nAddress type: %02x\nAddress: ", event_type[i], addr_type[i]);
-                            // for (int j = 5; j >= 0; j -= 1)
-                            // {
-                            //     printf("%02x", addr[(6 * i) + j]);
-                            //     if (j > 0)
-                            //     {
-                            //         printf(":");
-                            //     }
-                            // }
+                            printf("******** Response %d/%d ********\n", i + 1, num_responses);
+                            printf("Event type: %02x\nAddress type: %02x\nAddress: ", event_type[i], addr_type[i]);
+                            for (int j = 5; j >= 0; j -= 1)
+                            {
+                                printf("%02x", addr[(6 * i) + j]);
+                                if (j > 0)
+                                {
+                                    printf(":");
+                                }
+                            }
 
-                            // printf("\nData length: %d", data_len[i]);
-                            // data_msg_ptr += data_len[i];
-                            // printf("\nAdvertisement Name: ");
-                            // for (int k = 0; k < scanned_name->name_len; k += 1)
-                            // {
-                            //     printf("%c", scanned_name->scan_local_name[k]);
-                            // }
-                            // printf("\nRSSI: %ddB\n", rssi[i]);
+                            printf("\nData length: %d", data_len[i]);
+                            data_msg_ptr += data_len[i];
+                            printf("\nAdvertisement Name: ");
+                            for (int k = 0; k < scanned_name->name_len; k += 1)
+                            {
+                                printf("%c", scanned_name->scan_local_name[k]);
+                            }
+                            printf("\nRSSI: %ddB\n", rssi[i]);
 
-                            device_seen(scanned_name->scan_local_name, scanned_name->name_len, addr + (6 * i), rssi[i]);
+                            char * tmp_name = alloca(scanned_name->name_len+1);
+                            memcpy(tmp_name, scanned_name->scan_local_name, scanned_name->name_len);
+                            tmp_name[scanned_name->name_len] = '\0';
+
+                            device_seen(tmp_name, addr + (6 * i), rssi[i]);
                         }
                     }
 
