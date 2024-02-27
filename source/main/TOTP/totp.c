@@ -37,7 +37,7 @@ static void totp_task(void *arg)
             struct ConnectionParameters parameters;
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
-            if (parameters.totp_seed_valid)
+            if (parameters.backend_info_valid)
             {
 
                 struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
@@ -46,8 +46,8 @@ static void totp_task(void *arg)
                 time_t now;
                 time(&now);
 
-                char *secret = parameters.totp_seed;
-                int t0 = parameters.totp_t0;
+                char *secret = parameters.backend_info.totp_seed;
+                int t0 = parameters.backend_info.totp_t0;
 
                 // get_qr_url_template(url_template);
 

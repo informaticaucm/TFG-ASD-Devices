@@ -1,5 +1,6 @@
 #pragma once
 #include "mqtt.h"
+#include "nvs_plugin.h"
 
 esp_mqtt_client_handle_t client = 0;
 
@@ -74,10 +75,10 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             json_obj_get_int(&jctx, "t0", &t0);
 
             struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-            msg->command = TOTPInfo;
+            msg->command = BackendInfo;
 
-            msg->data.totp.totp_t0 = t0;
-            memcpy(msg->data.totp.totp_seed, totp_secret, 17);
+            msg->data.backend_info.totp_t0 = t0;
+            memcpy(msg->data.backend_info.totp_seed, totp_secret, 17);
 
             int res = xQueueSend(conf->to_starter_queue, &msg, 0);
             if (res != pdTRUE)
@@ -88,8 +89,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         if (0 == strcmp(method, "ble"))
         {
             struct ConnectionParameters parameters;
-            get_parameters(&parameters);
-
+            j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
             /*
                 {
                     "usuarioId": 1,
@@ -102,15 +102,18 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                 }
             */
             json_obj_get_object(&jctx, "response");
-            json_obj_get_array(&jctx, "macs");
+            int mac_count = 0;
+            json_obj_get_array(&jctx, "macs", &mac_count);
 
-            int mac_count = json_arr_get_len(&jctx);
             for (int i = 0; i < mac_count; i++)
             {
                 char mac[18];
                 char decoded_mac[6];
                 json_arr_get_string(&jctx, i, mac, 18);
                 sscanf(mac, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &decoded_mac[0], &decoded_mac[1], &decoded_mac[2], &decoded_mac[3], &decoded_mac[4], &decoded_mac[5]);
+
+                struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
+                get_bt_device_history(device_history);
 
                 for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
                 {
@@ -120,20 +123,22 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                            {
                                 "tipo_registro": "RegistroSeguimientoDispositivoBle",
                                 "espacioId": 1,
+                                "dispositivoId": 1,
                                 "mac": "00:11:22:33:FF:EE"
                             }
                         */
-                        char params[100];
+                        char params[200];
                         snprintf(params, sizeof(params), "{"
                                                          "  \"tipo_registro\": \"RegistroSeguimientoDispositivoBle\","
                                                          "  \"espacioId\": %d,"
+                                                         "  \"dispositivoId\": %d,"
                                                          "  \"mac\": \"%s\","
                                                          "}",
-                                 parameters.qr_info.space_id, parameters.qr_info.device_id, mac);
+                                 parameters.qr_info.space_id, parameters.backend_info.device_id, mac);
 
                         send_api_post("seguimiento", params);
 
-                            break;
+                        break;
                     }
                 }
             }
@@ -170,7 +175,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                 json_obj_get_string(&jctx, "fw_version", fw_version, 30);
 
                 struct ConnectionParameters parameters;
-                get_parameters(&parameters);
+                j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
                 struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
                 msg->command = Update;

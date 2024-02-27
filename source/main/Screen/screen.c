@@ -32,8 +32,6 @@
 void screen_task(void *arg)
 {
 
-    bt_device_record_t *bt_device_history = jalloc(BT_DEVICE_HISTORY_SIZE * sizeof(bt_device_record_t));
-
     struct ScreenConf *conf = arg;
 
     struct meta_frame *held_mf = NULL;
@@ -137,11 +135,6 @@ void screen_task(void *arg)
             held_mf = msg->data.mf;
             break;
         }
-        case BTUpdate:
-        {
-            memcpy(bt_device_history, msg->data.bt_devices, BT_DEVICE_HISTORY_SIZE * sizeof(bt_device_record_t));
-            break;
-        }
         }
 
         free(msg);
@@ -171,6 +164,9 @@ void screen_task(void *arg)
         case BT_list:
         {
 
+            struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
+            get_bt_device_history(device_history);
+
             lv_obj_add_flag(state_bg, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(state_lable, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(qr_obj, LV_OBJ_FLAG_HIDDEN);
@@ -187,7 +183,7 @@ void screen_task(void *arg)
 
             for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
             {
-                bt_device_record_t record = bt_device_history[i];
+                struct bt_device_record record = device_history[i];
                 lv_table_set_cell_value(bt_table, i + 1, 0, record.name);
                 char address[18];
                 sprintf(address, "%02x:%02x:%02x:%02x:%02x:%02x", record.address[0], record.address[1], record.address[2], record.address[3], record.address[4], record.address[5]);

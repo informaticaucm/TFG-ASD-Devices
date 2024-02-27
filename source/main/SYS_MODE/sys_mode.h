@@ -13,6 +13,14 @@ enum sys_mode
     button_test,
 };
 
+struct bt_device_record
+{
+    char name[32];
+    char address[6];
+    int last_time;
+    int first_time;
+} ;
+
 struct sys_mode_state
 {
     int task_delay;
@@ -27,16 +35,15 @@ struct sys_mode_state
     int last_ping_time;
     int last_tb_ping_time;
 
-    struct ConnectionParameters parameters;
-
+    struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
 };
 
 enum sys_mode get_mode();
 void set_mode(enum sys_mode mode);
 void set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode);
 
-void get_parameters(struct ConnectionParameters *parameters);
-void set_parameters(struct ConnectionParameters *parameters);
+void set_bt_device_history(struct bt_device_record *bt_device_history);
+void get_bt_device_history(struct bt_device_record *bt_device_history);
 
 void set_version(char version[32]);
 void get_version(char version[32]);

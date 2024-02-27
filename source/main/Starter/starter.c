@@ -155,7 +155,7 @@ void print_ConnectionParameters(struct ConnectionParameters *cp)
 {
 
     ESP_LOGI(TAG, "ConnectionParameters:");
-    ESP_LOGI(TAG, "   qr_valid: %d", cp->qr_valid);
+    ESP_LOGI(TAG, "   qr_info_valid: %d", cp->qr_info_valid);
     ESP_LOGI(TAG, "      .wifi_ssid: %s", cp->qr_info.wifi_ssid);
     ESP_LOGI(TAG, "      .wifi_psw: %s", cp->qr_info.wifi_psw);
     ESP_LOGI(TAG, "      .thingsboard_url: %s", cp->qr_info.thingsboard_url);
@@ -166,8 +166,10 @@ void print_ConnectionParameters(struct ConnectionParameters *cp)
     ESP_LOGI(TAG, "      .provisioning_device_secret: %s", cp->qr_info.provisioning_device_secret);
     ESP_LOGI(TAG, "   access_token_valid: %d", cp->access_token_valid);
     ESP_LOGI(TAG, "      access_token: %s", cp->access_token);
-    ESP_LOGI(TAG, "   totp_seed_valid: %d", cp->totp_seed_valid);
-    ESP_LOGI(TAG, "      totp_seed: %s", cp->totp_seed);
+    ESP_LOGI(TAG, "   backend_info_valid: %d", cp->backend_info_valid);
+    ESP_LOGI(TAG, "      device_id: %d", cp->backend_info.device_id);
+    ESP_LOGI(TAG, "      totp_seed: %s", cp->backend_info.totp_seed);
+    ESP_LOGI(TAG, "      totp_t0: %d", cp->backend_info.totp_t0);
 }
 
 void manage_state(bool (*is_next_state_ready)(),
@@ -277,7 +279,7 @@ bool is_backend_authenticated()
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
-    return parameters.totp_seed_valid;
+    return parameters.backend_info_valid;
 }
 
 void try_tb_connect(struct StarterConf *conf)
@@ -312,7 +314,7 @@ void invalidate_backend_auth()
 {
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-    parameters.totp_seed_valid = false;
+    parameters.backend_info_valid = false;
     j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 }
 
@@ -390,11 +392,11 @@ void send_ping_to_backend(struct StarterConf *conf)
     }
 }
 
-bool is_qr_valid()
+bool is_qr_info_valid()
 {
     struct ConnectionParameters parameters;
     int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-    return err == ESP_OK && parameters.qr_valid;
+    return err == ESP_OK && parameters.qr_info_valid;
 }
 
 void starter_task(void *arg)
@@ -430,7 +432,7 @@ void starter_task(void *arg)
         switch (starterState)
         {
         case NoQRConfig:
-            manage_state(&is_qr_valid, &dont, &dont, &constant_backoff, NoWifi, NoQRConfig, conf, 10, 10);
+            manage_state(&is_qr_info_valid, &dont, &dont, &constant_backoff, NoWifi, NoQRConfig, conf, 10, 10);
             break;
         case NoWifi:
             manage_state(&is_wifi_connected, &try_connect_wifi, &dont, &constant_backoff, NoAuth, NoWifi, conf, 10, 10); // latches
@@ -464,7 +466,7 @@ void starter_task(void *arg)
         char *starter_command_to_string[] = {
             "QrInfo",
             "TBAuthInfo",
-            "TOTPInfo",
+            "BackendInfo",
             "InvalidateConfig"};
 
         ESP_LOGI(TAG, "starter received message %s", starter_command_to_string[msg->command]);
@@ -475,7 +477,7 @@ void starter_task(void *arg)
         {
             struct ConnectionParameters parameters;
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-            parameters.qr_valid = true;
+            parameters.qr_info_valid = true;
             memcpy(&parameters.qr_info, &msg->data.qr.qr_info, sizeof(struct QRInfo));
 
             j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
@@ -510,14 +512,12 @@ void starter_task(void *arg)
 
             break;
         }
-        case TOTPInfo:
+        case BackendInfo:
         {
             struct ConnectionParameters parameters;
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-            parameters.totp_seed_valid = true;
-            parameters.totp_t0 = msg->data.totp.totp_t0;
-            memcpy(parameters.totp_seed, &msg->data.totp.totp_seed, 17);
-
+            parameters.backend_info_valid = true;
+            memcpy(&parameters.backend_info, &msg->data.backend_info, sizeof(struct BackendInfo));
             j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
             break;

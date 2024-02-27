@@ -68,14 +68,13 @@ enum sys_mode get_mode()
     return ret;
 }
 
-void get_parameters(struct ConnectionParameters *parameters)
-{
-    critical_section(memcpy(parameters, &state.parameters, sizeof(struct ConnectionParameters)));
+void set_bt_device_history(struct bt_device_record *bt_device_history){
+    critical_section(memcpy(bt_device_history, &state.device_history, sizeof(struct bt_device_record) * BT_DEVICE_HISTORY_SIZE));
 }
 
-void set_parameters(struct ConnectionParameters *parameters)
+void get_bt_device_history(struct bt_device_record *bt_device_history)
 {
-    critical_section(memcpy(&state.parameters, parameters, sizeof(struct ConnectionParameters)));
+    critical_section(memcpy(&state.device_history, bt_device_history, sizeof(struct ConnectionParameters) * BT_DEVICE_HISTORY_SIZE));
 }
 
 void set_version(char version[32])

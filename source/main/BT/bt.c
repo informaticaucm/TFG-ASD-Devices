@@ -414,21 +414,8 @@ void bt_start(struct BTConf *conf)
     bool continue_commands = 1;
     int cmd_cnt = 0;
 
-    { // fast
-        const esp_timer_create_args_t periodic_timer_args = {
-            .callback = &fast_timer_callback,
-            .name = "periodic",
-            .arg = conf};
-
-        /* Create timer for logging scanned devices. */
-        esp_timer_handle_t periodic_timer;
-        ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-
-        /* Start periodic timer for 5 sec. */
-        ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 5000000)); // 5sec
-    }
-
-    { // slow
+   
+    {
         const esp_timer_create_args_t periodic_timer_args = {
             .callback = &slow_timer_callback,
             .name = "periodic",

@@ -4,6 +4,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "../common.h"
+#include "../SYS_MODE/sys_mode.h"
 #include "../Camera/camera.h"
 #include "../common.h"
 #include "../BT/bt.h"
@@ -17,8 +18,6 @@ enum ScreenCommand
     StateError,
     StateText,
 
-    BTUpdate,
-
     Mirror,
 };
 
@@ -27,7 +26,6 @@ struct ScreenMsg
     enum ScreenCommand command;
     union
     {
-        bt_device_record_t bt_devices[BT_DEVICE_HISTORY_SIZE];
         char text[MAX_QR_SIZE];
         struct meta_frame *mf;
     } data;

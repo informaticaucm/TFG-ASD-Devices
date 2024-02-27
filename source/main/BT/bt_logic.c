@@ -20,24 +20,6 @@
 
 #define MAX_DISTANCE_BETWEEN_SCANS 60 * 30 // 10 minutes
 
-bt_device_record_t device_history[BT_DEVICE_HISTORY_SIZE];
-
-void fast_timer_callback(void *arg)
-{
-    struct BTConf *conf = (struct BTConf *)arg;
-
-    struct ScreenMsg *msg = (struct ScreenMsg *)jalloc(sizeof(struct ScreenMsg));
-    msg->command = BTUpdate;
-    memcpy(msg->data.bt_devices, device_history, BT_DEVICE_HISTORY_SIZE * sizeof(bt_device_record_t));
-
-    int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-    if (res != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to send BTUpdate to screen queue");
-        free(msg);
-    }
-}
-
 void slow_timer_callback(void *arg)
 {
     struct ConnectionParameters parameters;
@@ -59,6 +41,9 @@ void slow_timer_callback(void *arg)
 
 void device_seen(char *scanned_name, int name_len, uint8_t *addr, int rssi)
 {
+    struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
+    get_bt_device_history(device_history);
+
     bool found = false;
     // check if device is already in history
     int j = 0;
@@ -106,10 +91,12 @@ void device_seen(char *scanned_name, int name_len, uint8_t *addr, int rssi)
         {
             if (device_history[i].first_time < device_history[j].first_time)
             {
-                bt_device_record_t temp = device_history[i];
+                struct bt_device_record temp = device_history[i];
                 device_history[i] = device_history[j];
                 device_history[j] = temp;
             }
         }
     }
+
+    set_bt_device_history(device_history);
 }
