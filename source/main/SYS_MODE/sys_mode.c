@@ -74,7 +74,7 @@ void set_bt_device_history(struct bt_device_record *bt_device_history){
 
 void get_bt_device_history(struct bt_device_record *bt_device_history)
 {
-    critical_section(memcpy(&state.device_history, bt_device_history, sizeof(struct ConnectionParameters) * BT_DEVICE_HISTORY_SIZE));
+    critical_section(memcpy(&state.device_history, bt_device_history, sizeof(struct bt_device_record) * BT_DEVICE_HISTORY_SIZE));
 }
 
 void set_version(char version[32])

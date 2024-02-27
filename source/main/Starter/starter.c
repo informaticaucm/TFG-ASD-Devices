@@ -338,10 +338,11 @@ bool is_tb_connected()
 
 void try_backend_auth(struct StarterConf *conf)
 {
-    // ESP_LOGI(TAG, "trying to connect to backend");
 
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+
+    ESP_LOGI(TAG, "trying to connect to backend as %s id: %d", parameters.qr_info.device_name, parameters.qr_info.space_id);
 
     struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
     msg->command = LogInToServer;

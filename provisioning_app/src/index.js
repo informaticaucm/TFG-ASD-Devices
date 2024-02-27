@@ -22,7 +22,13 @@ const refresh_payload = () => {
     conf = {}
     for (const key in conf_defaults) {
         const input = document.getElementById(key);
-        conf[key] = input.value == "true" ? true : input.value == "false" ? false : input.value;
+        if(key == space_id){
+            conf[key] = parseInt(input.value);
+        }else if (key == "invalidate_backend_auth_auth" || key == "invalidate_thingsboard_auth_auth") {
+            conf[key] = input.value == "0" ? false : true;
+        }else{
+            conf[key] = input.value;
+        }
     }
 
     payload = JSON.stringify(conf);
