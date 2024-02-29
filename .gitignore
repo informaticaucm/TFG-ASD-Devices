@@ -1,3 +1,9 @@
 server/THINGSBOARD/.mytb-data
 server/THINGSBOARD/.mytb-logs
 rfid_source/build/
+demos/ble_spp_client/.vscode
+demos/ble_spp_client/build
+demos/ble_spp_server/.vscode
+demos/ble_spp_server/build
+demos/gatt_client/build/
+demos/gatt_server/build/

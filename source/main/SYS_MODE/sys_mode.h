@@ -13,8 +13,11 @@ enum sys_mode
     button_test,
 };
 
+#define VALID_ENTRY(x) ((x.valid) && (time(0) - x.last_time) < BT_DEVICE_HISTORY_MAX_AGE)
+
 struct bt_device_record
 {
+    bool valid;
     char name[32];
     char address[6];
     int last_time;

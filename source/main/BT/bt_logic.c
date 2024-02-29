@@ -18,13 +18,34 @@
 
 #define TAG "BT_LOGIC"
 
-#define MAX_DISTANCE_BETWEEN_SCANS 60 * 30 // 10 minutes
+int get_disposable_record_i(struct bt_device_record *device_history)
+{
+    int oldest_record = 0;
+    int oldest_time = time(0);
+    // find the record with the oldest time
+    for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
+    {
+        if (!VALID_ENTRY(device_history[i]))
+        {
+            ESP_LOGE(TAG, "found invalid record at %d", i);
+            return i;
+        }
+        if (device_history[i].last_time < oldest_time)
+        {
+            oldest_time = device_history[i].last_time;
+            oldest_record = i;
+        }
+    }
+    ESP_LOGE(TAG, "found oldest record at %d", oldest_record);
+
+    return oldest_record;
+}
 
 void slow_timer_callback(void *arg)
 {
 
     struct ConnectionParameters parameters;
-    int err = j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+    j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
     if (get_last_ping_time() - esp_timer_get_time() > PING_RATE * 3)
     {
@@ -37,7 +58,7 @@ void slow_timer_callback(void *arg)
     msg->command = FetchBTMacs;
     msg->data.fetch_btmacs.space_id = parameters.qr_info.space_id;
 
-    int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
+    xQueueSend(conf->to_mqtt_queue, &msg, 0);
 }
 
 void device_seen(char *scanned_name, uint8_t *addr, int rssi)
@@ -45,12 +66,11 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
     struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
     get_bt_device_history(device_history);
 
-    ESP_LOGE(TAG, "device seen %s", scanned_name);
+    // ESP_LOGE(TAG, "device seen %s", scanned_name);
 
     bool found = false;
     // check if device is already in history
     int j = 0;
-    int now = esp_timer_get_time();
     for (; j < BT_DEVICE_HISTORY_SIZE; j++)
     {
         if (memcmp(device_history[j].address, addr, 6) == 0 && VALID_ENTRY(device_history[j]))
@@ -62,43 +82,38 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
 
     if (found)
     {
+        ESP_LOGI(TAG, "updating record %d", j);
+
         // update the time
-        device_history[j].last_time = now;
+        device_history[j].last_time = time(0);
     }
     else
     {
-        int oldest_record = 0;
-        int oldest_time = now;
-        // find the record with the oldest time
-        for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
-        {
-            if (device_history[i].last_time < oldest_time)
-            {
-                oldest_time = device_history[i].last_time;
-                oldest_record = i;
-            }
-        }
+        int overwriting_record = get_disposable_record_i(device_history);
+
+        ESP_LOGI(TAG, "overwriting record %d", overwriting_record);
 
         /* Store the scanned device in history. */
-        device_history[oldest_record].last_time = now;
-        device_history[oldest_record].first_time = now;
-        strcpy(device_history[oldest_record].name, scanned_name);
-        memcpy(device_history[oldest_record].address, addr, 6);
+        device_history[overwriting_record].last_time = time(0);
+        device_history[overwriting_record].first_time = time(0);
+        device_history[overwriting_record].valid = true;
+        strncpy(device_history[overwriting_record].name, scanned_name, sizeof(device_history[overwriting_record].name));
+        memcpy(device_history[overwriting_record].address, addr, 6);
     }
 
-    // sort the history by last_time
-    for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
-    {
-        for (int j = i + 1; j < BT_DEVICE_HISTORY_SIZE; j++)
-        {
-            if (device_history[i].first_time < device_history[j].first_time)
-            {
-                struct bt_device_record temp = device_history[i];
-                device_history[i] = device_history[j];
-                device_history[j] = temp;
-            }
-        }
-    }
+    // print the history
+
+    // for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
+    // {
+    //     if (VALID_ENTRY(device_history[i]))
+    //     {
+    //         ESP_LOGE("historial_bt", "%d: device %s %d", i, device_history[i].name, (int)time(0) - device_history[i].last_time);
+    //     }
+    //     else
+    //     {
+    //         ESP_LOGE("historial_bt", "%d: -----", i);
+    //     }
+    // }
 
     set_bt_device_history(device_history);
 }

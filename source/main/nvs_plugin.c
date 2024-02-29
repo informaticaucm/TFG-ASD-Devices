@@ -63,7 +63,7 @@ int j_nvs_get(char *key, void *buffer, int buffer_size)
     init_nvs();
 
     nvs_handle_t my_handle;
-    ESP_ERROR_CHECK(nvs_open(STORAGE_NAMESPACE, NVS_READONLY, &my_handle));
+    ESP_ERROR_CHECK(nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle)); // needs to be readwrite to create namespace
     size_t len = (size_t)buffer_size;
     int err = nvs_get_blob(my_handle, key, buffer, &len);
     // ESP_LOGE(TAG, "nvs get of %s got err: %s and contents of (size %d):\n", key, esp_err_to_name(err), len);

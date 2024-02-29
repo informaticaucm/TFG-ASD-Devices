@@ -231,6 +231,16 @@ void app_main(void)
     bt_conf->to_mqtt_queue = to_mqtt_queue;
     set_mode(button_test);
 
+    {
+        struct bt_device_record bt_device_history[BT_DEVICE_HISTORY_SIZE];
+        get_bt_device_history(&bt_device_history);
+        for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
+        {
+            bt_device_history[i].valid = false;
+        }
+        set_bt_device_history(&bt_device_history);
+    }
+
     bt_start(bt_conf);
     ESP_LOGI(TAG, "BT started");
 

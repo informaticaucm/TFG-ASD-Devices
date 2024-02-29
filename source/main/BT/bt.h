@@ -1,7 +1,8 @@
 #pragma once
-#include "esp_timer.h"
 
-#define VALID_ENTRY(x) (esp_timer_get_time() - x.last_time - x.first_time > 0)
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
 
 
 
