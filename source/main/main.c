@@ -241,7 +241,7 @@ void app_main(void)
         set_bt_device_history(&bt_device_history);
     }
 
-    bt_start(bt_conf);
+    // bt_start(bt_conf);
     ESP_LOGI(TAG, "BT started");
 
 }

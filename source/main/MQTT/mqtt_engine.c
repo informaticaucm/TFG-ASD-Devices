@@ -69,6 +69,9 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
             char totp_secret[17];
             int t0;
+            int id;
+
+            json_obj_get_int(&jctx, "id", &id);
 
             json_obj_get_object(&jctx, "totpConfig");
             json_obj_get_string(&jctx, "secret", totp_secret, 17);
@@ -78,6 +81,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             msg->command = BackendInfo;
 
             msg->data.backend_info.totp_t0 = t0;
+            msg->data.backend_info.device_id = id;
             memcpy(msg->data.backend_info.totp_seed, totp_secret, 17);
 
             int res = xQueueSend(conf->to_starter_queue, &msg, 0);
