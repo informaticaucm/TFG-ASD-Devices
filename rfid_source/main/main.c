@@ -104,6 +104,8 @@ void app_main()
         .flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
     };
 
+    
+
     esp_ble_gap_config_adv_data(&adv_data);
     esp_ble_gap_set_device_name("RC522-READER");
 

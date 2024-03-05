@@ -366,16 +366,17 @@ int periodic_sync_gap_event(struct ble_gap_event *event, void *arg)
         bool name_valid = false;
         char manufacturer[32];
         bool manufacturer_valid = false;
+        // printf("-----------\n");
         while (i < disc->length_data)
         {
             int len = disc->data[i];
             int type = disc->data[i + 1];
-            printf("Type: %#x, Len: %d, Data: [", type, len);
-            for(int j = 0; j < len; j++)
-            {
-                printf("%c", disc->data[i+2+j]);
-            }
-            printf("]\n");
+            // printf("Type: %#x, Len: %d, Data: [", type, len);
+            // for(int j = 0; j < len; j++)
+            // {
+            //     printf("%c", disc->data[i+2+j]);
+            // }
+            // printf("]\n");
 
             if (type == 0xFF)
             {
@@ -388,8 +389,9 @@ int periodic_sync_gap_event(struct ble_gap_event *event, void *arg)
                 name_valid = true;
             }
 
-            i += len + 2;
+            i += len + 1;
         }
+        // printf("manuacturer_valid: %d, name_valid: %d\n", manufacturer_valid, name_valid);
 
         if (name_valid)
         {
