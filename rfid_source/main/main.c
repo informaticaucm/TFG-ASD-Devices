@@ -28,8 +28,6 @@ static void rc522_handler(void *arg, esp_event_base_t base, int32_t event_id, vo
         rc522_tag_t *tag = (rc522_tag_t *)data->ptr;
         ESP_LOGI(TAG, "Tag scanned (sn: %" PRIu64 ")", tag->serial_number);
 
-        snprintf(msg, sizeof(msg), "%" PRIu64, tag->serial_number);
-
         esp_ble_adv_data_t adv_data = {
             .set_scan_rsp = false,
             .include_name = true,
@@ -37,8 +35,8 @@ static void rc522_handler(void *arg, esp_event_base_t base, int32_t event_id, vo
             .min_interval = 0x0006,
             .max_interval = 0x0010,
             .appearance = 0x00,
-            .manufacturer_len = strlen(msg),                      // TEST_MANUFACTURER_DATA_LEN,
-            .p_manufacturer_data =(uint8_t *) msg, //&test_manufacturer[0],
+            .manufacturer_len = sizeof(tag->serial_number),        
+            .p_manufacturer_data = (uint8_t *)&tag->serial_number, 
             .service_data_len = 0,
             .p_service_data = NULL,
             .service_uuid_len = 32,
@@ -98,8 +96,8 @@ void app_main()
         .min_interval = 0x0006,
         .max_interval = 0x0010,
         .appearance = 0x00,
-        .manufacturer_len = 4,                    // TEST_MANUFACTURER_DATA_LEN,
-        .p_manufacturer_data = (uint8_t *)"hola", //&test_manufacturer[0],
+        .manufacturer_len = 0,                // TEST_MANUFACTURER_DATA_LEN,
+        .p_manufacturer_data = (uint8_t *)"", //&test_manufacturer[0],
         .service_data_len = 0,
         .p_service_data = NULL,
         .service_uuid_len = 32,

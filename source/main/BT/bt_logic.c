@@ -43,6 +43,7 @@ int get_disposable_record_i(struct bt_device_record *device_history)
 
 void slow_timer_callback(void *arg)
 {
+    struct BTConf *conf = (struct BTConf *)arg;
 
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
@@ -52,7 +53,6 @@ void slow_timer_callback(void *arg)
         return;
     }
 
-    struct BTConf *conf = (struct BTConf *)arg;
     struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
 
     msg->command = FetchBTMacs;
@@ -66,7 +66,7 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
     struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
     get_bt_device_history(device_history);
 
-    // ESP_LOGE(TAG, "device seen %s", scanned_name);
+    ESP_LOGE(TAG, "device seen %s", scanned_name);
 
     bool found = false;
     // check if device is already in history
@@ -82,7 +82,7 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
 
     if (found)
     {
-        ESP_LOGI(TAG, "updating record %d", j);
+        // ESP_LOGI(TAG, "updating record %d", j);
 
         // update the time
         device_history[j].last_time = time(0);
@@ -91,7 +91,7 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
     {
         int overwriting_record = get_disposable_record_i(device_history);
 
-        ESP_LOGI(TAG, "overwriting record %d", overwriting_record);
+        ESP_LOGI(TAG, "overwriting record %d %s", overwriting_record, scanned_name);
 
         /* Store the scanned device in history. */
         device_history[overwriting_record].last_time = time(0);
@@ -116,4 +116,16 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
     // }
 
     set_bt_device_history(device_history);
+}
+
+uint64_t last_sn = 0;
+
+void rfid_seen(uint64_t sn, int rssi)
+{
+    if (sn != last_sn)
+    {
+        ESP_LOGI(TAG, "Tag scanned (sn: %" PRIu64 ") con rssi: %d", sn, rssi);
+        last_sn = sn;
+    }
+
 }

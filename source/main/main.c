@@ -226,10 +226,8 @@ void app_main(void)
     start_totp(totp_conf);
     ESP_LOGI(TAG, "TOTP started");
 
-    struct BTConf *bt_conf = jalloc(sizeof(struct BTConf));
-    bt_conf->to_screen_queue = to_screen_queue;
-    bt_conf->to_mqtt_queue = to_mqtt_queue;
-    set_mode(button_test);
+   
+    set_mode(state_display);
 
     {
         struct bt_device_record bt_device_history[BT_DEVICE_HISTORY_SIZE];
@@ -241,7 +239,13 @@ void app_main(void)
         set_bt_device_history(&bt_device_history);
     }
 
-    // bt_start(bt_conf);
+    struct BTConf *bt_conf = jalloc(sizeof(struct BTConf));
+    bt_conf->to_screen_queue = to_screen_queue;
+    bt_conf->to_mqtt_queue = to_mqtt_queue;
+
+    bt_start(bt_conf);
+
+
     ESP_LOGI(TAG, "BT started");
 
 }

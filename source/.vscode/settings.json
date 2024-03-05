@@ -75,7 +75,8 @@
     "esp_bt_device.h": "c",
     "esp_bt.h": "c",
     "esp_bt_main.h": "c",
-    "esp_timer.h": "c"
+    "esp_timer.h": "c",
+    "time.h": "c"
   },
   "C_Cpp.default.compilerPath": "cl.exe"
 }

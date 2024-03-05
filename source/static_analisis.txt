@@ -1,0 +1,1096 @@
+Executing action: size-files
+Running ninja in directory C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\build
+Executing "ninja all"...
+[1/4] cmd.exe /C "cd /D C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\build\esp-idf\esptool_py && C:\Users\Jaime\.espressif\python_env\idf5.1_py3.11_env\Scripts\python.exe C:/Users/Jaime/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/source/build/partition_table/partition-table.bin C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/source/build/tfgsegumientodocente.bin"
+tfgsegumientodocente.bin binary size 0x1a9d80 bytes. Smallest app partition is 0x271000 bytes. 0xc7280 bytes (32%) free.
+[2/4] Performing build step for 'bootloader'
+[1/1] cmd.exe /C "cd /D C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\build\bootloader\esp-idf\esptool_py && C:\Users\Jaime\.espressif\python_env\idf5.1_py3.11_env\Scripts\python.exe C:/Users/Jaime/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/source/build/bootloader/bootloader.bin"
+Bootloader binary size 0x51d0 bytes. 0x2e30 bytes (36%) free.
+Running ninja in directory C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\build
+Executing "ninja size-files"...
+[0/1] cmd.exe /C "cd /D C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\build && C:\Users\Jaime\.espressif\tools\cmake\3.24.0\bin\cmake.exe -D IDF_SIZE_TOOL=C:/Users/Jaime/.espressif/python_env/idf5.1_py3.11_env/Scripts/python.exe;-m;esp_idf_size -D IDF_SIZE_MODE=--files -D MAP_FILE=C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/source/build/tfgsegumientodocente.map -D OUTPUT_JSON= -P C:/Users/Jaime/esp/esp-idf/tools/cmake/run_size_tool.cmake"
+Total sizes:
+Used static IRAM:  107274 bytes ( 254966 remain, 29.6% used)
+      .text size:  106247 bytes
+   .vectors size:    1027 bytes
+Used stat D/IRAM:   90936 bytes ( 254920 remain, 26.3% used)
+      .data size:   26072 bytes
+      .bss  size:   64864 bytes
+Used Flash size : 1610815 bytes
+           .text: 1291543 bytes
+         .rodata:  319016 bytes
+Total image size: 1744161 bytes (.bin may be padded larger)
+Per-file contributions to ELF file:
+             Object File DRAM .data & 0.bss IRAM0 .text & 0.vectors ram_st_total Flash .text & .rodata & .rodata_noload & .appdesc flash_total
+        ecp_curves.c.obj         28       0           0           0           28        6496     32440                0          0       38964
+       http_parser.c.obj          0       0           0           0            0       15583      3262                0          0       18845
+           btm_sec.c.obj          0       0           0           0            0       12837      2913                0          0       15750
+       mqtt_client.c.obj          0       0           0           0            0       10882      4404                0          0       15286
+       btm_ble_gap.c.obj          0      50           0           0           50       12643      2249                0          0       14892
+        lib_a-vfprintf.o          0       0           0           0            0       14066       572                0          0       14638
+       lib_a-svfprintf.o          0       0           0           0            0       13586       622                0          0       14208
+lv_font_montserrat_14.c.          0       8           0           0            8           0     13633                0          0       13633
+            decode.c.obj          0       0           0           0            0       12847       632                0          0       13479
+                wl_cnx.o          2    3951          70           0         4023       12007      1110             2396          0       13189
+        bta_dm_act.c.obj          0       0           0           0            0       10939      2218                0          0       13157
+         ieee80211_sta.o         12      34        1374           0         1420       10319      1011             1901          0       12716
+      ieee80211_output.o          2      13        1211           0         1226       10728       567                0          0       12508
+          identify.c.obj          0       0           0           0            0       11964       190                0          0       12154
+       ieee80211_ioctl.o          0     100           0           0          100       10247      1606              551          0       11853
+           sockets.c.obj          0     608           0           0          608       10645       887                0          0       11532
+  lv_theme_default.c.obj          0     109           0           0          109       11477        48                0          0       11525
+               sae.c.obj          0       0           0           0            0       10562       487                0          0       11049
+               nd6.c.obj          8     932           0           0          940       10753       260                0          0       11021
+      ieee80211_hostap.o          1      41          22           0           64        9683      1025              498          0       10731
+          gatt_api.c.obj          0       0           0           0            0        6585      3833                0          0       10418
+             tasks.c.obj         16     704        8252           0         8972           0      1875                0          0       10143
+      lib_a-svfiprintf.o          0       0           0           0            0        9054      1044                0          0       10098
+                    pm.o         64     468        2273           0         2805        6917       767                0          0       10021
+       lib_a-vfiprintf.o          0       0           0           0            0        9410       572                0          0        9982
+            tcp_in.c.obj          0      52           0           0           52        8712      1243                0          0        9955
+     bta_gattc_act.c.obj          0       0           0           0            0        7752      2116                0          0        9868
+   esp_http_client.c.obj          0       0           0           0            0        7372      2494                0          0        9866
+       esp_memprot.c.obj         24       0           0           0           24        7809      2017                0          0        9850
+        lib_a-svfscanf.o          0       0           0           0            0        9270       503                0          0        9773
+        ieee80211_scan.o         14     296           0           0          310        9324       362             2169          0        9700
+                    pp.o       1153      16        2137           0         3306        5777       522                0          0        9589
+           gatt_sr.c.obj          0       0           0           0            0        7825      1688                0          0        9513
+           btm_ble.c.obj          0       1           0           0            1        6948      2412                0          0        9360
+           gatt_db.c.obj          0       0           0           0            0        5803      3347                0          0        9150
+           ssl_tls.c.obj         94       0           0           0           94        8510       318                0          0        8922
+               wpa.c.obj          0     872           0           0          872        8828        19                0          0        8847
+        spi_master.c.obj          0      12        2779           0         2791        2354      3662                0          0        8795
+               ecp.c.obj          0      72           0           0           72        8325       395                0          0        8720
+        gatt_utils.c.obj          0      52           0           0           52        7271      1446                0          0        8717
+               i2c.c.obj         32      10        1210           0         1252        5585      1778                0          0        8605
+              tlsf.c.obj          0       0        5387           0         5387        1127      2080                0          0        8594
+       lib_a-svfiscanf.o          0       0           0           0            0        8246       318                0          0        8564
+               llm_adv.o          0       0           0           0            0        8270        10                0          0        8280
+          lv_chart.c.obj          0       0           0           0            0        8158        32                0          0        8190
+          ieee80211_ht.o          0       4           0           0            4        7213       975               47          0        8188
+          smp_keys.c.obj          0     136           0           0          136        6327      1763                0          0        8090
+           btm_inq.c.obj          0       0           0           0            0        6406      1619                0          0        8025
+   lv_draw_sw_rect.c.obj          0       0           0           0            0        7931         0                0          0        7931
+           tcp_out.c.obj          0       0           0           0            0        5702      2165                0          0        7867
+   esp_err_to_name.c.obj          0       0           0           0            0          51      7736                0          0        7787
+           smp_act.c.obj          0       0           0           0            0        6338      1400                0          0        7738
+          wpa_auth.c.obj          0      68           0           0           68        7639        82                0          0        7721
+           btm_acl.c.obj          0       0           0           0            0        5890      1764                0          0        7654
+            ov3660.c.obj        991       0           0           0          991        5737       710                0          0        7438
+        spi_common.c.obj        123      12           0           0          135        5544      1759                0          0        7426
+           gatt_cl.c.obj          0       0           0           0            0        5438      1939                0          0        7377
+        lv_obj_pos.c.obj          0       5           0           0            5        7374         0                0          0        7374
+              mqtt.c.obj          0       8           0           0            8        4757      2542                0          0        7299
+               tcp.c.obj          2      23           0           0           25        5625      1647                0          0        7274
+       btc_gap_ble.c.obj          0      96           0           0           96        5245      1951                0          0        7196
+           api_msg.c.obj          0       0           0           0            0        5578      1592                0          0        7170
+         l2c_utils.c.obj          0       0           0           0            0        5803      1196                0          0        6999
+            ov5640.c.obj        755       0           0           0          755        5638       553                0          0        6946
+              llm_scan.o          0       0         280           0          280        6515        11                0          0        6806
+      transport_ws.c.obj          0       0           0           0            0        4175      2586                0          0        6761
+           ringbuf.c.obj          0       0        4365           0         4365           0      2324                0          0        6689
+    esp_netif_lwip.c.obj          0      21           0           0           21        4858      1806                0          0        6664
+              gpio.c.obj         40       0           0           0           40        5603      1010                0          0        6653
+           l2c_ble.c.obj          0       0           0           0            0        4671      1941                0          0        6612
+              dhcp.c.obj          0      64           0           0           64        5814       792                0          0        6606
+            bignum.c.obj          0       0           0           0            0        5531       672                0          0        6203
+  ssl_tls12_server.c.obj          0       0           0           0            0        6144         6                0          0        6150
+         ieee80211_api.o         12       6           0           0           18        4873      1078                0          0        5963
+       ieee80211_input.o          0       0           0           0            0        5433       526              630          0        5959
+          btu_hcif.c.obj          0       0           0           0            0        4751      1207                0          0        5958
+                  lmac.o         51       1         458           0          510        4762       660                0          0        5931
+      lv_draw_mask.c.obj          0       0           0           0            0        5921         0                0          0        5921
+         ieee80211_nvs.o          4    1284           0           0         1288        4578      1175                0          0        5757
+           starter.c.obj         28      20           0           0           48        3807      1921                0          0        5756
+           nt99141.c.obj       1733       0           0           0         1733        3860       137                0          0        5730
+             arch_main.o          0      16         573           0          589        3644      1383                0          0        5600
+               rsa.c.obj          0       0           0           0            0        5551        33                0          0        5584
+          x509_crt.c.obj          0       0           0           0            0        5458        99                0          0        5557
+btm_ble_adv_filter.c.obj          0     152           0           0          152        4231      1276                0          0        5507
+     lv_obj_scroll.c.obj          0       0           0           0            0        5469         0                0          0        5469
+     esp_https_ota.c.obj          0       0           0           0            0        3060      2392                0          0        5452
+  ssl_tls12_client.c.obj          0       0           0           0            0        5315         0                0          0        5315
+      lv_btnmatrix.c.obj         28       0           0           0           28        5139        65                0          0        5232
+               dns.c.obj          0    1323           0           0         1323        4954       251                0          0        5205
+   esp_tls_mbedtls.c.obj          0       4           0           0            4        2877      2313                0          0        5190
+                  wdev.o         64     140         215           0          419        4568       340                0          0        5187
+           ssl_msg.c.obj          0       0           0           0            0        5181         0                0          0        5181
+           lv_refr.c.obj          0       8           0           0            8        5174         0                0          0        5174
+            config.c.obj          0       0           0           0            0        3788      1337                0          0        5125
+          lv_label.c.obj          0       0           0           0            0        5016        33                0          0        5049
+               oid.c.obj          0       0           0           0            0         711      4250                0          0        4961
+           l2c_api.c.obj          0       8           0           0            8        3169      1749                0          0        4918
+            phy_rx_cal.o        372       0           0           0          372        4534         0                0          0        4906
+              gdma.c.obj         16       0           0           0           16        3516      1317                0          0        4849
+             queue.c.obj          0       0        3167           0         3167           0      1670                0          0        4837
+         btc_gatts.c.obj          0     232           0           0          232        3840       994                0          0        4834
+         smp_utils.c.obj          0       0           0           0            0        3207      1597                0          0        4804
+     bta_gatts_act.c.obj          0       0           0           0            0        3492      1297                0          0        4789
+       esp_mmu_map.c.obj          4      44         460           0          508        2920      1395                0          0        4779
+           hcicmds.c.obj          0       0           0           0            0        4507       192                0          0        4699
+                bt.c.obj         37       0         612           0          649        2746      1296                0          0        4691
+   bta_gattc_cache.c.obj          0       0           0           0            0        3853       803                0          0        4656
+               llm_hci.o          0       4           0           0            4        4037       618                0          0        4655
+           pkparse.c.obj          0       0           0           0            0        4254       395                0          0        4649
+        nvs_page.cpp.obj          0       0           0           0            0        4634         0                0          0        4634
+        sdmmc_host.c.obj          8      32           0           0           40        3745       876                0          0        4629
+              ledc.c.obj          8      40         119           0          167        3121      1375                0          0        4623
+              port.c.obj       3084      40         991           0         4115           0       516                0          0        4591
+           esp_tls.c.obj          0       0           0           0            0        3089      1436                0          0        4525
+          vfs_uart.c.obj        116       8           0           0          124        4001       376                0          0        4493
+           cam_hal.c.obj         31       4          70           0          105        3319      1053                0          0        4473
+       lv_textarea.c.obj          0       4           0           0            4        4427        32                0          0        4459
+             netif.c.obj          0     265           0           0          265        3363      1027                0          0        4390
+                   trc.o        664      12         316           0          992        2759       622                0          0        4361
+      lv_obj_style.c.obj          1       0           0           0            1        4343         0                0          0        4344
+          lib_a-strtod.o          0       0           0           0            0        4162       104                0          0        4266
+            ov2640.c.obj        654       0           0           0          654        3201       370                0          0        4225
+            gc2145.c.obj          0       0           0           0            0        1767      2423                0          0        4190
+         esp_event.c.obj          0       0           0           0            0        3200       989                0          0        4189
+            lv_obj.c.obj          0       5           0           0            5        4143        28                0          0        4171
+               ip6.c.obj          0       0           0           0            0        4038       112                0          0        4150
+  ssl_ciphersuites.c.obj          0     240           0           0          240         273      3872                0          0        4145
+               udp.c.obj          2       4           0           0            6        3806       292                0          0        4100
+   bta_gattc_utils.c.obj          0       0           0           0            0        3488       603                0          0        4091
+               vfs.c.obj        192      40           0           0          232        3752       106                0          0        4050
+            lib_a-dtoa.o          0       0           0           0            0        3804       165                0          0        3969
+          l2c_link.c.obj          0       0           0           0            0        3493       454                0          0        3947
+     nvs_storage.cpp.obj          0       0           0           0            0        3902         0                0          0        3902
+            phy_tx_cal.o        111       1           0           0          112        3775         0                0          0        3886
+     esp_flash_api.c.obj         84       0        2794           0         2878          24       968                0          0        3870
+            ll_cam.c.obj          0       0         361           0          361        2904       552                0          0        3817
+  lv_draw_sw_blend.c.obj          0       0           0           0            0        3815         0                0          0        3815
+       lv_dropdown.c.obj          0       0           0           0            0        3647        87                0          0        3734
+           esp_aes.c.obj         56       4          42           0          102        2743       856                0          0        3697
+ btm_ble_batchscan.c.obj          0     128           0           0          128        2777       919                0          0        3696
+     esp_lvgl_port.c.obj          4      16           0           0           20        2228      1447                0          0        3679
+            lv_arc.c.obj          0       0           0           0            0        3588        28                0          0        3616
+        hci_hal_h4.c.obj          0      44           0           0           44        2293      1295                0          0        3588
+               ota.c.obj          0     256           0           0          256        1857      1709                0          0        3566
+   btm_ble_privacy.c.obj          0       0           0           0            0        2829       724                0          0        3553
+       cipher_wrap.c.obj          0       0           0           0            0         646      2904                0          0        3550
+              aria.c.obj          0       0           0           0            0        2472      1072                0          0        3544
+               phy_reg.o          0       0        2343           0         2343        1171         0                0          0        3514
+            btc_dm.c.obj          0     216           0           0          216        2757       741                0          0        3498
+  ieee80211_supplicant.o          4     160           0           0          164        3295       188              128          0        3487
+     transport_ssl.c.obj          0       0           0           0            0        2638       793                0          0        3431
+          lv_table.c.obj          0       0           0           0            0        3376        28                0          0        3404
+           lv_flex.c.obj          0      22           0           0           22        3397         0                0          0        3397
+        controller.c.obj          0     157           0           0          157        2288      1108                0          0        3396
+        coexist_scheme.o       1183      60           0           0         1243        2201         0                0          0        3384
+        dhcpserver.c.obj          0       0           0           0            0        3186       178                0          0        3364
+spi_flash_chip_generic.c        573       0        2754           0         3327           0         0                0          0        3327
+              pbuf.c.obj          0       1           0           0            1        2558       755                0          0        3313
+    lv_draw_sw_arc.c.obj          0       0           0           0            0        3309         0                0          0        3309
+          task_wdt.c.obj         53       5           0           0           58        1974      1281                0          0        3308
+        version_db.c.obj          0       0           0           0            0           0      3280                0          0        3280
+        intr_alloc.c.obj          8      22         753           0          783        2163       351                0          0        3275
+              bt_bb_v2.o          0       0         289           0          289        2923        58                0          0        3270
+   btc_ble_storage.c.obj          0       0           0           0            0        2573       660                0          0        3233
+           phy_hw_freq.o         84       0         204           0          288        2916         0                0          0        3204
+            etharp.c.obj          0     241           0           0          241        2616       586                0          0        3202
+         hci_layer.c.obj          0      62           0           0           62        2132      1067                0          0        3199
+       esp_ota_ops.c.obj          0      12           0           0           12        2335       858                0          0        3193
+               lld_con.o          0      84        2774           0         2858         409        10                0          0        3193
+           rtc_clk.c.obj        251      12        2930           0         3193           0         0                0          0        3181
+          phy_init.c.obj          8      12         149           0          169        1628      1392                0          0        3177
+              uart.c.obj         56      12           0           0           68        2426       689                0          0        3171
+         lv_printf.c.obj          0       0           0           0            0        3167         0                0          0        3167
+        panic_arch.c.obj          0       0           0           0            0        1094      2071                0          0        3165
+        lib_a-strerror.o          0       0           0           0            0         906      2258                0          0        3164
+esp_lcd_panel_io_spi.c.o          0       0           0           0            0        2353       806                0          0        3159
+        hciblecmds.c.obj          0       0           0           0            0        2907       230                0          0        3137
+     lv_colorwheel.c.obj          3       5           0           0            8        3102        28                0          0        3133
+           lib_a-e_pow.o          0       0           0           0            0        3054        48                0          0        3102
+            sae_pk.c.obj          0       0           0           0            0        2013      1089                0          0        3102
+         gatt_main.c.obj          0    2598           0           0         2598        2418       669                0          0        3087
+               hal_mac.o          0       0         283           0          283        2796         6                0          0        3085
+    btm_ble_bgconn.c.obj          0       4           0           0            4        2251       823                0          0        3074
+        bta_dm_api.c.obj          0       0           0           0            0        2662       410                0          0        3072
+           lv_grid.c.obj          0      42           0           0           42        3072         0                0          0        3072
+           lib_a-mprec.o          0       0           0           0            0        2632       409                0          0        3041
+ btm_ble_multi_adv.c.obj          0      40           0           0           40        2460       571                0          0        3031
+         heap_caps.c.obj          4       4        1786           0         1794         411       791                0          0        2992
+         lv_roller.c.obj          0       0           0           0            0        2874       101                0          0        2975
+     bta_gattc_api.c.obj          0       0           0           0            0        2355       618                0          0        2973
+              phy_init.o        564     234         667           0         1465        1741         0                0          0        2972
+p_256_multprecision.c.ob          0       0           0           0            0        2942         0                0          0        2942
+              x509.c.obj          0       0           0           0            0        2885        19                0          0        2904
+            gc032a.c.obj          0       0           0           0            0        1521      1377                0          0        2898
+  esp_image_format.c.obj          0       0           0           0            0        1897       939                0          0        2836
+         btc_gattc.c.obj          0       0           0           0            0        2594       196                0          0        2790
+          rtc_init.c.obj         16       0           0           0           16        2509       258                0          0        2783
+          qr_logic.c.obj          0      16           0           0           16        1772       983                0          0        2755
+esp_psram_impl_octal.c.o        830      10        1919           0         2759           0         0                0          0        2749
+      spi_hal_iram.c.obj         87       0        2654           0         2741           0         0                0          0        2741
+        wpa_common.c.obj          0       0           0           0            0        2673        21                0          0        2694
+       ieee80211_timer.o        200       0           0           0          200        1291      1193                0          0        2684
+         gatt_attr.c.obj          0       0           0           0            0        2062       558                0          0        2620
+       periph_ctrl.c.obj          8      41         488           0          537        1959       137                0          0        2592
+          esp_wpa3.c.obj          8     112           0           0          120        2525        54                0          0        2587
+            gc0308.c.obj          0       0           0           0            0        1819       746                0          0        2565
+    lv_img_decoder.c.obj          0       0           0           0            0        2509        24                0          0        2533
+          lv_meter.c.obj          0       0           0           0            0        2502        28                0          0        2530
+            cipher.c.obj          0       0           0           0            0        2529         0                0          0        2529
+       esp_aes_gcm.c.obj          0       0           0           0            0        2148       334                0          0        2482
+         lv_slider.c.obj          0       0           0           0            0        2451        28                0          0        2479
+        ieee802_11.c.obj          0       0           0           0            0        2304       172                0          0        2476
+            lv_img.c.obj          0       0           0           0            0        2444        28                0          0        2472
+         cpu_start.c.obj          0       5        1257           0         1262         365       847                0          0        2469
+           smp_api.c.obj          0       0           0           0            0        1528       907                0          0        2435
+            lv_bar.c.obj          0       0           0           0            0        2389        28                0          0        2417
+      esp32_s3_eye.c.obj          0       1           0           0            1        1104      1311                0          0        2415
+spi_flash_hal_iram.c.obj          0       0        2408           0         2408           0         0                0          0        2408
+             ecdsa.c.obj          0       0           0           0            0        2406         0                0          0        2406
+ crypto_mbedtls-ec.c.obj          0       0           0           0            0        2366         0                0          0        2366
+         esp_psram.c.obj          0      52          81           0          133        1416       861                0          0        2358
+      att_protocol.c.obj          0       0           0           0            0        2070       282                0          0        2352
+              ip_funcs.o          0       0           0           0            0           0      2344                0          0        2344
+      spi_bus_lock.c.obj         17       0        1305           0         1322         578       435                0          0        2335
+          l2c_main.c.obj          0    1024           0           0         1024        1518       806                0          0        2324
+ sdmmc_transaction.c.obj          0      85           0           0           85        1769       546                0          0        2315
+               raw.c.obj          0       4           0           0            4        2096       219                0          0        2315
+            ov7725.c.obj          0       0           0           0            0        2138       157                0          0        2295
+              llm_init.o          0       0           0           0            0        2279        11                0          0        2290
+          smp_main.c.obj          0     720           0           0          720         188      2093                0          0        2281
+             ieee80211.o          0     668           0           0          668        1834       431                0          0        2265
+           gap_ble.c.obj          0       0           0           0            0        2003       244                0          0        2247
+          mqtt_msg.c.obj          0       0           0           0            0        2233        13                0          0        2246
+            lv_txt.c.obj         28       0           0           0           28        2197         8                0          0        2233
+                   emi.o          0       0           0           0            0        1744       463                0          0        2207
+           phy_tx_gain.o        249       0        1550           0         1799         403         0                0          0        2202
+               lld_adv.o          0      28        1835           0         1863         354        10                0          0        2199
+           btm_dev.c.obj          0       0           0           0            0        2036       159                0          0        2195
+    adc_hal_common.c.obj          8       0           0           0            8        2099        82                0          0        2189
+           llc_con_upd.o          0       0          86           0           86        2015        62                0          0        2163
+        btm_devctl.c.obj          0       0           0           0            0        1993       157                0          0        2150
+       wpa_auth_ie.c.obj          0       0           0           0            0        2146         0                0          0        2146
+           startup.c.obj          0      11          54           0           65        1170       907                0          0        2131
+             alarm.c.obj          0    1208           0           0         1208        1509       620                0          0        2129
+          btu_task.c.obj          0      68           0           0           68        1696       429                0          0        2125
+           lv_tlsf.c.obj          0       0           0           0            0        2114         0                0          0        2114
+   lv_draw_sw_line.c.obj          0       0           0           0            0        2072        33                0          0        2105
+           buttons.c.obj         68       4           0           0           72        1341       688                0          0        2097
+    xtensa_vectors.S.obj         36       0        1582         424         2042           0        48                0          0        2090
+lv_draw_sw_transform.c.o          0       0           0           0            0        2082         0                0          0        2082
+            bf20a6.c.obj          0       0           0           0            0        1398       678                0          0        2076
+        btc_config.c.obj          0       8           0           0            8        1424       637                0          0        2061
+            bf3005.c.obj          0       0           0           0            0        1779       271                0          0        2050
+       lv_obj_draw.c.obj          0       0           0           0            0        2049         0                0          0        2049
+              lld_scan.o          0       0        1438           0         1438         560        11                0          0        2009
+        ssl_client.c.obj          0       0           0           0            0        2007         0                0          0        2007
+              main.c.obj          0       0           0           0            0        1274       732                0          0        2006
+          sys_arch.c.obj          0      12           0           0           12        1362       633                0          0        1995
+       lv_keyboard.c.obj         72       0           0           0           72         845      1076                0          0        1993
+               phy_i2c.o          0       2         870           0          872        1110         0                0          0        1980
+           api_lib.c.obj          0       0           0           0            0        1717       255                0          0        1972
+        esp_camera.c.obj          0       4           0           0            4        1168       802                0          0        1970
+           lv_area.c.obj          4       8           0           0           12        1963         0                0          0        1967
+       json_parser.c.obj          0       0           0           0            0        1961         0                0          0        1961
+               aes.c.obj          0       0           0           0            0        1191       768                0          0        1959
+spi_flash_chip_mxic_opi.        406       0        1544           0         1950           0         0                0          0        1950
+           phy_rx_gain.o        132       0           0           0          132        1793         0                0          0        1925
+                md.c.obj          0       0           0           0            0        1833        76                0          0        1909
+            wpa_ie.c.obj          0       0           0           0            0        1795       113                0          0        1908
+          sc030iot.c.obj          0       0           0           0            0        1384       520                0          0        1904
+ hci_packet_parser.c.obj          0       0           0           0            0        1071       813                0          0        1884
+       adc_oneshot.c.obj          0      18           0           0           18        1354       513                0          0        1867
+            btm_pm.c.obj          0       0           0           0            0        1765        86                0          0        1851
+                   lld.o          0       0           0           0            0        1825        24                0          0        1849
+         esp_timer.c.obj          8       8         721           0          737         865       239                0          0        1833
+     lv_draw_label.c.obj          0       0           0           0            0        1828         0                0          0        1828
+              igmp.c.obj          0       9           0           0            9        1570       252                0          0        1822
+            thread.c.obj          0       0           0           0            0        1490       328                0          0        1818
+         gatt_auth.c.obj          0       0           0           0            0        1431       368                0          0        1799
+spi_flash_hal_gpspi.c.ob          0       0        1788           0         1788           0         0                0          0        1788
+               ip4.c.obj          0       6           0           0            6        1657       127                0          0        1784
+          sys_mode.c.obj        552       5           0           0          557        1226         0                0          0        1778
+         nvs_api.cpp.obj          0      20           0           0           20        1772         4                0          0        1776
+  esp_rsa_sign_alt.c.obj          0      16           0           0           16        1184       588                0          0        1772
+             if_hwctrl.o          0      41          10           0           51        1717        38              100          0        1765
+       esp_adapter.c.obj        468       5         354           0          827         931         0                0          0        1753
+              mld6.c.obj          0       1           0           0            1        1749         0                0          0        1749
+              list.c.obj          0       0           0           0            0        1351       394                0          0        1745
+               esf_buf.o        364     192         243           0          799         738       387                0          0        1732
+                   llm.o          0      60          12           0           72        1683        36                0          0        1731
+               ccm.c.obj          0       0           0           0            0        1729         0                0          0        1729
+    heap_caps_init.c.obj          8       4           0           0           12        1297       420                0          0        1725
+      bta_sys_main.c.obj          2     312           0           0          314        1264       445                0          0        1711
+       bta_dm_main.c.obj          0     904           0           0          904         189      1468                0          0        1657
+adc_cali_curve_fitting.c          0       0           0           0            0         972       677                0          0        1649
+       bignum_core.c.obj          0       0           0           0            0        1644         0                0          0        1644
+       ca_cert.pem.S.obj          0       0           0           0            0           0      1624                0          0        1624
+       lv_draw_arc.c.obj          0       0           0           0            0        1597         0                0          0        1597
+   rsa_alt_helpers.c.obj          0       0           0           0            0        1530        55                0          0        1585
+             phy_rfpll.o         31       0         227           0          258        1324         0                0          0        1582
+     constant_time.c.obj          0       0           0           0            0        1581         0                0          0        1581
+               sha.c.obj         24       0           0           0           24        1176       377                0          0        1577
+    lv_draw_sw_img.c.obj          0       0           0           0            0        1574         0                0          0        1574
+                 rwble.o        128      92         900           0         1120         521         8                0          0        1557
+           i2c_hal.c.obj          0       0           0           0            0        1398       156                0          0        1554
+ packet_fragmenter.c.obj          0      16           0           0           16        1005       546                0          0        1551
+            hal_mac_tx.o          0       0           0           0            0        1548         0                0          0        1548
+      wifi_default.c.obj          0       9           0           0            9        1125       417                0          0        1542
+           phy_feature.o          0       0         466           0          466        1074         0                0          0        1540
+esp_lcd_panel_st7789.c.o          0       0           0           0            0        1078       454                0          0        1532
+        esp_bignum.c.obj          0       4          38           0           42        1262       227                0          0        1527
+           pk_wrap.c.obj          0       0           0           0            0        1153       374                0          0        1527
+              totp.c.obj          0       0           0           0            0        1035       490                0          0        1525
+           mmu_hal.c.obj        632       0         890           0         1522           0         0                0          0        1522
+    lib_a-gdtoa-gethex.o          0       0           0           0            0        1391       120                0          0        1511
+          lv_style.c.obj          2       4           0           0            6        1375       113                0          0        1490
+          mac_addr.c.obj         56       0           0           0           56         800       632                0          0        1488
+                bt.c.obj         20       0           0           0           20         690       761                0          0        1471
+      btm_ble_addr.c.obj          0       0           0           0            0        1283       172                0          0        1455
+esp_efuse_rtc_calib.c.ob          0       0           0           0            0         685       769                0          0        1454
+      ieee80211_crypto.o          0     116           0           0          116        1140       301                0          0        1441
+         wifi_init.c.obj          8       0           0           0            8         667       761                0          0        1436
+           lv_menu.c.obj          0       0           0           0            0        1183       252                0          0        1435
+     rtc_io_periph.c.obj          0       0           0           0            0           0      1428                0          0        1428
+ esp_efuse_utility.c.obj          0       4           0           0            4         949       477                0          0        1426
+ lv_draw_sw_letter.c.obj          0     261           0           0          261        1134       278                0          0        1412
+  bootloader_flash.c.obj          0       4         858           0          862         234       318                0          0        1410
+          bt_logic.c.obj          0       0           0           0            0        1241       163                0          0        1404
+       lv_calendar.c.obj          0       0           0           0            0        1312        83                0          0        1395
+                wl_chm.o          0     252           0           0          252        1321        53              200          0        1374
+               hal_tsf.o          0       0          34           0           34        1340         0                0          0        1374
+             phy_debug.o       1080      40           0           0         1120         293         0                0          0        1373
+               bss.c.obj          0       0           0           0            0        1299        66                0          0        1365
+              sccb.c.obj          0       7           0           0            7         990       361                0          0        1351
+               pem.c.obj          0       0           0           0            0        1238       111                0          0        1349
+            lv_mem.c.obj          4   32780           0           0        32784        1311         0                0          0        1315
+       cache_utils.c.obj          4      14         600           0          618          97       605                0          0        1306
+     bta_gatts_api.c.obj          0       0           0           0            0        1157       148                0          0        1305
+            ov7670.c.obj        152       0           0           0          152        1132         7                0          0        1291
+            pkcs12.c.obj          0       0           0           0            0        1290         0                0          0        1290
+      p_256_ecc_pp.c.obj          0     456           0           0          456        1285         0                0          0        1285
+            common.c.obj          0       0           0           0            0        1283         0                0          0        1283
+                  nvds.o          0      28           0           0           28        1240        30                0          0        1270
+vfs_usb_serial_jtag.c.ob         40       0           0           0           40         962       259                0          0        1261
+             locks.c.obj          8     168         763           0          939         126       340                0          0        1237
+          ctr_drbg.c.obj          0       0           0           0            0        1236         0                0          0        1236
+             panic.c.obj         12       9          46           0           67        1020       147                0          0        1225
+               clk.c.obj          0       0           0           0            0        1009       213                0          0        1222
+              eh_alloc.o          0      16           0           0           16         641       578                0          0        1219
+      event_groups.c.obj          0       0         755           0          755           0       459                0          0        1214
+         asn1parse.c.obj          0       0           0           0            0        1201         0                0          0        1201
+                pk.c.obj          0       0           0           0            0        1190         0                0          0        1190
+lv_draw_sw_gradient.c.ob          0       9           0           0            9        1180         0                0          0        1180
+        lv_spinbox.c.obj          0       0           0           0            0        1150        28                0          0        1178
+          hash_map.c.obj          0       0           0           0            0         933       243                0          0        1176
+spi_flash_hpm_enable.c.o        380       5         793           0         1178           0         0                0          0        1173
+memspi_host_driver.c.obj        363       0         798           0         1161           0         0                0          0        1161
+       ieee80211_power.o          0       0           0           0            0        1120        35                0          0        1155
+       app_startup.c.obj          0       1           0           0            1         633       508                0          0        1141
+         transport.c.obj          0       0           0           0            0        1059        76                0          0        1135
+               cpu.c.obj          4       0         367           0          371         110       646                0          0        1127
+             tcpip.c.obj          0      12           0           0           12         837       286                0          0        1123
+         ieee80211_phy.o          0       0           0           0            0         614       499                0          0        1113
+ nvs_pagemanager.cpp.obj          0       0           0           0            0        1113         0                0          0        1113
+      esp_wpa_main.c.obj          0       8           0           0            8        1108         0                0          0        1108
+               log.c.obj          8     264          42           0          314         911       144                0          0        1105
+       pmksa_cache.c.obj          0       0           0           0            0        1099         0                0          0        1099
+         partition.c.obj          0       8           0           0            8         861       237                0          0        1098
+           esp_ipc.c.obj        336      40         179           0          555         475        97                0          0        1087
+ ieee80211_crypto_ccmp.o         24       0           0           0           24         783       278                0          0        1085
+              bt_rw_v9.o          0       0           0           0            0         948       134                0          0        1082
+      gatt_sr_hash.c.obj          0       0           0           0            0         992        89                0          0        1081
+        lv_tabview.c.obj          0       3           0           0            3        1050        28                0          0        1078
+   xtensa_intr_asm.S.obj       1024       0          51           0         1075           0         0                0          0        1075
+              ecdh.c.obj          0       0           0           0            0        1064         0                0          0        1064
+             phy_track.o         73       0         844           0          917         145         0                0          0        1062
+lv_calendar_header_dropd          0       0           0           0            0         381       680                0          0        1061
+nvs_partition_manager.cp          0       4           0           0            4        1045        16                0          0        1061
+           pthread.c.obj          8       8         231           0          247         456       361                0          0        1056
+       http_header.c.obj          0       0           0           0            0         901       154                0          0        1055
+           spi_hal.c.obj          0       0           0           0            0        1054         0                0          0        1054
+           lv_anim.c.obj          0      10           0           0           10        1052         0                0          0        1052
+             eloop.c.obj          0      36           0           0           36        1052         0                0          0        1052
+            rtc_io.c.obj          0       0           0           0            0         893       154                0          0        1047
+       lv_draw_img.c.obj          0       0           0           0            0        1034         8                0          0        1042
+spi_flash_oct_flash_init        358       8         666           0         1032           0         0                0          0        1024
+    crypto_mbedtls.c.obj          0       0           0           0            0        1020         0                0          0        1020
+hci_packet_factory.c.obj          0       0           0           0            0         916        96                0          0        1012
+       rf_coexist_hook.o         26      10           0           0           36         837       132                0          0         995
+            hal_crypto.o          0       0           0           0            0         971        18                0          0         989
+          lv_color.c.obj          0       0           0           0            0         605       380                0          0         985
+       lv_obj_tree.c.obj          0       0           0           0            0         984         0                0          0         984
+       fixed_queue.c.obj          0       0           0           0            0         720       261                0          0         981
+            camera.c.obj          0       4           0           0            4         706       275                0          0         981
+             pkcs5.c.obj          0       0           0           0            0         970        10                0          0         980
+         modules_funcs.o          0       0           0           0            0           0       976                0          0         976
+          lib_a-fseeko.o          0       0           0           0            0         970         0                0          0         970
+       lv_checkbox.c.obj          0       0           0           0            0         927        38                0          0         965
+        esp_hostap.c.obj          0       4           0           0            4         965         0                0          0         965
+              icmp.c.obj          0       0           0           0            0         728       227                0          0         955
+       esp_bt_main.c.obj          0       2           0           0            2         578       372                0          0         950
+          lv_event.c.obj          0       4           0           0            4         950         0                0          0         950
+             lv_fs.c.obj          0       0           0           0            0         937         0                0          0         937
+    bta_gattc_main.c.obj          0    1016           0           0         1016         660       276                0          0         936
+   mmu_psram_flash.c.obj        348      36         584           0          968           0         0                0          0         932
+   adc_oneshot_hal.c.obj          0       0           0           0            0         812       120                0          0         932
+      ieee80211_action.o        328       0           0           0          328         575        26                0          0         929
+          lv_group.c.obj          0       4           0           0            4         928         0                0          0         928
+        multi_heap.c.obj          0       0         495           0          495         270       159                0          0         924
+esp_flash_spi_init.c.obj         72       4           0           0           76         460       380                0          0         912
+          rtc_time.c.obj          0       0         904           0          904           0         0                0          0         904
+  pmksa_cache_auth.c.obj          0       0           0           0            0         882         0                0          0         882
+sar_periph_ctrl_common.c          9       4           0           0           13         738       128                0          0         875
+           aes-ccm.c.obj          0       0           0           0            0         873         0                0          0         873
+curve_fitting_coefficien          0       0           0           0            0          67       800                0          0         867
+     btc_gatt_util.c.obj          0       0           0           0            0         696       170                0          0         866
+  partition_target.c.obj          0       0           0           0            0         683       181                0          0         864
+              phy_pbus.o        124       0           0           0          124         738         0                0          0         862
+        sleep_gpio.c.obj          0       0           0           0            0         676       181                0          0         857
+              cmac.c.obj          0       0           0           0            0         844         0                0          0         844
+       mqtt_outbox.c.obj          0       0           0           0            0         809        34                0          0         843
+         lv_switch.c.obj          0       0           0           0            0         810        28                0          0         838
+         dragonfly.c.obj          0       0           0           0            0         834         0                0          0         834
+       vfs_console.c.obj          0      16           0           0           16         624       208                0          0         832
+   lv_font_fmt_txt.c.obj          0       0           0           0            0         831         0                0          0         831
+             netdb.c.obj          0       0           0           0            0         698       132                0          0         830
+     debug_helpers.c.obj          0       0         754           0          754           0        73                0          0         827
+          timeouts.c.obj          0      12           0           0           12         562       265                0          0         827
+memory_layout_utils.c.ob          0       0           0           0            0         538       288                0          0         826
+       esp_aes_xts.c.obj          0       0           0           0            0         823         0                0          0         823
+spi_flash_chip_winbond.c        140       0         683           0          823           0         0                0          0         823
+      systimer_hal.c.obj        103       0         712           0          815           0         0                0          0         815
+           lv_math.c.obj          0       0           0           0            0         633       182                0          0         815
+ esp_netif_objects.c.obj          0      12           0           0           12         585       227                0          0         812
+        esp_sha512.c.obj          0       0           0           0            0         683       128                0          0         811
+     spi_flash_hal.c.obj          0       0           0           0            0         656       147                0          0         803
+                qr.c.obj          0       0           0           0            0         702        99                0          0         801
+            lv_led.c.obj          0       0           0           0            0         772        28                0          0         800
+             icmp6.c.obj          0       0           0           0            0         610       189                0          0         799
+      lv_style_gen.c.obj          0       0           0           0            0         796         0                0          0         796
+bootloader_common_loader          0       0           0           0            0         558       234                0          0         792
+           smp_l2c.c.obj          0       0           0           0            0         632       152                0          0         784
+      clk_tree_hal.c.obj          0       0           0           0            0         509       272                0          0         781
+  ets_timer_legacy.c.obj          0       0         259           0          259         152       369                0          0         780
+        wifi_netif.c.obj          0      16           0           0           16         453       312                0          0         765
+        nvs_plugin.c.obj          0       4           0           0            4         431       333                0          0         764
+     panic_handler.c.obj          8       8          66           0           82         677         8                0          0         759
+crypto_mbedtls-bignum.c.          0       0           0           0            0         754         0                0          0         754
+ esp_lcd_panel_ops.c.obj          0       0           0           0            0         505       244                0          0         749
+          lib_a-findfp.o          0       0           0           0            0         651        96                0          0         747
+         hmac_drbg.c.obj          0       0           0           0            0         742         0                0          0         742
+              sch_prog.o         26       0         678           0          704           0        35                0          0         739
+esp_netif_handlers.c.obj          0       0           0           0            0         438       292                0          0         730
+          smp_cmac.c.obj          0       8           0           0            8         671        53                0          0         724
+esp_timer_impl_systimer.         24      20         177           0          221         325       195                0          0         721
+            bdaddr.c.obj          0       0           0           0            0         526       193                0          0         719
+         lib_a-fvwrite.o          0       0           0           0            0         715         0                0          0         715
+           aes-siv.c.obj          0       0           0           0            0         687        16                0          0         703
+      port_systick.c.obj          0      20         471           0          491           0       221                0          0         692
+              llc_llcp.o          0       2          12           0           14         666        11                0          0         689
+              ccmp.c.obj          0       0           0           0            0         678         0                0          0         678
+            sensor.c.obj          0       0           0           0            0          45       632                0          0         677
+            base64.c.obj          0       0           0           0            0         675         0                0          0         675
+   ieee80211_regdomain.o          0       0           0           0            0         670         3                0          0         673
+          btc_task.c.obj          0       4           0           0            4         476       196                0          0         672
+          ip4_addr.c.obj          0       0           0           0            0         543       124                0          0         667
+pthread_local_storage.c.          8       4           0           0           12         552       107                0          0         667
+              rf_txpwr.o         24      12          80           0          116         500        59                0          0         663
+lv_calendar_header_arrow          0       0           0           0            0         467       195                0          0         662
+   system_internal.c.obj          0       0         643           0          643           0        16                0          0         659
+   fixed_pkt_queue.c.obj          0       0           0           0            0         455       201                0          0         656
+       lv_hal_disp.c.obj          0       4           0           0            4         653         0                0          0         653
+         bta_dm_co.c.obj          8       0           0           0            8         431       212                0          0         651
+       btc_storage.c.obj          0       0           0           0            0         520       131                0          0         651
+        flash_mmap.c.obj          0       0         165           0          165         350       135                0          0         650
+lv_draw_sw_polygon.c.obj          0       0           0           0            0         640         8                0          0         648
+          lv_timer.c.obj          0      17           0           0           17         646         0                0          0         646
+nvs_handle_simple.cpp.ob          0       0           0           0            0         525       120                0          0         645
+           rwip_driver.o          0       0           0           0            0         622        14                0          0         636
+esp_clk_tree_common.c.ob          0       8           0           0            8         488       148                0          0         636
+      esp_clk_tree.c.obj          0       0           0           0            0         418       217                0          0         635
+           entropy.c.obj          0       0           0           0            0         634         0                0          0         634
+             lv_ll.c.obj          0       0           0           0            0         633         0                0          0         633
+              time.c.obj          0      20         126           0          146         501         0                0          0         627
+                  rwip.o          0       5           0           0            5         618         0                0          0         618
+  esp_coex_adapter.c.obj         72       0         173           0          245         370         0                0          0         615
+  esp_lcd_panel_io.c.obj          0       0           0           0            0         304       309                0          0         613
+           hal_sniffer.o          0       0           0           0            0         612         0                0          0         612
+          coexist_core.o        133       1           0           0          134         477         0                0          0         610
+        rtc_io_hal.c.obj          0       0           0           0            0         610         0                0          0         610
+    bta_gatts_main.c.obj          0     484           0           0          484         536        69                0          0         605
+                  intc.o          0       0         414           0          414         182         7                0          0         603
+           coexist_api.o          4       4           0           0            8         230       366                0          0         600
+         cache_hal.c.obj        190       8         406           0          604           0         0                0          0         596
+  lv_draw_sw_layer.c.obj          0       0           0           0            0         580         0                0          0         580
+     crosscore_int.c.obj          8       8         255           0          271         150       161                0          0         574
+ adc_share_hw_ctrl.c.obj          0      40          32           0           72         366       173                0          0         571
+   bta_gatts_utils.c.obj          0       0           0           0            0         554        16                0          0         570
+                  task.o          0       8         276           0          284         273        19                0          0         568
+        phy_analog_cal.o          0       0           0           0            0         561         0                0          0         561
+   esp_gap_ble_api.c.obj          0       0           0           0            0         303       257                0          0         560
+          esp_sha1.c.obj          0       0           0           0            0         496        64                0          0         560
+           portasm.S.obj          0       0         558           0          558           0         0                0          0         558
+            future.c.obj          0       0           0           0            0         288       265                0          0         553
+         http_auth.c.obj          0       0           0           0            0         226       315                0          0         541
+      lv_obj_class.c.obj          0       0           0           0            0         538         0                0          0         538
+        esp_sha256.c.obj          0       0           0           0            0         471        64                0          0         535
+           interop.c.obj          0       0           0           0            0         208       325                0          0         533
+          lib_a-fflush.o          0       0           0           0            0         532         0                0          0         532
+          lib_a-ungetc.o          0       0           0           0            0         524         0                0          0         524
+spi_flash_os_func_app.c.         56       4         326           0          386          46        96                0          0         524
+btm_ble_cont_energy.c.ob          0       4           0           0            4         319       200                0          0         519
+       inet_chksum.c.obj          0       0           0           0            0         519         0                0          0         519
+esp_crypto_shared_gdma.c          0       8           0           0            8         420        98                0          0         518
+                  vhci.o          0       0           0           0            0         439        78                0          0         517
+         flash_ops.c.obj          8       4         230           0          242         179        90                0          0         507
+          ethernet.c.obj          0       0           0           0            0         377       127                0          0         504
+          vfs_lwip.c.obj          0       0           0           0            0         349       143                0          0         492
+              pp_timer.o         96       4           0           0          100         365        26                0          0         487
+             hal_ampdu.o          0       0           0           0            0         380       106                0          0         486
+          ip4_frag.c.obj          0       0           0           0            0         393        92                0          0         485
+          btu_init.c.obj          0      28           0           0           28         381       103                0          0         484
+        rtc_module.c.obj         32       4         187           0          223         264         0                0          0         483
+      esp_app_desc.c.obj          1       8         190           0          199          31         4                0        256         482
+        http_utils.c.obj          0       0           0           0            0         369       112                0          0         481
+           lv_line.c.obj          0       0           0           0            0         453        28                0          0         481
+              hal_coex.o          0       0          27           0           27         452         0                0          0         479
+   sar_periph_ctrl.c.obj          0       4           0           0            4         378        99                0          0         477
+          lib_a-locale.o          4       0           0           0            4         100       372                0          0         476
+     memory_layout.c.obj          0       0           0           0            0           0       475                0          0         475
+          lv_indev.c.obj          0       8           0           0            8         473         0                0          0         473
+                 flash.o          0      16           0           0           16         472         0                0          0         472
+         rtc_sleep.c.obj          0       0         472           0          472           0         0                0          0         472
+nvs_item_hash_list.cpp.o          0       0           0           0            0         471         0                0          0         471
+   tcp_isn_default.c.obj          0      68           0           0           68         360       109                0          0         469
+    lib_a-gdtoa-hexnan.o          0       0           0           0            0         468         0                0          0         468
+         asn1write.c.obj          0       0           0           0            0         468         0                0          0         468
+    comeback_token.c.obj          0       0           0           0            0         466         0                0          0         466
+       sockets_ext.c.obj          0       0           0           0            0         442        20                0          0         462
+              memp.c.obj          0       0           0           0            0         205       256                0          0         461
+         dh_groups.c.obj          0       0           0           0            0          42       417                0          0         459
+          ip6_frag.c.obj          0       4           0           0            4         373        84                0          0         457
+            esp_ds.c.obj          0       0           0           0            0         441         0                0          0         441
+               llc_hci.o          0       0           0           0            0         440         0                0          0         440
+    si_class_type_info.o          0       0           0           0            0         304       132                0          0         436
+            wlanif.c.obj          0       0           0           0            0         365        70                0          0         435
+         lib_a-strtoll.o          0       0           0           0            0         432         0                0          0         432
+        lib_a-strtoull.o          0       0           0           0            0         432         0                0          0         432
+       lv_tileview.c.obj          0       9           0           0            9         375        56                0          0         431
+           esp_clk.c.obj          9       0          88           0           97         332         0                0          0         429
+          ip6_addr.c.obj          0       0           0           0            0         404        24                0          0         428
+          uart_hal.c.obj          0       0           0           0            0         419         0                0          0         419
+           sha_hal.c.obj          0       0           0           0            0         412         0                0          0         412
+            vshci_task.o         32       0           0           0           32         378         0                0          0         410
+           aes_hal.c.obj          0       0           0           0            0         410         0                0          0         410
+      ieee80211_reg_db.o        230       0           0           0          230         128        49                0          0         407
+            assert.c.obj         47       0         360           0          407           0         0                0          0         407
+    xtensa_context.S.obj          0       0         406           0          406           0         0                0          0         406
+             phy_basic.o          0       0         220           0          220         183         0                0          0         403
+        lib_a-math_err.o          0       0           0           0            0         394         0                0          0         394
+       class_type_info.o          0       0           0           0            0         282       108                0          0         390
+     ledc_hal_iram.c.obj          0       0         388           0          388           0         0                0          0         388
+ ieee80211_crypto_sms4.o         24       0           0           0           24         293        70                0          0         387
+          lib_a-e_sqrt.o          0       0           0           0            0         386         0                0          0         386
+             quirc.c.obj          0       0           0           0            0         227       157                0          0         384
+             phy_pwdet.o          0       0          29           0           29         352         0                0          0         381
+ spi_flash_chip_gd.c.obj        127       0         253           0          380           0         0                0          0         380
+          esp_scan.c.obj          0       0           0           0            0         379         0                0          0         379
+               ke_task.o          0       0           0           0            0         366        10                0          0         376
+spi_flash_encrypt_hal_ir        123       0         251           0          374           0         0                0          0         374
+     esp_wpas_glue.c.obj          0       0           0           0            0         371         0                0          0         371
+mspi_timing_tuning.c.obj         36       0         334           0          370           0         0                0          0         370
+            eh_globals.o          0      13           0           0           13         210       160                0          0         370
+ ieee802_11_common.c.obj          0       0           0           0            0         368         0                0          0         368
+          bte_main.c.obj          0       8           0           0            8         222       145                0          0         367
+       ieee80211_proto.o          0       1           0           0            1         360         0               55          0         360
+    freertos_hooks.c.obj          8     128          43           0          179         305         0                0          0         356
+          lib_a-refill.o          0       0           0           0            0         353         0                0          0         353
+      i2c_hal_iram.c.obj          0       0         352           0          352           0         0                0          0         352
+mspi_timing_config.c.obj        113       0         238           0          351           0         0                0          0         351
+        lib_printf.c.obj          0       0           0           0            0         304        47                0          0         351
+          sta_info.c.obj          0       0           0           0            0         349         0                0          0         349
+      bta_sys_conn.c.obj          0       0           0           0            0         343         0                0          0         343
+       regi2c_ctrl.c.obj          8       0         335           0          343           0         0                0          0         343
+      bta_gattc_co.c.obj          0       4           0           0            4         342         0                0          0         342
+          lib_a-strtol.o          0       0           0           0            0         342         0                0          0         342
+         coexist_param.o         46       1           0           0           47         272        24                0          0         342
+          btc_main.c.obj          0      16           0           0           16         272        65                0          0         337
+esp_rom_cache_esp32s2_es          0       0         332           0          332           0         0                0          0         332
+               mem.c.obj          0       0           0           0            0         192       137                0          0         329
+            ds_hal.c.obj          0       0           0           0            0         295        32                0          0         327
+          lib_a-fclose.o          0       0           0           0            0         326         0                0          0         326
+   nvs_partition.cpp.obj          0       0           0           0            0         229        96                0          0         325
+   p_256_curvepara.c.obj          0       0           0           0            0         322         0                0          0         322
+          rf_espressif.o          0       0         134           0          134         149        39                0          0         322
+ieee80211_action_vendor.          0      12           0           0           12         318         0                0          0         318
+         ap_config.c.obj          0       0           0           0            0         317         0                0          0         317
+ ieee80211_crypto_tkip.o         24       0           0           0           24         287         0                0          0         311
+       windowspill_asm.o          0       0         311           0          311           0         0                0          0         311
+          lib_a-s_ceil.o          0       0           0           0            0         308         0                0          0         308
+          ble_util_buf.o          0       0           0           0            0         306         0                0          0         306
+         lib_a-strtoul.o          0       0           0           0            0         306         0                0          0         306
+    bootloader_sha.c.obj          0       0           0           0            0         180       121                0          0         301
+        esp_common.c.obj          0     168           0           0          168         299         0                0          0         299
+       ieee80211_debug.o          0      64           0           0           64         172       126                0          0         298
+             phy_tsens.o          0       0         135           0          135         163         0                0          0         298
+         lib_a-s_floor.o          0       0           0           0            0         294         0                0          0         294
+           int_wdt.c.obj          0       9         134           0          143         154         0                0          0         288
+     esp_time_impl.c.obj          0      12           0           0           12         286         0                0          0         286
+task_wdt_impl_timergroup          0      12           0           0           12         284         0                0          0         284
+              misc_nvs.o          0       9           0           0            9         234        48                0          0         282
+         pkt_queue.c.obj          0       0           0           0            0         280         0                0          0         280
+             plf_funcs.o          0       0           0           0            0           0       280                0          0         280
+ ieee80211_crypto_gcmp.o         24       0           0           0           24         253         0                0          0         277
+         lib_a-makebuf.o          0       0           0           0            0         271         0                0          0         271
+      brownout_hal.c.obj          0       0           0           0            0         271         0                0          0         271
+              eh_throw.o          0       0           0           0            0         183        88                0          0         271
+           lib_a-fopen.o          0       0           0           0            0         268         0                0          0         268
+   esp_efuse_table.c.obj        172       0           0           0          172           0        96                0          0         268
+       net_sockets.c.obj          0       0           0           0            0         268         0                0          0         268
+          hmac_hal.c.obj          0       0           0           0            0         267         0                0          0         267
+           lib_a-w_pow.o          0       0           0           0            0         266         0                0          0         266
+transport_internal.c.obj          0       0           0           0            0         225        40                0          0         265
+        lv_draw_sw.c.obj          0       0           0           0            0         263         0                0          0         263
+lwip_default_hooks.c.obj          0       0           0           0            0         261         0                0          0         261
+esp_tls_error_capture.c.          0       0           0           0            0         259         0                0          0         259
+          lib_a-ctype_.o          0       0           0           0            0           0       257                0          0         257
+default_event_loop.c.obj          0       4           0           0            4         228        28                0          0         256
+           lv_font.c.obj          0       0           0           0            0         253         0                0          0         253
+           lib_a-reent.o          0       0           0           0            0         252         0                0          0         252
+                hl_itf.o         24       0           0           0           24         136        91                0          0         251
+          lib_a-wsetup.o          0       0           0           0            0         251         0                0          0         251
+             lv_gc.c.obj          0     532           0           0          532         250         0                0          0         250
+        sha256-prf.c.obj          0       0           0           0            0         250         0                0          0         250
+           esp_err.c.obj        108       0         141           0          249           0         0                0          0         249
+            lldesc.c.obj          0       0         249           0          249           0         0                0          0         249
+     cache_err_int.c.obj          0       0           0           0            0         244         0                0          0         244
+         ieee80211_ets.o          0       0           0           0            0         179        63                0          0         242
+        lib_a-s_scalbn.o          0       0           0           0            0         241         0                0          0         241
+         lib_a-sf_rint.o          0       0           0           0            0         233         8                0          0         241
+       newlib_init.c.obj        156     240           0           0          396          85         0                0          0         241
+              eh_catch.o          0       0           0           0            0         200        40                0          0         240
+            lib_a-puts.o          0       0           0           0            0         238         0                0          0         238
+       system_time.c.obj          0       8          35           0           43         122        81                0          0         238
+spi_flash_chip_issi.c.ob        129       0         108           0          237           0         0                0          0         237
+       phy_tester_cali.o         15       0           0           0           15         221         0                0          0         236
+      log_freertos.c.obj          0       8         235           0          243           0         0                0          0         235
+       sleep_modes.c.obj          8      13           0           0           21         147        78                0          0         233
+        sha256-kdf.c.obj          0       0           0           0            0         228         0                0          0         228
+         hw_random.c.obj          0       4          80           0           84          75        72                0          0         227
+platform_esp32_idf.c.obj          0       0           0           0            0         170        57                0          0         227
+     lv_draw_layer.c.obj          0       0           0           0            0         223         0                0          0         223
+        aes-unwrap.c.obj          0       0           0           0            0         222         0                0          0         222
+            netbuf.c.obj          0       0           0           0            0         129        92                0          0         221
+        lv_img_buf.c.obj          0       0           0           0            0         220         0                0          0         220
+               sch_arb.o          0       0         218           0          218           0         0                0          0         218
+           lib_a-stdio.o          0       0           0           0            0         218         0                0          0         218
+        lib_a-snprintf.o          0       0           0           0            0         217         0                0          0         217
+           lld_per_adv.o          0       0         202           0          202           0        14                0          0         216
+  ieee80211_mesh_quick.o          7     180           0           0          187         208         0                0          0         215
+          eh_terminate.o          0       0           0           0            0          85       128                0          0         213
+        crypto_ops.c.obj          0       0           0           0            0          95       116                0          0         211
+                hci_tl.o          0       0           0           0            0         208         0                0          0         208
+                   llc.o          0       0           0           0            0         206         0                0          0         206
+          aes-wrap.c.obj          0       0           0           0            0         205         0                0          0         205
+          brownout.c.obj          0       0          77           0           77          81        43                0          0         201
+             abort.c.obj         40       0         161           0          201           0         0                0          0         201
+            lib_a-putc.o          0       0           0           0            0         200         0                0          0         200
+         efuse_hal.c.obj          0       0         200           0          200           0         0                0          0         200
+          btc_util.c.obj          0       0           0           0            0         199         0                0          0         199
+  lv_obj_style_gen.c.obj          0       0           0           0            0         199         0                0          0         199
+          lib_a-sscanf.o          0       0           0           0            0         198         0                0          0         198
+       port_common.c.obj          0       0          77           0           77           0       120                0          0         197
+          gpio_hal.c.obj          0       0           0           0            0         197         0                0          0         197
+          rate_control.o          0       0           0           0            0         197         0                0          0         197
+            lib_a-wbuf.o          0       0           0           0            0         196         0                0          0         196
+       gpio_periph.c.obj          0       0           0           0            0           0       196                0          0         196
+    esp_tls_crypto.c.obj          0       0           0           0            0         110        84                0          0         194
+             mutex.c.obj          0       4           0           0            4         188         0                0          0         188
+        esp_system.c.obj          0      20           0           0           20         183         0                0          0         183
+       xtensa_intr.c.obj          0       0          26           0           26         119        35                0          0         180
+               rc4.c.obj          0       0           0           0            0         179         0                0          0         179
+spi_flash_chip_boya.c.ob        129       0          48           0          177           0         0                0          0         177
+            wpabuf.c.obj          0       0           0           0            0         177         0                0          0         177
+        lib_a-asprintf.o          0       0           0           0            0         176         0                0          0         176
+ spi_flash_chip_th.c.obj        127       0          48           0          175           0         0                0          0         175
+spi_flash_chip_mxic.c.ob        129       0          44           0          173           0         0                0          0         173
+        lv_spinner.c.obj          0       8           0           0            8         144        28                0          0         172
+      esp_rom_uart.c.obj          0       0         171           0          171           0         0                0          0         171
+     esp_efuse_api.c.obj          0       0           0           0            0         168         0                0          0         168
+               phy_api.o          0       1         129           0          130          39         0                0          0         168
+              lld_sync.o          0       0          56           0           56         111         0                0          0         167
+         lib_a-sprintf.o          0       0           0           0            0         167         0                0          0         167
+              lld_init.o          0       0           0           0            0         165         0                0          0         165
+              sch_plan.o          0       0         128           0          128          26        11                0          0         165
+                   osi.o          0       0           0           0            0         108        54                0          0         162
+              list.c.obj          0       0         162           0          162           0         0                0          0         162
+                new_op.o          0       0           0           0            0          75        86                0          0         161
+            lib_a-sccl.o          0       0           0           0            0         160         0                0          0         160
+       highint_hdl.S.obj          0       0         159           0          159           0         0                0          0         159
+          sha1-prf.c.obj          0       0           0           0            0         154         0                0          0         154
+      lv_draw_rect.c.obj          0       0           0           0            0         151         0                0          0         151
+              heap.c.obj          0       0         151           0          151           0         0                0          0         151
+           l2c_csm.c.obj          0       0           0           0            0         150         0                0          0         150
+                ip.c.obj          0      68           0           0           68         125        24                0          0         149
+esp_ipc_isr_handler.S.ob         16       0         131           0          147           0         0                0          0         147
+  ieee80211_crypto_wep.o         24       0           0           0           24         121         0                0          0         145
+               def.c.obj          0       0           0           0            0         144         0                0          0         144
+        spi_periph.c.obj          0       0           0           0            0           0       144                0          0         144
+           llc_encrypt.o          0       0           0           0            0         142         0                0          0         142
+          heap_idf.c.obj          0       0         142           0          142           0         0                0          0         142
+         bta_dm_pm.c.obj          0     101           0           0          101         138         0                0          0         138
+            lv_win.c.obj          0       2           0           0            2         110        28                0          0         138
+    esp_aes_common.c.obj          0       0           0           0            0         138         0                0          0         138
+          bte_init.c.obj          0       0           0           0            0          71        65                0          0         136
+                   hci.o          0       0           0           0            0         118        16                0          0         134
+         semaphore.c.obj          0       0           0           0            0         133         0                0          0         133
+           lv_disp.c.obj          0       0           0           0            0         130         0                0          0         130
+       lib_a-vsnprintf.o          0       0           0           0            0         129         0                0          0         129
+           lib_a-flags.o          0       0           0           0            0         128         0                0          0         128
+            ethip6.c.obj          0       0           0           0            0         128         0                0          0         128
+            sdk_config.o          3      32          24           0           59          99         0                0          0         126
+       clk_ctrl_os.c.obj          8       5           0           0           13         118         0                0          0         126
+      bta_gatts_co.c.obj          0       0           0           0            0         123         0                0          0         123
+          lib_a-printf.o          0       0           0           0            0         120         0                0          0         120
+          lv_theme.c.obj          0       0           0           0            0         120         0                0          0         120
+            rf_coexist.o          1       0           0           0            1         118         0                0          0         119
+         hash_info.c.obj          0       0           0           0            0          29        84                0          0         113
+          btm_main.c.obj          0    2568           0           0         2568         112         0                0          0         112
+spi_flash_os_func_noos.c         40       0          72           0          112           0         0                0          0         112
+           lib_a-fwalk.o          0       0           0           0            0         111         0                0          0         111
+   ieee80211_ie_vendor.o          0       0           0           0            0         111         0                0          0         111
+  esp_memory_utils.c.obj          0       0         110           0          110           0         0                0          0         110
+               err.c.obj          0       0           0           0            0          42        68                0          0         110
+             new_opvnt.o          0       0           0           0            0          36        72                0          0         108
+   esp_system_chip.c.obj          0       0          67           0           67          40         0                0          0         107
+            esp_md.c.obj          0       0           0           0            0         107         0                0          0         107
+      lv_img_cache.c.obj          0       0           0           0            0         106         0                0          0         106
+     uart_hal_iram.c.obj          0       0           0           0            0         105         0                0          0         105
+   esp_crypto_lock.c.obj          0       8           0           0            8         104         0                0          0         104
+       nvs_types.cpp.obj          0       0           0           0            0         104         0                0          0         104
+   btc_gatt_common.c.obj          0       0           0           0            0          76        26                0          0         102
+esp_rom_cache_writeback_          0       0         102           0          102           0         0                0          0         102
+    apb_backup_dma.c.obj          8       0          63           0           71          29         0                0          0         100
+temperature_sensor_perip          0       0           0           0            0           0       100                0          0         100
+         lib_a-s_frexp.o          0       0           0           0            0          98         0                0          0          98
+         lib_a-vprintf.o          0       0           0           0            0          98         0                0          0          98
+                _sqrtf.o          0       0           0           0            0          98         0                0          0          98
+           esp_owe.c.obj          0       0           0           0            0          95         0                0          0          95
+      phy_override.c.obj          0       1          16           0           17          77         0                0          0          93
+         lib_a-fprintf.o          0       0           0           0            0          92         0                0          0          92
+  esp_memprot_conv.c.obj          0       0           0           0            0          90         0                0          0          90
+            screen.c.obj          0       0           0           0            0          38        51                0          0          89
+            wl_offchan.o          0       8           0           0            8          89         0                0          0          89
+          syscalls.c.obj          0       0           0           0            0          89         0                0          0          89
+             bad_alloc.o          0       0           0           0            0          54        35                0          0          89
+esp_netif_defaults.c.obj          0       0           0           0            0           0        88                0          0          88
+     esp_rom_efuse.c.obj          0       0           0           0            0          88         0                0          0          88
+               hci_msg.o         48       0           0           0           48          26        13                0          0          87
+       lv_hal_tick.c.obj          0       5           0           0            5          87         0                0          0          87
+       lib_a-vasprintf.o          0       0           0           0            0          85         0                0          0          85
+         lib_a-mbrtowc.o          0       0           0           0            0          84         0                0          0          84
+           lv_list.c.obj          0       0           0           0            0           0        84                0          0          84
+   lv_indev_scroll.c.obj          0       0           0           0            0          81         0                0          0          81
+        adc_periph.c.obj          0       0           0           0            0           0        80                0          0          80
+cpu_region_protect.c.obj          0       0           0           0            0          59        20                0          0          79
+      esp_pbuf_ref.c.obj          0       0           0           0            0          79         0                0          0          79
+         os_xtensa.c.obj          0       0           0           0            0          78         0                0          0          78
+        bta_dm_cfg.c.obj         36       0           0           0           36           0        41                0          0          77
+       esp_ipc_isr.c.obj          4      16          19           0           39          54         0                0          0          77
+         lib_a-putchar.o          0       0           0           0            0          76         0                0          0          76
+           mpu_hal.c.obj          0       0           0           0            0          76         0                0          0          76
+flash_brownout_hook.c.ob          0       2          75           0           77           0         0                0          0          75
+            lv_btn.c.obj          0       0           0           0            0          46        28                0          0          74
+            common.c.obj          0       0           0           0            0          74         0                0          0          74
+nvs_partition_lookup.cpp          0       0           0           0            0          73         0                0          0          73
+         chip_info.c.obj          0       0           0           0            0          66         0                0          0          66
+        lib_a-wctomb_r.o          0       0           0           0            0          65         0                0          0          65
+         allocator.c.obj          0       0           0           0            0          64         0                0          0          64
+ panic_handler_asm.S.obj          0       0          64           0           64           0         0                0          0          64
+        lib_a-mbtowc_r.o          0       0           0           0            0          62         0                0          0          62
+            sha256.c.obj          0       0           0           0            0          62         0                0          0          62
+            sha512.c.obj          0       0           0           0            0          62         0                0          0          62
+         ieee80211_ftm.o          0       0           0           0            0          62         0                0          0          62
+      lv_draw_line.c.obj          0       0           0           0            0          60         0                0          0          60
+         lib_a-wf_sqrt.o          0       0           0           0            0          60         0                0          0          60
+            llc_dl_upd.o          0       0           0           0            0          59         0                0          0          59
+          lv_utils.c.obj          0       0           0           0            0          58         0                0          0          58
+         lv_msgbox.c.obj          0       0           0           0            0           0        56                0          0          56
+               new_opv.o          0       0           0           0            0          16        40                0          0          56
+        btc_manage.c.obj          0      40           0           0           40          53         0                0          0          53
+        reent_init.c.obj          0       0          52           0           52           0         0                0          0          52
+          platform.c.obj          8       0           0           0            8          43         0                0          0          51
+        adc_common.c.obj          0       0           0           0            0          46         4                0          0          50
+ lv_draw_transform.c.obj          0       0           0           0            0          50         0                0          0          50
+              pp_debug.o          4     264          23           0          291          23         0                0          0          50
+           lib_a-fseek.o          0       0           0           0            0          49         0                0          0          49
+               md5.c.obj          0       0           0           0            0          49         0                0          0          49
+              sha1.c.obj          0       0           0           0            0          49         0                0          0          49
+state_asm--restore_extra          0       0          47           0           47           0         0                0          0          47
+state_asm--save_extra_nw          0       0          47           0           47           0         0                0          0          47
+            lib_a-time.o          0       0           0           0            0          46         0                0          0          46
+       gdma_periph.c.obj          0       0           0           0            0           0        44                0          0          44
+      lib_a-localeconv.o          0       0           0           0            0          43         0                0          0          43
+           gap_api.c.obj          0     384           0           0          384          41         0                0          0          41
+        ieee80211_rfid.o          0       0           0           0            0          41         0                0          0          41
+    flash_qio_mode.c.obj          0       0          40           0           40           0         0                0          0          40
+           btc_dev.c.obj          0       0           0           0            0          40         0                0          0          40
+               _divdi3.o          0       0           0           0            0           0        40                0          0          40
+               _moddi3.o          0       0           0           0            0           0        40                0          0          40
+              _udivdi3.o          0       0           0           0            0           0        40                0          0          40
+              _umoddi3.o          0       0           0           0            0           0        40                0          0          40
+spi_flash_chip_drivers.c         40       0           0           0           40           0         0                0          0          40
+cxx_exception_stubs.cpp.          0       0           0           0            0          39         0                0          0          39
+       esp_rom_sys.c.obj          0       0          38           0           38           0         0                0          0          38
+ esp_aes_gdma_impl.c.obj          0       0           0           0            0          37         0                0          0          37
+  esp_gpio_reserve.c.obj          0       8          36           0           44           0         0                0          0          36
+      lv_hal_indev.c.obj          0       0           0           0            0          36         0                0          0          36
+            random.c.obj          0       0           0           0            0          36         0                0          0          36
+          systimer.c.obj          0       0          34           0           34           0         0                0          0          34
+              init.c.obj          0       0           0           0            0          32         0                0          0          32
+     platform_util.c.obj          4       0           0           0            4          28         0                0          0          32
+  interrupts--intlevel.o          0       0           0           0            0           0        32                0          0          32
+           esp_mem.c.obj          0       0          30           0           30           0         0                0          0          30
+ debug_helpers_asm.S.obj          0       0          29           0           29           0         0                0          0          29
+      lib_a-iswspace_l.o          0       0           0           0            0          28         0                0          0          28
+       lib_a-sysgettod.o          0       0           0           0            0          28         0                0          0          28
+dport_access_common.c.ob          0       0           0           0            0          28         0                0          0          28
+      sdmmc_periph.c.obj          0       0           0           0            0           0        28                0          0          28
+          esp_wpa2.c.obj          0       4           0           0            4          28         0                0          0          28
+              scan.c.obj          0       0           0           0            0          27         0                0          0          27
+bootloader_flash_config_          0       0           0           0            0          26         0                0          0          26
+         lib_a-sysread.o          0       0           0           0            0          25         0                0          0          25
+        lib_a-syswrite.o          0       0           0           0            0          25         0                0          0          25
+    ext_mem_layout.c.obj          0       0           0           0            0           0        24                0          0          24
+        i2c_periph.c.obj          0       0           0           0            0           0        24                0          0          24
+               osi.c.obj          0       0           0           0            0          22         0                0          0          22
+          lib_a-stpcpy.o          0       0           0           0            0          22         0                0          0          22
+        lib_a-s_finite.o          0       0           0           0            0          22         0                0          0          22
+        lib_a-sysclose.o          0       0           0           0            0          21         0                0          0          21
+           new_handler.o          0       4           0           0            4          20         1                0          0          21
+    hash_functions.c.obj          0       0           0           0            0          20         0                0          0          20
+           lv_draw.c.obj          0       0           0           0            0          19         0                0          0          19
+      esp_hardware.c.obj          0       0           0           0            0          19         0                0          0          19
+          gdma_hal.c.obj          0       0           0           0            0          18         0                0          0          18
+        lib_a-iswspace.o          0       0           0           0            0          17         0                0          0          17
+          lib_a-s_fabs.o          0       0           0           0            0          17         0                0          0          17
+        lib_a-lnumeric.o          0       0           0           0            0           0        16                0          0          16
+          ledc_hal.c.obj          0       0           0           0            0          16         0                0          0          16
+ esp_sha_gdma_impl.c.obj          0       0           0           0            0          16         0                0          0          16
+           lib_a-s_nan.o          0       0           0           0            0          15         0                0          0          15
+         btc_alarm.c.obj          0       0           0           0            0          14         0                0          0          14
+                del_op.o          0       0           0           0            0          14         0                0          0          14
+               del_ops.o          0       0           0           0            0          14         0                0          0          14
+               del_opv.o          0       0           0           0            0          14         0                0          0          14
+              del_opvs.o          0       0           0           0            0          14         0                0          0          14
+           lib_a-errno.o          0       0           0           0            0          13         0                0          0          13
+          lib_a-sf_nan.o          0       0           0           0            0          12         0                0          0          12
+esp_netif_lwip_defaults.          4       0           0           0            4           0         8                0          0          12
+           pthread.c.obj          0       0           0           0            0          12         0                0          0          12
+                 tinfo.o          0       0           0           0            0          12         0                0          0          12
+   bta_gatt_common.c.obj          0       0           0           0            0          11         0                0          0          11
+          lv_extra.c.obj          0       0           0           0            0          11         0                0          0          11
+     flash_encrypt.c.obj          0       0          10           0           10           0         0                0          0          10
+                crtend.o          0       0           0           0            0           0         8                0          0           8
+    bootloader_mem.c.obj          0       0           0           0            0           8         0                0          0           8
+        lib_a-u_strerr.o          0       0           0           0            0           7         0                0          0           7
+                  crti.o          0       0           0           3            3           3         0                0          0           6
+bootloader_utility.c.obj          0       0           0           0            0           5         0                0          0           5
+      cxx_guards.cpp.obj          0       0           0           0            0           5         0                0          0           5
+             ubsan.c.obj          0       0           5           0            5           0         0                0          0           5
+    pthread_rwlock.c.obj          0       0           0           0            0           5         0                0          0           5
+ pthread_semaphore.c.obj          0       0           0           0            0           5         0                0          0           5
+          eh_exception.o          0       0           0           0            0           5         0                0          0           5
+              crtbegin.o          0       0           0           0            0           0         4                0          0           4
+  FreeRTOS-openocd.c.obj          4       0           0           0            4           0         0                0          0           4
+       eh_term_handler.o          4       0           0           0            4           0         0                0          0           4
+       eh_unex_handler.o          4       0           0           0            4           0         0                0          0           4
+       ledc_periph.c.obj          0       0           0           0            0           0         1                0          0           1
+                  crt0.o          0       0           0           0            0           0         0                0          0           0
+                  crtn.o          0       0           0           0            0           0         0                0          0           0
+project_elf_src_esp32s3.          0       0           0           0            0           0         0                0          0           0
+ bootloader_common.c.obj          0       0           0           0            0           0         0                0          0           0
+bootloader_random_esp32s          0       0           0           0            0           0         0                0          0           0
+  flash_partitions.c.obj          0       0           0           0            0           0         0                0          0           0
+         bta_dm_ci.c.obj          0       0           0           0            0           0         0                0          0           0
+           btm_sco.c.obj          0       0           0           0            0           0         0                0          0           0
+     esp_bt_device.c.obj          0       0           0           0            0           0         0                0          0           0
+            lib_a-atoi.o          0       0           0           0            0           0         0                0          0           0
+           lib_a-bzero.o          0       0           0           0            0           0         0                0          0           0
+             lib_a-div.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-environ.o          0       4           0           0            4           0         0                0          0           0
+         lib_a-envlock.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-ferror.o          0       0           0           0            0           0         0                0          0           0
+           lib_a-fgets.o          0       0           0           0            0           0         0                0          0           0
+           lib_a-fputc.o          0       0           0           0            0           0         0                0          0           0
+           lib_a-fputs.o          0       0           0           0            0           0         0                0          0           0
+           lib_a-fread.o          0       0           0           0            0           0         0                0          0           0
+           lib_a-ftell.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-ftello.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-fwrite.o          0       0           0           0            0           0         0                0          0           0
+        lib_a-getenv_r.o          0       0           0           0            0           0         0                0          0           0
+       lib_a-gettzinfo.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-gmtime.o          0       0           0           0            0           0         0                0          0           0
+        lib_a-gmtime_r.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-impure.o          0       0           0           0            0           0         0                0          0           0
+            lib_a-itoa.o          0       0           0           0            0           0         0                0          0           0
+       lib_a-lcltime_r.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-memchr.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-memcmp.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-memcpy.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-memmove.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-memset.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-mktime.o          0       0           0           0            0           0         0                0          0           0
+   lib_a-month_lengths.o          0       0           0           0            0           0         0                0          0           0
+           lib_a-qsort.o          0       0           0           0            0           0         0                0          0           0
+            lib_a-rand.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-remove.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-rename.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-setbuf.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-setvbuf.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-siscanf.o          0       0           0           0            0           0         0                0          0           0
+      lib_a-strcasecmp.o          0       0           0           0            0           0         0                0          0           0
+      lib_a-strcasestr.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-strcat.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-strchr.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-strcmp.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-strcpy.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-strcspn.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-strdup.o          0       0           0           0            0           0         0                0          0           0
+        lib_a-strdup_r.o          0       0           0           0            0           0         0                0          0           0
+      lib_a-strerror_r.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-strlcat.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-strlcpy.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-strlen.o          0       0           0           0            0           0         0                0          0           0
+     lib_a-strncasecmp.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-strncmp.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-strncpy.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-strndup.o          0       0           0           0            0           0         0                0          0           0
+       lib_a-strndup_r.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-strnlen.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-strrchr.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-strstr.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-sysstat.o          0       0           0           0            0           0         0                0          0           0
+   lib_a-tzcalc_limits.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-tzlock.o          0       0           0           0            0           0         0                0          0           0
+           lib_a-tzset.o          0       0           0           0            0           0         0                0          0           0
+         lib_a-tzset_r.o          0       0           0           0            0           0         0                0          0           0
+          lib_a-tzvars.o          0       0           0           0            0           0         0                0          0           0
+            lib_a-utoa.o          0       0           0           0            0           0         0                0          0           0
+            coexist_hw.o          0       0           0           0            0           0         0                0          0           0
+        i2s_common.c.obj          0       0           0           0            0           0         0                0          0           0
+           i2s_pdm.c.obj          0       0           0           0            0           0         0                0          0           0
+           i2s_std.c.obj          0       0           0           0            0           0         0                0          0           0
+           i2s_tdm.c.obj          0       0           0           0            0           0         0                0          0           0
+         sdspi_crc.c.obj          0       0           0           0            0           0         0                0          0           0
+        sdspi_host.c.obj          0       0           0           0            0           0         0                0          0           0
+ sdspi_transaction.c.obj          0       0           0           0            0           0         0                0          0           0
+touch_sensor_common.c.ob          0       0           0           0            0           0         0                0          0           0
+   usb_serial_jtag.c.obj          0       0           0           0            0           0         0                0          0           0
+ esp_efuse_api_key.c.obj          0       0           0           0            0           0         0                0          0           0
+  esp_efuse_fields.c.obj          0       0           0           0            0           0         0                0          0           0
+          adc_cali.c.obj          0       0           0           0            0           0         0                0          0           0
+         sleep_cpu.c.obj          0       0           0           0            0           0         0                0          0           0
+       sleep_modem.c.obj          0       0           0           0            0           0         0                0          0           0
+        ethernetif.c.obj          0       0           0           0            0           0         0                0          0           0
+esp_ipc_isr_routines.S.o          0       0           0           0            0           0         0                0          0           0
+        mesh_event.c.obj          0       0           0           0            0           0         0                0          0           0
+        button_adc.c.obj          0       0           0           0            0           0         0                0          0           0
+       button_gpio.c.obj          0       0           0           0            0           0         0                0          0           0
+     button_matrix.c.obj          0       0           0           0            0           0         0                0          0           0
+        iot_button.c.obj          0       0           0           0            0           0         0                0          0           0
+ esp32_s3_eye_idf5.c.obj          0       0           0           0            0           0         0                0          0           0
+audio_codec_data_i2s.c.o          0       0           0           0            0           0         0                0          0           0
+audio_codec_sw_vol.c.obj          0       0           0           0            0           0         0                0          0           0
+     esp_codec_dev.c.obj          0       0           0           0            0           0         0                0          0           0
+  esp_codec_dev_if.c.obj          0       0           0           0            0           0         0                0          0           0
+  esp_codec_dev_os.c.obj          0       0           0           0            0           0         0                0          0           0
+            diskio.c.obj          0       0           0           0            0           0         0                0          0           0
+      diskio_sdmmc.c.obj          0       0           0           0            0           0         0                0          0           0
+                ff.c.obj          0       0           0           0            0           0         0                0          0           0
+          ffsystem.c.obj          0       0           0           0            0           0         0                0          0           0
+           vfs_fat.c.obj          0       0           0           0            0           0         0                0          0           0
+     vfs_fat_sdmmc.c.obj          0       0           0           0            0           0         0                0          0           0
+            _addsubdf3.o          0       0           0           0            0           0         0                0          0           0
+               _cmpdf2.o          0       0           0           0            0           0         0                0          0           0
+               _divdf3.o          0       0           0           0            0           0         0                0          0           0
+               _divsf3.o          0       0           0           0            0           0         0                0          0           0
+          _extendsfdf2.o          0       0           0           0            0           0         0                0          0           0
+               _ffsdi2.o          0       0           0           0            0           0         0                0          0           0
+              _fixdfdi.o          0       0           0           0            0           0         0                0          0           0
+              _fixdfsi.o          0       0           0           0            0           0         0                0          0           0
+           _fixunsdfsi.o          0       0           0           0            0           0         0                0          0           0
+            _floatdidf.o          0       0           0           0            0           0         0                0          0           0
+            _floatdisf.o          0       0           0           0            0           0         0                0          0           0
+            _floatsidf.o          0       0           0           0            0           0         0                0          0           0
+               _muldf3.o          0       0           0           0            0           0         0                0          0           0
+          _popcountsi2.o          0       0           0           0            0           0         0                0          0           0
+           _truncdfsf2.o          0       0           0           0            0           0         0                0          0           0
+           i2s_hal.c.obj          0       0           0           0            0           0         0                0          0           0
+      rtc_cntl_hal.c.obj          0       0           0           0            0           0         0                0          0           0
+  touch_sensor_hal.c.obj          0       0           0           0            0           0         0                0          0           0
+       log_buffers.c.obj          0       0           0           0            0           0         0                0          0           0
+          lv_async.c.obj          0       0           0           0            0           0         0                0          0           0
+           lib_a-e_exp.o          0       0           0           0            0           0         0                0          0           0
+           lib_a-w_exp.o          0       0           0           0            0           0         0                0          0           0
+           pkwrite.c.obj          0       0           0           0            0           0         0                0          0           0
+        psa_crypto.c.obj          0       0           0           0            0           0         0                0          0           0
+   psa_crypto_aead.c.obj          0       0           0           0            0           0         0                0          0           0
+ psa_crypto_cipher.c.obj          0       0           0           0            0           0         0                0          0           0
+ psa_crypto_client.c.obj          0       0           0           0            0           0         0                0          0           0
+psa_crypto_driver_wrappe          0       0           0           0            0           0         0                0          0           0
+    psa_crypto_ecp.c.obj          0       0           0           0            0           0         0                0          0           0
+   psa_crypto_hash.c.obj          0       0           0           0            0           0         0                0          0           0
+    psa_crypto_mac.c.obj          0       0           0           0            0           0         0                0          0           0
+    psa_crypto_rsa.c.obj          0       0           0           0            0           0         0                0          0           0
+psa_crypto_slot_manageme          0       0           0           0            0           0         0                0          0           0
+psa_crypto_storage.c.obj          0       0           0           0            0           0         0                0          0           0
+      psa_its_file.c.obj          0       0           0           0            0           0         0                0          0           0
+          psa_util.c.obj          0       0           0           0            0           0         0                0          0           0
+    esp_crt_bundle.c.obj          0       0           0           0            0           0         0                0          0           0
+   x509_crt_bundle.S.obj          0       0           0           0            0           0         0                0          0           0
+                  mesh.o          0       0           0           0            0           0         0                0          0           0
+           mesh_common.o          0       0           0           0            0           0         0                0          0           0
+           mesh_config.o          0       0           0           0            0           0         0                0          0           0
+               mesh_io.o          0       0           0           0            0           0         0                0          0           0
+             mesh_main.o          0       0           0           0            0           0         0                0          0           0
+          mesh_network.o          0       0           0           0            0           0         0                0          0           0
+           mesh_parent.o          0       0           0           0            0           0         0                0          0           0
+            mesh_quick.o          0       0           0           0            0           0         0                0          0           0
+            mesh_route.o          0       0           0           0            0           0         0                0          0           0
+         mesh_schedule.o          0       0           0           0            0           0         0                0          0           0
+            mesh_sleep.o          0       0           0           0            0           0         0                0          0           0
+            mesh_timer.o          0       0           0           0            0           0         0                0          0           0
+        mesh_utilities.o          0       0           0           0            0           0         0                0          0           0
+             mesh_wifi.o          0       0           0           0            0           0         0                0          0           0
+            hal_mac_rx.o          0       0           0           0            0           0         0                0          0           0
+  pthread_cond_var.c.obj          0       0           0           0            0           0         0                0          0           0
+         sdmmc_cmd.c.obj          0       0           0           0            0           0         0                0          0           0
+      sdmmc_common.c.obj          0       0           0           0            0           0         0                0          0           0
+        sdmmc_init.c.obj          0       0           0           0            0           0         0                0          0           0
+          sdmmc_io.c.obj          0       0           0           0            0           0         0                0          0           0
+         sdmmc_mmc.c.obj          0       0           0           0            0           0         0                0          0           0
+          sdmmc_sd.c.obj          0       0           0           0            0           0         0                0          0           0
+        i2s_periph.c.obj          0       0           0           0            0           0         0                0          0           0
+touch_sensor_periph.c.ob          0       0           0           0            0           0         0                0          0           0
+       uart_periph.c.obj          0       0           0           0            0           0         0                0          0           0
+    spi_flash_wrap.c.obj          0       0           0           0            0           0         0                0          0           0
+        esp_spiffs.c.obj          0       0           0           0            0           0         0                0          0           0
+        spiffs_api.c.obj          0       0           0           0            0           0         0                0          0           0
+      spiffs_cache.c.obj          0       0           0           0            0           0         0                0          0           0
+      spiffs_check.c.obj          0       0           0           0            0           0         0                0          0           0
+         spiffs_gc.c.obj          0       0           0           0            0           0         0                0          0           0
+   spiffs_hydrogen.c.obj          0       0           0           0            0           0         0                0          0           0
+    spiffs_nucleus.c.obj          0       0           0           0            0           0         0                0          0           0
+              chap.c.obj          0       0           0           0            0           0         0                0          0           0
+      des-internal.c.obj          0       0           0           0            0           0         0                0          0           0
+               eap.c.obj          0       0           0           0            0           0         0                0          0           0
+        eap_common.c.obj          0       0           0           0            0           0         0                0          0           0
+      eap_mschapv2.c.obj          0       0           0           0            0           0         0                0          0           0
+          eap_peap.c.obj          0       0           0           0            0           0         0                0          0           0
+   eap_peap_common.c.obj          0       0           0           0            0           0         0                0          0           0
+           eap_tls.c.obj          0       0           0           0            0           0         0                0          0           0
+    eap_tls_common.c.obj          0       0           0           0            0           0         0                0          0           0
+          eap_ttls.c.obj          0       0           0           0            0           0         0                0          0           0
+      md4-internal.c.obj          0       0           0           0            0           0         0                0          0           0
+          ms_funcs.c.obj          0       0           0           0            0           0         0                0          0           0
+          mschapv2.c.obj          0       0           0           0            0           0         0                0          0           0
+       tls_mbedtls.c.obj          0       0           0           0            0           0         0                0          0           0
+         wpa_debug.c.obj          0       0           0           0            0           0         0                0          0           0
+ int_asm--set_intclear.o          0       0           0           0            0           0         0                0          0           0

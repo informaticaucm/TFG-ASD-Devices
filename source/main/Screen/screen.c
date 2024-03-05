@@ -1,7 +1,13 @@
+#define TAG "screen"
+#include "esp_log.h"
+
+#define ENABLE_SCREEN 1
+
+#if ENABLE_SCREEN
+
 #include <stdio.h>
 #include <sys/param.h>
 #include "esp_err.h"
-#include "esp_log.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
@@ -26,7 +32,6 @@
 #include "../Camera/camera.h"
 #include "../SYS_MODE/sys_mode.h"
 
-#define TAG "screen"
 
 #define ALLOWED_AGE_FOR_QR 10
 void screen_task(void *arg)
@@ -266,3 +271,13 @@ void screen_start(struct ScreenConf *conf)
         heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
     }
 }
+
+
+#else
+
+void screen_start(struct ScreenConf *conf)
+{
+    ESP_LOGE(TAG, "Screen is disabled");
+}
+
+#endif

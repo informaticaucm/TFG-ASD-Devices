@@ -87,7 +87,7 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
     }
 }
 
-int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf *conf)
+esp_err_t connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf *conf)
 {
     crash_wifi();
     s_wifi_event_group = xEventGroupCreate();
@@ -95,7 +95,14 @@ int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf *conf)
     my_ap = esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    heap_caps_print_heap_info(0);
+
+    int err = esp_wifi_init(&cfg);
+
+    if(err != ESP_OK){
+        return err;
+    }
 
     esp_event_handler_instance_t instance_any_id;
     esp_event_handler_instance_t instance_got_ip;
@@ -148,7 +155,7 @@ int connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf *conf)
     esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id);
     esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip);
 
-    return 0;
+    return ESP_OK;
 }
 
 void print_ConnectionParameters(struct ConnectionParameters *cp)
@@ -235,7 +242,10 @@ void try_connect_wifi(struct StarterConf *conf)
 
     print_ConnectionParameters(&parameters);
 
-    connect_wifi(parameters.qr_info.wifi_ssid, parameters.qr_info.wifi_psw, conf);
+    int res = connect_wifi(parameters.qr_info.wifi_ssid, parameters.qr_info.wifi_psw, conf);
+
+    ESP_LOGE(TAG, "wifi connection returned %s", esp_err_to_name(res));
+
 }
 
 bool is_wifi_connected()
