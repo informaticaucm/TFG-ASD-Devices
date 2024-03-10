@@ -198,14 +198,10 @@ void manage_state(bool (*is_next_state_ready)(),
 
     // ESP_LOGE(TAG, "tries: %d", tries);
 
-    struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-    msg->command = StateWarning;
-    strcpy(msg->data.text, state_string[starterState]);
-    int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-    if (res == pdFAIL)
-    {
-        free(msg);
-    }
+    jsend(conf->to_screen_queue, ScreenMsg, {
+        msg->command = StateWarning;
+        strcpy(msg->data.text, state_string[starterState]);
+    });
 
     if (!is_next_state_ready())
     {
@@ -260,19 +256,13 @@ void try_tb_auth(struct StarterConf *conf)
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
-    struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
-    msg->command = DoProvisioning;
-    memcpy(msg->data.provisioning.broker_url, parameters.qr_info.mqtt_broker_url, URL_SIZE);
-    memcpy(msg->data.provisioning.device_name, parameters.qr_info.device_name, 50);
-    memcpy(msg->data.provisioning.provisioning_device_secret, parameters.qr_info.provisioning_device_secret, 21);
-    memcpy(msg->data.provisioning.provisioning_device_key, parameters.qr_info.provisioning_device_key, 21);
-
-    int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
-    if (res == pdFAIL)
-    {
-        ESP_LOGE(TAG, "mesage send fail");
-        free(msg);
-    }
+    jsend(conf->to_mqtt_queue, MQTTMsg, {
+        msg->command = DoProvisioning;
+        memcpy(msg->data.provisioning.broker_url, parameters.qr_info.mqtt_broker_url, URL_SIZE);
+        memcpy(msg->data.provisioning.device_name, parameters.qr_info.device_name, 50);
+        memcpy(msg->data.provisioning.provisioning_device_secret, parameters.qr_info.provisioning_device_secret, 21);
+        memcpy(msg->data.provisioning.provisioning_device_key, parameters.qr_info.provisioning_device_key, 21);
+    });
     ESP_LOGI(TAG, "sent DoProvisioning message");
 }
 
@@ -299,17 +289,11 @@ void try_tb_connect(struct StarterConf *conf)
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
-    struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
-    msg->command = Start;
-    memcpy(msg->data.start.broker_url, parameters.qr_info.mqtt_broker_url, URL_SIZE);
-    memcpy(msg->data.start.access_token, parameters.access_token, 21);
-
-    int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
-    if (res == pdFAIL)
-    {
-        ESP_LOGE(TAG, "mesage send fail");
-        free(msg);
-    }
+    jsend(conf->to_mqtt_queue, MQTTMsg, {
+        msg->command = Start;
+        memcpy(msg->data.start.broker_url, parameters.qr_info.mqtt_broker_url, URL_SIZE);
+        memcpy(msg->data.start.access_token, parameters.access_token, 21);
+    });
 }
 
 void invalidate_tb_auth()
@@ -354,17 +338,11 @@ void try_backend_auth(struct StarterConf *conf)
 
     ESP_LOGI(TAG, "trying to connect to backend as %s id: %d", parameters.qr_info.device_name, parameters.qr_info.space_id);
 
-    struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
-    msg->command = LogInToServer;
-    memcpy(msg->data.login.name, parameters.qr_info.device_name, 50);
-    msg->data.login.space_id = parameters.qr_info.space_id;
-
-    int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
-    if (res == pdFAIL)
-    {
-        ESP_LOGE(TAG, "mesage send fail");
-        free(msg);
-    }
+    jsend(conf->to_mqtt_queue, MQTTMsg, {
+        msg->command = LogInToServer;
+        memcpy(msg->data.login.name, parameters.qr_info.device_name, 50);
+        msg->data.login.space_id = parameters.qr_info.space_id;
+    });
 }
 
 int constant_backoff(int tries)
@@ -393,14 +371,9 @@ void send_ping_to_backend(struct StarterConf *conf)
 {
     // ESP_LOGI(TAG, "sending ping to backend");
 
-    struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
-    msg->command = SendPingToServer;
-    int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
-    if (res == pdFAIL)
-    {
-        ESP_LOGE(TAG, "mesage send fail");
-        free(msg);
-    }
+    jsend(conf->to_mqtt_queue, MQTTMsg, {
+        msg->command = SendPingToServer;
+    });
 }
 
 bool is_qr_info_valid()

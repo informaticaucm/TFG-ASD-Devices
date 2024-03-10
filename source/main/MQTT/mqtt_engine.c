@@ -190,20 +190,11 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
         if (err == OS_SUCCESS)
         {
-            {
-                struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
+            jsend(conf->to_starter_queue, StarterMsg, {
                 msg->command = TBAuthInfo;
-
                 memcpy(msg->data.access_token, access_token, 21);
-
                 ESP_LOGI(TAG, "access token is : %s", msg->data.access_token);
-
-                int res = xQueueSend(conf->to_starter_queue, &msg, 0);
-                if (res != pdTRUE)
-                {
-                    free(msg);
-                }
-            }
+            });
         }
         // else
         // {
@@ -342,13 +333,9 @@ void mqtt_task(void *arg)
 
             if (conf->send_updated_mqtt_on_start)
             {
-                struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
-                msg->command = CancelRollback;
-                int res = xQueueSend(conf->to_ota_queue, &msg, 0);
-                if (res != pdTRUE)
-                {
-                    free(msg);
-                }
+                jsend(conf->to_ota_queue, OTAMsg, {
+                    msg->command = SendUpdatedMqtt;
+                });
 
                 mqtt_send_ota_status_report(UPDATED);
             }
@@ -382,7 +369,25 @@ void mqtt_task(void *arg)
             send_api_post("ble", request_body);
             break;
         }
+        case TagScanned:
+        {
+            /*
+                {
+                    "tipo_registro": "RegistroSeguimientoDispositivoNFC",
+                    "espacioId": 1,
+                    "uid": "y7w1T/D23w=="
+                }
+            */
+
+            struct ConnectionParameters parameters;
+            ESP_ERROR_CHECK(j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters)));
+
+            char *request_body = alloca(50);
+
+            snprintf(request_body, 50, "{\"uid\":%lld,\"espacioId\":%d, \"dispositivoId\": %d, \"tipo_registro\": \"RegistroSeguimientoDispositivoNFC\"}", msg->data.tag_scanned.sn, parameters.qr_info.space_id, parameters.backend_info.device_id);
+            send_api_post("rfid", request_body);
+            break;
         }
-        free(msg);
+            free(msg);
+        }
     }
-}

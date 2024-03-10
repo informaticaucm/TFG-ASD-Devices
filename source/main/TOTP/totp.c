@@ -16,7 +16,6 @@
 
 #define TAG "totp"
 
-
 static void totp_task(void *arg)
 {
     struct TOTPConf *conf = arg;
@@ -39,29 +38,21 @@ static void totp_task(void *arg)
 
             if (parameters.backend_info_valid)
             {
-
-                struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-                msg->command = DrawQr;
-
                 time_t now;
                 time(&now);
 
                 char *secret = parameters.backend_info.totp_seed;
                 int t0 = parameters.backend_info.totp_t0;
 
-                // get_qr_url_template(url_template);
-
                 struct ConnectionParameters parameters;
                 j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-
                 int totp = do_the_totp_thing(now - t0, secret, 60, 6);
-                snprintf(msg->data.text, sizeof(msg->data.text), "http://10.3.141.119:5500/formulario-end?totp=%06d&espacioId=%d&dispositivoId=%d", totp, parameters.qr_info.space_id, parameters.backend_info.device_id );
 
-                int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-                if (res == pdFAIL)
-                {
-                    free(msg);
-                }
+                jsend(conf->to_screen_queue, ScreenMsg, {
+                    msg->command = DrawQr;
+
+                    -(msg->data.text, sizeof(msg->data.text), "http://10.3.141.119:5500/formulario-end?totp=%06d&espacioId=%d&dispositivoId=%d", totp, parameters.qr_info.space_id, parameters.backend_info.device_id);
+                });
             }
             else
             {

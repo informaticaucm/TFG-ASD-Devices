@@ -122,10 +122,12 @@ void rfid_seen(uint64_t sn, int rssi)
 {
     if (sn != last_sn)
     {
-
         if (sn != 0)
         {
             ESP_LOGI(TAG, "Tag scanned (sn: %" PRIu64 ") con rssi: %d", sn, rssi);
+
+            struct ConnectionParameters parameters;
+            ESP_ERROR_CHECK(j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters)));
 
             jsend(bt_conf.to_screen_queue, MQTTMsg, {
                 msg->command = TagScanned;

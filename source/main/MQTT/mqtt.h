@@ -92,7 +92,7 @@ struct MQTTMsg
         {
             enum OTAState ota_state;
         } ota_state_update;
-        struct 
+        struct
         {
             uint64_t sn;
         } tag_scanned;

@@ -36,20 +36,22 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
 void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
 {
-    {
-        struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
+    // {
+    //     struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
+    //     msg->command = OTA_state_update;
+    //     msg->data.ota_state_update.ota_state = OTA_state;
+
+    //     int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
+    //     if (res == pdFAIL)
+    //     {
+    //         free(msg);
+    //     }
+    // }
+    jsend(conf->to_mqtt_queue, MQTTMsg, {
         msg->command = OTA_state_update;
         msg->data.ota_state_update.ota_state = OTA_state;
-
-        int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
-        if (res == pdFAIL)
-        {
-            free(msg);
-        }
-    }
+    });
     {
-        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-        msg->command = StateText;
         char *ota_state_to_text[] = {
             "ota state is DOWNLOADING",
             "ota state is DOWNLOADED",
@@ -57,40 +59,27 @@ void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
             "ota state is UPDATING",
             "ota state is UPDATED",
         };
-        strcpy(msg->data.text, ota_state_to_text[OTA_state]);
 
-        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-        if (res == pdFAIL)
-        {
-            free(msg);
-        }
+        jsend(
+            conf->to_screen_queue, ScreenMsg, {
+                msg->command = StateText;
+                strcpy(msg->data.text, ota_state_to_text[OTA_state]);
+            })
     }
 }
 
 void command_ota_fail(char *error, struct OTAConf *conf)
 {
-    {
-        struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
+
+    jsend(conf->to_mqtt_queue, MQTTMsg, {
         msg->command = OTA_failure;
         msg->data.ota_failure.failure_msg = error;
+    });
 
-        int res = xQueueSend(conf->to_mqtt_queue, &msg, 0);
-        if (res == pdFAIL)
-        {
-            free(msg);
-        }
-    }
-    {
-        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
+    jsend(conf->to_screen_queue, ScreenMsg, {
         msg->command = StateError;
         strcpy(msg->data.text, error);
-
-        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-        if (res == pdFAIL)
-        {
-            free(msg);
-        }
-    }
+    });
 }
 
 esp_app_desc_t running_app_info;
@@ -178,14 +167,10 @@ void ota_routine(char *url, struct OTAConf *conf)
     err = validate_image_header(&app_desc);
     if (err != ESP_OK)
     {
-        struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-        msg->command = StateError;
-        strcpy(msg->data.text, "la version del ota es la misma que la versión actual");
-        int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-        if (res == pdFAIL)
-        {
-            free(msg);
-        }
+        jsend(conf->to_screen_queue, ScreenMsg, {
+            msg->command = StateError;
+            strcpy(msg->data.text, "la version del ota es la misma que la versión actual");
+        });
 
         ESP_LOGE(TAG, "image header verification failed");
         goto ota_end;
@@ -215,15 +200,10 @@ void ota_routine(char *url, struct OTAConf *conf)
         ESP_LOGI(TAG, "Image bytes read: %f", progress);
 
         {
-            struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-            msg->command = StateText;
-            snprintf(msg->data.text, sizeof(msg->data.text), "Image bytes downloaded: %f%%", progress*100);
-
-            int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-            if (res != pdTRUE)
-            {
-                free(msg);
-            }
+            jsend(conf->to_screen_queue, ScreenMsg, {
+                msg->command = StateText;
+                snprintf(msg->data.text, sizeof(msg->data.text), "Image bytes downloaded: %f%%", progress * 100);
+            });
         }
     }
     ESP_LOGI(TAG, "out of download loop");
