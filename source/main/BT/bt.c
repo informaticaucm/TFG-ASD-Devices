@@ -317,12 +317,6 @@ int periodic_sync_gap_event(struct ble_gap_event *event, void *arg)
 
         int rssi = disc->rssi;
 
-        // for (int i = 0; i < disc->length_data; i++)
-        // {
-        //     printf("%c", disc->data[i]);
-        // }
-        // printf("\n");
-
         /*
         Packet.ADTypes = {
             0x01 : { name : "Flags", resolve: toStringArray },
@@ -400,6 +394,10 @@ int periodic_sync_gap_event(struct ble_gap_event *event, void *arg)
                 if (manufacturer_valid)
                 {
                     rfid_seen(*(uint64_t *)manufacturer, rssi);
+                }
+                else
+                {
+                    rfid_seen(0, rssi);
                 }
             }
             else

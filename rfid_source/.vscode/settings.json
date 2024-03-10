@@ -5,6 +5,7 @@
   "idf.adapterTargetName": "esp32",
   "files.associations": {
     "*.embeddedhtml": "html",
-    "random": "c"
+    "random": "c",
+    "esp_blufi_api.h": "c"
   }
 }

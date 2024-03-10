@@ -9,13 +9,19 @@
 #include <esp_gap_ble_api.h>
 #include <esp_blufi_api.h> // needed for BLE_ADDR types, do not remove
 #include <esp_log.h>
-
+#include "esp_timer.h"
 #include <string.h>
+#include <time.h>
+
+
+#define PERSISTANCE_PERIOD 3
 
 static const char *TAG = "rc522-demo";
 static rc522_handle_t scanner;
 
 char msg[20];
+
+int scan_time = 0;
 
 static void rc522_handler(void *arg, esp_event_base_t base, int32_t event_id, void *event_data)
 {
@@ -25,6 +31,7 @@ static void rc522_handler(void *arg, esp_event_base_t base, int32_t event_id, vo
     {
     case RC522_EVENT_TAG_SCANNED:
     {
+        scan_time = time(0);
         rc522_tag_t *tag = (rc522_tag_t *)data->ptr;
         ESP_LOGI(TAG, "Tag scanned (sn: %" PRIu64 ")", tag->serial_number);
 
@@ -35,8 +42,8 @@ static void rc522_handler(void *arg, esp_event_base_t base, int32_t event_id, vo
             .min_interval = 0x0006,
             .max_interval = 0x0010,
             .appearance = 0x00,
-            .manufacturer_len = sizeof(tag->serial_number),        
-            .p_manufacturer_data = (uint8_t *)&tag->serial_number, 
+            .manufacturer_len = sizeof(tag->serial_number),
+            .p_manufacturer_data = (uint8_t *)&tag->serial_number,
             .service_data_len = 0,
             .p_service_data = NULL,
             .service_uuid_len = 32,
@@ -51,6 +58,27 @@ static void rc522_handler(void *arg, esp_event_base_t base, int32_t event_id, vo
 
 #include "nvs.h"
 #include "nvs_flash.h"
+
+void periodic_task(){
+    ESP_LOGE(TAG, "periodic task");
+    if (time(0) - scan_time > PERSISTANCE_PERIOD){
+        esp_ble_adv_data_t adv_data = {
+            .set_scan_rsp = false,
+            .include_name = true,
+            .include_txpower = true,
+            .min_interval = 0x0006,
+            .max_interval = 0x0010,
+            .appearance = 0x00,
+            .manufacturer_len = 0,
+            .p_manufacturer_data = (uint8_t *)"",
+            .service_data_len = 0,
+            .p_service_data = NULL,
+            .service_uuid_len = 32,
+            .flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
+        };
+        esp_ble_gap_config_adv_data(&adv_data);
+    }
+}
 
 void app_main()
 {
@@ -103,11 +131,9 @@ void app_main()
         .service_uuid_len = 32,
         .flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
     };
-
-    
+    esp_ble_gap_set_device_name("RC522-READER");
 
     esp_ble_gap_config_adv_data(&adv_data);
-    esp_ble_gap_set_device_name("RC522-READER");
 
     esp_ble_adv_params_t adv_params = {
         .adv_int_min = 0x20,
@@ -119,4 +145,18 @@ void app_main()
     };
 
     esp_ble_gap_start_advertising(&adv_params);
+
+    {
+        const esp_timer_create_args_t periodic_timer_args = {
+            .callback = &periodic_task,
+            .name = "periodic",
+            .arg = NULL};
+
+        /* Create timer for logging scanned devices. */
+        esp_timer_handle_t periodic_timer;
+        ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+
+        /* Start periodic timer for 5 sec. */
+        ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, PERSISTANCE_PERIOD * 2 * 1000000)); // 2 * PERSISTANCE_PERIOD sec
+    }
 }
