@@ -77,18 +77,12 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             json_obj_get_string(&jctx, "secret", totp_secret, 17);
             json_obj_get_int(&jctx, "t0", &t0);
 
-            struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-            msg->command = BackendInfo;
-
-            msg->data.backend_info.totp_t0 = t0;
-            msg->data.backend_info.device_id = id;
-            memcpy(msg->data.backend_info.totp_seed, totp_secret, 17);
-
-            int res = xQueueSend(conf->to_starter_queue, &msg, 0);
-            if (res != pdTRUE)
-            {
-                free(msg);
-            }
+            jsend(conf->to_starter_queue, StarterMsg, {
+                msg->command = BackendInfo;
+                msg->data.backend_info.totp_t0 = t0;
+                msg->data.backend_info.device_id = id;
+                memcpy(msg->data.backend_info.totp_seed, totp_secret, 17);
+            });
         }
         if (0 == strcmp(method, "ble"))
         {
@@ -161,17 +155,11 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
             if (err == OS_SUCCESS)
             {
-                struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
-                msg->command = Update;
-                strcpy(msg->url, fw_url);
-
-                ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
-
-                int res = xQueueSend(conf->to_ota_queue, &msg, 0);
-                if (res != pdTRUE)
-                {
-                    free(msg);
-                }
+                jsend(conf->to_ota_queue, OTAMsg, {
+                    msg->command = Update;
+                    snprintf(msg->url, OTA_URL_SIZE, "%s", fw_url);
+                    ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
+                });
             }
             else
             {
@@ -181,17 +169,11 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                 struct ConnectionParameters parameters;
                 j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
 
-                struct OTAMsg *msg = jalloc(sizeof(struct OTAMsg));
-                msg->command = Update;
-                snprintf(msg->url, sizeof(msg->url), "%s/api/v1/%s/firmware/?title=%s&version=%s", parameters.qr_info.thingsboard_url, parameters.access_token, fw_title, fw_version);
-
-                ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
-
-                int res = xQueueSend(conf->to_ota_queue, &msg, 0);
-                if (res != pdTRUE)
-                {
-                    free(msg);
-                }
+                jsend(conf->to_ota_queue, OTAMsg, {
+                    msg->command = Update;
+                    snprintf(msg->url, OTA_URL_SIZE, "%s/api/v1/%s/firmware/?title=%s&version=%s", parameters.qr_info.thingsboard_url, parameters.access_token, fw_title, fw_version);
+                    ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
+                });
             }
         }
     }

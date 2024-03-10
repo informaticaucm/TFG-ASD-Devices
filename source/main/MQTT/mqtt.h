@@ -42,6 +42,7 @@ enum MQTTCommand
     DoProvisioning,
     SendPingToServer,
     FetchBTMacs,
+    TagScanned,
 };
 
 enum OTAState
@@ -91,6 +92,10 @@ struct MQTTMsg
         {
             enum OTAState ota_state;
         } ota_state_update;
+        struct 
+        {
+            uint64_t sn;
+        } tag_scanned;
     } data;
 };
 

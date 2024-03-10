@@ -53,3 +53,26 @@ TaskHandle_t xTaskCreateCap(TaskFunction_t pxTaskCode,
                             const uint32_t ulStackDepth,
                             void *const pvParameters,
                             UBaseType_t uxPriority, uint32_t caps); // creates a task using psram instead of internal
+
+#define jsend(queue, msgType, msgPrep) \
+    {                                   \
+        struct msgType *msg = jalloc(sizeof(struct msgType)); \
+        {msgPrep}                        \
+        int res = xQueueSend(queue, &msg, 0);     \
+        if (res != pdTRUE)              \
+        {                               \
+            free(msg);                  \
+        }                               \
+    }
+
+#define jsend_with_free(queue, msgType, msgPrep, freeProcedure) \
+    {                                   \
+        struct msgType *msg = jalloc(sizeof(struct msgType)); \
+        {msgPrep}                        \
+        int res = xQueueSend(queue, &msg, 0);     \
+        if (res != pdTRUE)              \
+        {                               \
+            {freeProcedure}                    \
+            free(msg);                  \
+        }                               \
+    }

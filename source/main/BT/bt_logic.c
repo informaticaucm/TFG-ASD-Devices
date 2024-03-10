@@ -53,12 +53,10 @@ void slow_timer_callback(void *arg)
         return;
     }
 
-    struct MQTTMsg *msg = jalloc(sizeof(struct MQTTMsg));
-
-    msg->command = FetchBTMacs;
-    msg->data.fetch_btmacs.space_id = parameters.qr_info.space_id;
-
-    xQueueSend(conf->to_mqtt_queue, &msg, 0);
+    jsend(conf->to_mqtt_queue, MQTTMsg, {
+        msg->command = FetchBTMacs;
+        msg->data.fetch_btmacs.space_id = parameters.qr_info.space_id;
+    });
 }
 
 void device_seen(char *scanned_name, uint8_t *addr, int rssi)
@@ -124,8 +122,16 @@ void rfid_seen(uint64_t sn, int rssi)
 {
     if (sn != last_sn)
     {
-        ESP_LOGI(TAG, "Tag scanned (sn: %" PRIu64 ") con rssi: %d", sn, rssi);
+
+        if (sn != 0)
+        {
+            ESP_LOGI(TAG, "Tag scanned (sn: %" PRIu64 ") con rssi: %d", sn, rssi);
+
+            jsend(bt_conf.to_screen_queue, MQTTMsg, {
+                msg->command = TagScanned;
+                msg->data.tag_scanned.sn = sn;
+            });
+        }
         last_sn = sn;
     }
-
 }

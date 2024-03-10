@@ -100,17 +100,13 @@ void camera_task(void *arg)
             {
                 meta_frame_write(mf, pic->buf);
 
-                struct ScreenMsg *msg = jalloc(sizeof(struct ScreenMsg));
-                msg->command = Mirror;
-                msg->data.mf = mf;
-
-                int res = xQueueSend(conf->to_screen_queue, &msg, 0);
-                if (res != pdTRUE)
-                {
-                    ESP_LOGE(TAG, "mesage send error");
-                    free(msg);
-                    meta_frame_free(mf);
-                }
+                jsend_with_free(
+                    conf->to_screen_queue, ScreenMsg, {
+                        msg->command = Mirror;
+                        msg->data.mf = mf; },
+                    {
+                        meta_frame_free(mf);
+                    })
             }
             else
             {
