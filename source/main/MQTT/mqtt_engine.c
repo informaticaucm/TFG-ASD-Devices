@@ -90,9 +90,6 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
             /*
                 {
-                    "usuarioId": 1,
-                    "nombre": "Grace",
-                    "apellidos": "Hopper",
                     "macs": [
                         "00:11:22:33:FF:EE",
                         "11:22:33:44:AA:BB"
@@ -115,28 +112,34 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
                 for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
                 {
-                    if (memcmp(device_history[i].address, decoded_mac, 6) == 0 && VALID_ENTRY(device_history[i]))
+                    // log the macs we are comparing
+                    if (VALID_ENTRY(device_history[i]))
                     {
-                        /*
-                           {
-                                "tipo_registro": "RegistroSeguimientoDispositivoBle",
-                                "espacioId": 1,
-                                "dispositivoId": 1,
-                                "mac": "00:11:22:33:FF:EE"
-                            }
-                        */
-                        char params[200];
-                        snprintf(params, sizeof(params), "{"
-                                                         "  \"tipo_registro\": \"RegistroSeguimientoDispositivoBle\","
-                                                         "  \"espacioId\": %d,"
-                                                         "  \"dispositivoId\": %d,"
-                                                         "  \"mac\": \"%s\","
-                                                         "}",
-                                 parameters.qr_info.space_id, parameters.backend_info.device_id, mac);
+                        ESP_LOGI(TAG, "comparing %02X:%02X:%02X:%02X:%02X:%02X with %02X:%02X:%02X:%02X:%02X:%02X", device_history[i].address[0], device_history[i].address[1], device_history[i].address[2], device_history[i].address[3], device_history[i].address[4], device_history[i].address[5], decoded_mac[0], decoded_mac[1], decoded_mac[2], decoded_mac[3], decoded_mac[4], decoded_mac[5]);
 
-                        send_api_post("seguimiento", params);
+                        if (memcmp(device_history[i].address, decoded_mac, 6) == 0)
+                        {
+                            /*
+                               {
+                                    "tipo_registro": "RegistroSeguimientoDispositivoBle",
+                                    "espacioId": 1,
+                                    "dispositivoId": 1,
+                                    "mac": "00:11:22:33:FF:EE"
+                                }
+                            */
+                            char params[200];
+                            snprintf(params, sizeof(params), "{"
+                                                             "  \"tipo_registro\": \"RegistroSeguimientoDispositivoBle\","
+                                                             "  \"espacioId\": %d,"
+                                                             "  \"dispositivoId\": %d,"
+                                                             "  \"mac\": \"%s\""
+                                                             "}",
+                                     parameters.qr_info.space_id, parameters.backend_info.device_id, mac);
 
-                        break;
+                            send_api_post("seguimiento", params);
+
+                            break;
+                        }
                     }
                 }
             }
@@ -334,7 +337,7 @@ void mqtt_task(void *arg)
             if (conf->send_updated_mqtt_on_start)
             {
                 jsend(conf->to_ota_queue, OTAMsg, {
-                    msg->command = SendUpdatedMqtt;
+                    msg->command = CancelRollback;
                 });
 
                 mqtt_send_ota_status_report(UPDATED);
@@ -382,12 +385,14 @@ void mqtt_task(void *arg)
             struct ConnectionParameters parameters;
             ESP_ERROR_CHECK(j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters)));
 
-            char *request_body = alloca(50);
+            char *request_body = alloca(500);
 
-            snprintf(request_body, 50, "{\"uid\":%lld,\"espacioId\":%d, \"dispositivoId\": %d, \"tipo_registro\": \"RegistroSeguimientoDispositivoNFC\"}", msg->data.tag_scanned.sn, parameters.qr_info.space_id, parameters.backend_info.device_id);
-            send_api_post("rfid", request_body);
+            snprintf(request_body, 500, "{\"uid\":%lld,\"espacioId\":%d, \"dispositivoId\": %d, \"tipo_registro\": \"RegistroSeguimientoDispositivoNFC\"}", msg->data.tag_scanned.sn, parameters.qr_info.space_id, parameters.backend_info.device_id);
+
+            send_api_post("seguimiento", request_body);
             break;
         }
             free(msg);
         }
     }
+}

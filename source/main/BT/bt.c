@@ -2,162 +2,6 @@
 static const char *TAG = "BT_BACKEND";
 #define CONFIG_EXAMPLE_EXTENDED_ADV 1
 
-// #include <esp_bt.h>
-// #include <esp_bt_main.h>
-// #include <esp_gap_ble_api.h>
-// #include <esp_blufi_api.h> // needed for BLE_ADDR types, do not remove
-// #include <esp_log.h>
-// #include "esp_timer.h"
-
-// #include "esp_bt.h"
-// #include "esp_bt_main.h"
-// #include "esp_gap_ble_api.h"
-
-// #include "string.h"
-
-// // scan parameters
-// static esp_ble_scan_params_t ble_scan_params = {
-//     .scan_type = BLE_SCAN_TYPE_ACTIVE,
-//     .own_addr_type = BLE_ADDR_TYPE_PUBLIC,
-//     .scan_filter_policy = BLE_SCAN_FILTER_ALLOW_ALL,
-//     .scan_interval = 0x50,
-//     .scan_window = 0x30};
-
-// // GAP callback
-// static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
-// {
-//     switch (event)
-//     {
-
-//     case ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT:
-
-//         printf("ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT\n");
-//         if (param->scan_param_cmpl.status == ESP_BT_STATUS_SUCCESS)
-//         {
-//             printf("Scan parameters set, start scanning for 10 seconds\n\n");
-//             esp_ble_gap_start_scanning(10);
-//         }
-//         else
-//             printf("Unable to set scan parameters, error code %d\n\n", param->scan_param_cmpl.status);
-//         break;
-
-//     case ESP_GAP_BLE_SCAN_START_COMPLETE_EVT:
-
-//         printf("ESP_GAP_BLE_SCAN_START_COMPLETE_EVT\n");
-//         if (param->scan_start_cmpl.status == ESP_BT_STATUS_SUCCESS)
-//         {
-//             printf("Scan started\n\n");
-//         }
-//         else
-//             printf("Unable to start scan process, error code %d\n\n", param->scan_start_cmpl.status);
-//         break;
-
-//     case ESP_GAP_BLE_SCAN_RESULT_EVT:
-
-//         if (param->scan_rst.search_evt == ESP_GAP_SEARCH_INQ_RES_EVT)
-//         {
-
-//             // printf("ESP_GAP_BLE_SCAN_RESULT_EVT\n");
-//             // printf("Device found: ADDR=");
-//             // for (int i = 0; i < ESP_BD_ADDR_LEN; i++)
-//             // {
-//             //     printf("%02X", param->scan_rst.bda[i]);
-//             //     if (i != ESP_BD_ADDR_LEN - 1)
-//             //         printf(":");
-//             // }
-
-//             uint8_t *adv_name = NULL;
-//             uint8_t adv_name_len = 0;
-//             adv_name = esp_ble_resolve_adv_data(param->scan_rst.ble_adv, ESP_BLE_AD_TYPE_NAME_CMPL, &adv_name_len);
-//             if (adv_name)
-//             {
-//                 if (strncmp((char *)adv_name, "RC522-READER",12) != 0)
-//                 {
-//                     char *tmp_name = alloca(adv_name_len + 1);
-//                     memcpy(tmp_name, adv_name, adv_name_len);
-//                     tmp_name[adv_name_len] = '\0';
-//                     device_seen((char *)tmp_name, param->scan_rst.bda, param->scan_rst.rssi);
-//                 }
-//                 else
-//                 {
-
-//                     uint8_t *msg = NULL;
-//                     uint8_t msg_len = 0;
-//                     msg = esp_ble_resolve_adv_data(param->scan_rst.ble_adv, ESP_BLE_AD_MANUFACTURER_SPECIFIC_TYPE, &msg_len);
-
-//                     uint64_t *sn = msg;
-
-//                     rfid_seen(*sn, param->scan_rst.rssi);
-//                 }
-//             }
-
-//             // printf("\n\n");
-//         }
-//         else if (param->scan_rst.search_evt == ESP_GAP_SEARCH_INQ_CMPL_EVT)
-//             esp_ble_gap_start_scanning(10);
-
-//         break;
-
-//     default:
-
-//         printf("Event %d unhandled\n\n", event);
-//         break;
-//     }
-// }
-
-// void bt_start(struct BTConf *conf)
-// {
-//     heap_caps_print_heap_info(0);
-
-//     printf("BT scan\n\n");
-
-//     // set components to log only errors
-//     // esp_log_level_set("*", ESP_LOG_ERROR);
-
-//     // // initialize nvs
-//     // ESP_ERROR_CHECK(nvs_flash_init());
-//     // printf("- NVS init ok\n");
-
-//     // release memory reserved for classic BT (not used)
-//     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
-//     printf("- Memory for classic BT released\n");
-
-//     // initialize the BT controller with the default config
-//     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-//     esp_bt_controller_init(&bt_cfg);
-//     printf("- BT controller init ok\n");
-
-//     // enable the BT controller in BLE mode
-//     esp_bt_controller_enable(ESP_BT_MODE_BLE);
-//     printf("- BT controller enabled in BLE mode\n");
-
-//     // initialize Bluedroid library
-//     esp_bluedroid_init();
-//     esp_bluedroid_enable();
-//     printf("- Bluedroid initialized and enabled\n");
-
-//     // register GAP callback function
-//     ESP_ERROR_CHECK(esp_ble_gap_register_callback(esp_gap_cb));
-//     printf("- GAP callback registered\n\n");
-
-//     // configure scan parameters
-//     esp_ble_gap_set_scan_params(&ble_scan_params);
-
-//     {
-//         const esp_timer_create_args_t periodic_timer_args = {
-//             .callback = &slow_timer_callback,
-//             .name = "periodic",
-//             .arg = conf};
-
-//         /* Create timer for logging scanned devices. */
-//         esp_timer_handle_t periodic_timer;
-//         ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-
-//         /* Start periodic timer for 5 sec. */
-//         ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 60000000)); // 60 sec
-//     }
-// }
-
 #include "esp_log.h"
 #include "nvs_flash.h"
 /* BLE */
@@ -175,8 +19,10 @@ static int periodic_sync_gap_event(struct ble_gap_event *event, void *arg);
 
 void ble_store_config_init(void);
 
+struct BTConf *conf;
+
 static void
-periodic_sync_scan(void)
+periodic_sync_scan()
 {
     uint8_t own_addr_type;
     struct ble_gap_disc_params disc_params;
@@ -208,7 +54,7 @@ periodic_sync_scan(void)
     disc_params.limited = 0;
 
     rc = ble_gap_disc(own_addr_type, BLE_HS_FOREVER, &disc_params,
-                      periodic_sync_gap_event, NULL);
+                      periodic_sync_gap_event, conf);
     if (rc != 0)
     {
         MODLOG_DFLT(ERROR, "Error initiating GAP discovery procedure; rc=%d\n",
@@ -306,6 +152,9 @@ void print_uuid(const ble_uuid_t *uuid)
 
 int periodic_sync_gap_event(struct ble_gap_event *event, void *arg)
 {
+
+    struct BTConf *conf = (struct BTConf *)arg;
+
     switch (event->type)
     {
     case BLE_GAP_EVENT_EXT_DISC:
@@ -393,11 +242,11 @@ int periodic_sync_gap_event(struct ble_gap_event *event, void *arg)
             {
                 if (manufacturer_valid)
                 {
-                    rfid_seen(*(uint64_t *)manufacturer, rssi);
+                    rfid_seen(*(uint64_t *)manufacturer, rssi, conf);
                 }
                 else
                 {
-                    rfid_seen(0, rssi);
+                    rfid_seen(0, rssi, conf);
                 }
             }
             else
@@ -434,7 +283,7 @@ periodic_sync_on_reset(int reason)
 }
 
 static void
-periodic_sync_on_sync(void)
+periodic_sync_on_sync()
 {
     int rc;
     /* Make sure we have proper identity address set (public preferred) */
@@ -454,8 +303,10 @@ void periodic_sync_host_task(void *param)
     nimble_port_freertos_deinit();
 }
 
-void bt_start(struct BTConf *conf)
+void bt_start(struct BTConf *arg)
 {
+
+    conf = arg;
 
     int rc;
     /* Initialize NVS — it is used to store PHY calibration data */
@@ -502,6 +353,6 @@ void bt_start(struct BTConf *conf)
         ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
 
         /* Start periodic timer for 5 sec. */
-        ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 60000000)); // 60 sec
+        ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 20 * 60 * 1000000)); // 60 sec
     }
 }

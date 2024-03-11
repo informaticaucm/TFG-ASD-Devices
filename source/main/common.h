@@ -65,8 +65,7 @@ TaskHandle_t xTaskCreateCap(TaskFunction_t pxTaskCode,
         }                               \
     }
 
-#define jsend_with_free(queue, msgType, msgPrep, freeProcedure) \
-    {                                   \
+#define jsend_with_free(queue, msgType, msgPrep, freeProcedure) { \
         struct msgType *msg = jalloc(sizeof(struct msgType)); \
         {msgPrep}                        \
         int res = xQueueSend(queue, &msg, 0);     \

@@ -43,15 +43,11 @@ int get_disposable_record_i(struct bt_device_record *device_history)
 
 void slow_timer_callback(void *arg)
 {
+
     struct BTConf *conf = (struct BTConf *)arg;
 
     struct ConnectionParameters parameters;
     j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-
-    if (get_last_ping_time() - esp_timer_get_time() > PING_RATE * 3)
-    {
-        return;
-    }
 
     jsend(conf->to_mqtt_queue, MQTTMsg, {
         msg->command = FetchBTMacs;
@@ -64,7 +60,7 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
     struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
     get_bt_device_history(device_history);
 
-    ESP_LOGE(TAG, "device seen %s", scanned_name);
+    // ESP_LOGE(TAG, "device seen %s", scanned_name);
 
     bool found = false;
     // check if device is already in history
@@ -118,8 +114,9 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
 
 uint64_t last_sn = 0;
 
-void rfid_seen(uint64_t sn, int rssi)
+void rfid_seen(uint64_t sn, int rssi, struct BTConf *conf)
 {
+
     if (sn != last_sn)
     {
         if (sn != 0)
@@ -129,7 +126,7 @@ void rfid_seen(uint64_t sn, int rssi)
             struct ConnectionParameters parameters;
             ESP_ERROR_CHECK(j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters)));
 
-            jsend(bt_conf.to_screen_queue, MQTTMsg, {
+            jsend(conf->to_mqtt_queue, MQTTMsg, {
                 msg->command = TagScanned;
                 msg->data.tag_scanned.sn = sn;
             });

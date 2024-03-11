@@ -15,4 +15,4 @@ void bt_start(struct BTConf *conf);
 void slow_timer_callback(void *arg);
 
 void device_seen(char *name, uint8_t *addr, int rssi);
-void rfid_seen(uint64_t sn, int rssi);
+void rfid_seen(uint64_t sn, int rssi,  struct BTConf *);

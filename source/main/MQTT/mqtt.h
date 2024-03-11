@@ -43,6 +43,7 @@ enum MQTTCommand
     SendPingToServer,
     FetchBTMacs,
     TagScanned,
+    
 };
 
 enum OTAState
