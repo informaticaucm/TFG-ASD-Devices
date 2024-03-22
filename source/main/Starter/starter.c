@@ -403,7 +403,7 @@ void starter_task(void *arg)
 
         if (starterState == Success)
         {
-            vTaskDelay(get_idle_task_delay());
+            vTaskDelay(100 * get_idle_task_delay());
         }
         else
         {

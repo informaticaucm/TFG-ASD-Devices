@@ -161,14 +161,23 @@ int periodic_sync_gap_event(struct ble_gap_event *event, void *arg)
         /* An advertisment report was received during GAP discovery. */
         struct ble_gap_ext_disc_desc *disc = ((struct ble_gap_ext_disc_desc *)(&event->disc));
 
+        char rev_mac[6];
+        memcpy(rev_mac, disc->addr.val, 6);
+
+        // reverse mac array
+        
         char mac[6];
-        memcpy(mac, disc->addr.val, 6);
+        for (int i = 0; i < 6; i++)
+        {
+            mac[i] = rev_mac[5 - i];
+        }
+
 
         int rssi = disc->rssi;
 
         /*
         Packet.ADTypes = {
-            0x01 : { name : "Flags", resolve: toStringArray },
+            0x01 : { name : "Flags", resolve: toStringArray },re
             0x02 : { name : "Incomplete List of 16-bit Service Class UUIDs", resolve: toOctetStringArray.bind(null, 2)},
             0x03 : { name : "Complete List of 16-bit Service Class UUIDs", resolve: toOctetStringArray.bind(null, 2) },
             0x04 : { name : "Incomplete List of 32-bit Service Class UUIDs", resolve: toOctetStringArray.bind(null, 4) },

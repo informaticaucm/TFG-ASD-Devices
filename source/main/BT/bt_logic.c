@@ -123,6 +123,15 @@ void rfid_seen(uint64_t sn, int rssi, struct BTConf *conf)
         {
             ESP_LOGI(TAG, "Tag scanned (sn: %" PRIu64 ") con rssi: %d", sn, rssi);
 
+            {
+                jsend(conf->to_screen_queue, ScreenMsg, {
+                    msg->command = StateSuccess;
+                    snprintf(msg->data.text, sizeof(msg->data.text), "tarjeta leida");
+                });
+            }
+
+            set_mode(state_display);
+
             struct ConnectionParameters parameters;
             ESP_ERROR_CHECK(j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters)));
 
