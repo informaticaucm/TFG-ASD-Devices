@@ -227,7 +227,7 @@ void app_main(void)
     ESP_LOGI(TAG, "TOTP started");
 
    
-    set_mode(state_display);
+    set_mode(qr_display);
 
     {
         struct bt_device_record bt_device_history[BT_DEVICE_HISTORY_SIZE];

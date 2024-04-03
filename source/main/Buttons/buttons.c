@@ -45,13 +45,13 @@ struct button_adc_config_t
     int button_index;
     int min;
     int max;
-    enum sys_mode mode;
+    enum ScreenMode mode;
 };
 
 struct button_adc_config_t adc_buttons[4] = {
     {1, 2800, 3000, qr_display},
-    {2, 2250, 2450, state_display},
-    {3, 300, 500, BT_list},
+    {2, 2250, 2450, qr_display},
+    {3, 300, 500, mirror},
     {4, 850, 1050, mirror}};
 int adc_button_num = 4;
 

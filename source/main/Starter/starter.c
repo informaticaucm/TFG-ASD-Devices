@@ -89,6 +89,11 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 
 esp_err_t connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf *conf)
 {
+
+    if(strlen(WIFI_SSID) == 0){
+        return ESP_ERR_INVALID_ARG;
+    }
+
     crash_wifi();
     s_wifi_event_group = xEventGroupCreate();
 
@@ -100,7 +105,8 @@ esp_err_t connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf 
 
     int err = esp_wifi_init(&cfg);
 
-    if(err != ESP_OK){
+    if (err != ESP_OK)
+    {
         return err;
     }
 
@@ -198,11 +204,6 @@ void manage_state(bool (*is_next_state_ready)(),
 
     // ESP_LOGE(TAG, "tries: %d", tries);
 
-    jsend(conf->to_screen_queue, ScreenMsg, {
-        msg->command = StateWarning;
-        strcpy(msg->data.text, state_string[starterState]);
-    });
-
     if (!is_next_state_ready())
     {
 
@@ -241,7 +242,6 @@ void try_connect_wifi(struct StarterConf *conf)
     int res = connect_wifi(parameters.qr_info.wifi_ssid, parameters.qr_info.wifi_psw, conf);
 
     ESP_LOGE(TAG, "wifi connection returned %s", esp_err_to_name(res));
-
 }
 
 bool is_wifi_connected()
@@ -362,8 +362,6 @@ int exponential_backoff(int tries)
 
 bool is_backend_connected()
 {
-    // ESP_LOGI(TAG, "checking if backend is connected %d %d", (int)time(0), get_last_ping_time());
-
     return get_last_ping_time() != -1 && time(0) - get_last_ping_time() < 10;
 }
 
@@ -397,7 +395,8 @@ void starter_task(void *arg)
     {
         if (is_ota_running())
         {
-            vTaskDelay(get_task_delay());
+            ESP_LOGE(TAG, "OTA is running, starter task waits");
+            vTaskDelay(get_idle_task_delay());
             continue;
         }
 
@@ -412,6 +411,11 @@ void starter_task(void *arg)
         }
 
         // ESP_LOGI(TAG, "managing state: %s", state_string[starterState]);
+
+        jsend(conf->to_screen_queue, ScreenMsg, {
+            msg->command = StarterStateInform;
+            msg->data.starter_state = starterState;
+        });
 
         switch (starterState)
         {
@@ -441,11 +445,14 @@ void starter_task(void *arg)
             break;
         }
 
+        ESP_LOGI(TAG, "starter tick");
+
         struct StarterMsg *msg;
         if (xQueueReceive(conf->to_starter_queue, &msg, get_task_delay()) != pdPASS)
         {
             continue;
         }
+        ESP_LOGI(TAG, "got a msg in starter");
 
         char *starter_command_to_string[] = {
             "QrInfo",
@@ -459,6 +466,7 @@ void starter_task(void *arg)
         {
         case QrInfo:
         {
+            ESP_LOGI(TAG, "received qr info");
             struct ConnectionParameters parameters;
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
             parameters.qr_info_valid = true;

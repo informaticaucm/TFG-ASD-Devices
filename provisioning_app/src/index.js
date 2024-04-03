@@ -4,16 +4,16 @@ let payload = "";
 
 const segment_size = 100;
 const conf_defaults = {
-    "thingsboard_url": "https://thingsboard.asd:8080",
-    "device_name": "name_here",
-    "space_id": 10,
-    "mqtt_broker_url": "mqtts://thingsboard.asd:8883",
-    "provisioning_device_key": "o7l9pkujk2xgnixqlimv",
-    "provisioning_device_secret": "of8htwr0xmh65wjpz7qe",
-    "wifi_psw": "1234567890",
-    "wifi_ssid": "tfgseguimientodocente",
-    "invalidate_backend_auth_auth": "0",
-    "invalidate_thingsboard_auth_auth": "0",
+    "thingsboard_url": { default_value: "https://thingsboard.asd:8080", type: "text" },
+    "device_name": { default_value: "name_here", type: "text" },
+    "space_id": { default_value: 10, type: "number" },
+    "mqtt_broker_url": { default_value: "mqtts://thingsboard.asd:8883", type: "text" },
+    "provisioning_device_key": { default_value: "o7l9pkujk2xgnixqlimv", type: "text" },
+    "provisioning_device_secret": { default_value: "of8htwr0xmh65wjpz7qe", type: "text" },
+    "wifi_psw": { default_value: "1234567890", type: "text" },
+    "wifi_ssid": { default_value: "tfgseguimientodocente", type: "text" },
+    "invalidate_backend_auth": { default_value: false, type: "checkbox" },
+    "invalidate_thingsboard_auth": { default_value: false, type: "checkbox" },
 };
 
 const transmision_interval = 1000;
@@ -21,19 +21,54 @@ const transmision_interval = 1000;
 const refresh_payload = () => {
     conf = {}
     for (const key in conf_defaults) {
+        let { type } = conf_defaults[key];
         const input = document.getElementById(key);
-        if(key == "space_id"){
-            conf[key] = parseInt(input.value);
-        }else if (key == "invalidate_backend_auth_auth" || key == "invalidate_thingsboard_auth_auth") {
-            conf[key] = input.value == "0" ? false : true;
-        }else{
-            conf[key] = input.value;
+        if (type == "number") {
+            if (document.getElementById("checkbox_for_" + key).checked)
+                conf[key] = parseInt(input.value);
+        } else if (type == "checkbox") {
+
+            conf[key] = input.checked;
+        } else {
+            if (document.getElementById("checkbox_for_" + key).checked)
+                conf[key] = input.value;
         }
     }
 
     payload = JSON.stringify(conf);
     text_display.innerHTML = payload;
 
+}
+
+function field_html(field, default_value, type) {
+    if (type == "text") {
+        return `
+            <div class="field m-1">
+                <input type="checkbox" id="checkbox_for_${field}" checked>
+                <label class="label" for="checkbox_for_${field}">${field}</label>
+                <div class="control">
+                    <input class="input form-control" type="text" id="${field}" value="${default_value}">
+                </div>
+            </div>
+        `;
+    } else if (type == "number") {
+        return `
+            <div class="field m-1" >
+                <input type="checkbox" id="checkbox_for_${field}" checked>
+                <label class="label" for="checkbox_for_${field}">${field}</label>
+                <div class="control">
+                    <input class="input form-control" type="number" id="${field}" value="${default_value}">
+                </div>
+            </div>
+        `;
+    } else if (type == "checkbox") {
+        return `
+            <div class="field m-1">
+                <input type="checkbox" id="${field}" ${default_value ? "checked" : ""}>
+                <label class="label" for="${field}">${field}</label>
+            </div>
+        `;
+    }
 }
 
 
@@ -43,11 +78,22 @@ window.addEventListener('load', function () {
 
 
     for (const key in conf_defaults) {
-        const input = document.getElementById(key);
-        input.value = conf_defaults[key];
-        input.addEventListener("input", refresh_payload)
-        refresh_payload()
+        let { default_value, type } = conf_defaults[key];
+        document.getElementById("form").innerHTML += field_html(key, default_value, type);
     }
+
+
+    for (const key in conf_defaults) {
+        let { default_value, type } = conf_defaults[key];
+
+        console.log(document.getElementById(key))
+        document.getElementById(key).addEventListener("input", refresh_payload);
+        if (type != "checkbox") {
+            document.getElementById("checkbox_for_" + key).addEventListener("input", refresh_payload);
+        }
+    }
+
+    refresh_payload()
 
     document.getElementById("start_transmision").addEventListener("click", async () => {
         document.getElementById('data_input').style.display = 'none';
@@ -60,9 +106,9 @@ window.addEventListener('load', function () {
         console.log("sending segments")
         do {
             for (let i = 0; i < payload.length; i += segment_size) {
-                set_text("reconf" + JSON.stringify({ packet_type: "segment", i : i / segment_size, data: payload.slice(i, i + segment_size) }))
+                set_text("reconf" + JSON.stringify({ packet_type: "segment", i: i / segment_size, data: payload.slice(i, i + segment_size) }))
                 await wait(transmision_interval);
-                if(click) break;
+                if (click) break;
             }
         } while (!click)
 

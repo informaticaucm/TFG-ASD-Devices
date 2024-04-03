@@ -25,6 +25,7 @@
 #include "../SYS_MODE/sys_mode.h"
 
 #include "../common.h"
+#include "../nvs_plugin.h"
 #include "../Camera/camera.h"
 #include "../Screen/screen.h"
 
@@ -143,11 +144,9 @@ void qr_seen(struct QRConf *conf, char *data)
 
             {
                 jsend(conf->to_screen_queue, ScreenMsg, {
-                    msg->command = StateWarning;
+                    msg->command = ShowMsg;
                     snprintf(msg->data.text, sizeof(msg->data.text), "Recieving configuration\n%s", payload_segment_validation);
                 });
-
-                set_tmp_mode(state_display, 1, mirror);
             }
 
             if (complete_payload)
@@ -158,31 +157,55 @@ void qr_seen(struct QRConf *conf, char *data)
 
                 jsend(conf->to_starter_queue, StarterMsg, {
                     msg->command = QrInfo;
-                    json_obj_get_string(&jctx, "device_name", msg->data.qr.qr_info.device_name, 50);
-                    json_obj_get_int(&jctx, "space_id", &msg->data.qr.qr_info.space_id);
-                    json_obj_get_string(&jctx, "thingsboard_url", msg->data.qr.qr_info.thingsboard_url, URL_SIZE);
-                    json_obj_get_string(&jctx, "mqtt_broker_url", msg->data.qr.qr_info.mqtt_broker_url, URL_SIZE);
-                    json_obj_get_string(&jctx, "provisioning_device_key", msg->data.qr.qr_info.provisioning_device_key, 21);
-                    json_obj_get_string(&jctx, "provisioning_device_secret", msg->data.qr.qr_info.provisioning_device_secret, 21);
-                    json_obj_get_string(&jctx, "wifi_psw", msg->data.qr.qr_info.wifi_psw, 30);
-                    json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.qr_info.wifi_ssid, 30);
 
-                    ESP_LOGI(TAG, "json field device_name %s", msg->data.qr.qr_info.device_name);
-                    ESP_LOGI(TAG, "json field space_id %d", msg->data.qr.qr_info.space_id);
-                    ESP_LOGI(TAG, "json field thingsboard_url %s", msg->data.qr.qr_info.thingsboard_url);
-                    ESP_LOGI(TAG, "json field mqtt_broker_url %s", msg->data.qr.qr_info.mqtt_broker_url);
-                    ESP_LOGI(TAG, "json field provisioning_device_key %s", msg->data.qr.qr_info.provisioning_device_key);
-                    ESP_LOGI(TAG, "json field provisioning_device_secret %s", msg->data.qr.qr_info.provisioning_device_secret);
-                    ESP_LOGI(TAG, "json field wifi_psw %s", msg->data.qr.qr_info.wifi_psw);
-                    ESP_LOGI(TAG, "json field wifi_ssid %s", msg->data.qr.qr_info.wifi_ssid);
+                    struct ConnectionParameters parameters;
+                    j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+
+                    msg->data.qr.qr_info = parameters.qr_info;
+                    msg->data.qr.invalidate_backend_auth = false;
+                    msg->data.qr.invalidate_thingsboard_auth = false;
+
+                    if (json_obj_get_string(&jctx, "device_name", msg->data.qr.qr_info.device_name, 50) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field device_name %s", msg->data.qr.qr_info.device_name);
+
+                    if (json_obj_get_int(&jctx, "space_id", &msg->data.qr.qr_info.space_id) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field space_id %d", msg->data.qr.qr_info.space_id);
+
+                    if (json_obj_get_string(&jctx, "thingsboard_url", msg->data.qr.qr_info.thingsboard_url, URL_SIZE) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field thingsboard_url %s", msg->data.qr.qr_info.thingsboard_url);
+
+                    if (json_obj_get_string(&jctx, "mqtt_broker_url", msg->data.qr.qr_info.mqtt_broker_url, URL_SIZE) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field mqtt_broker_url %s", msg->data.qr.qr_info.mqtt_broker_url);
+
+                    if (json_obj_get_string(&jctx, "provisioning_device_key", msg->data.qr.qr_info.provisioning_device_key, 21) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field provisioning_device_key %s", msg->data.qr.qr_info.provisioning_device_key);
+
+                    if (json_obj_get_string(&jctx, "provisioning_device_secret", msg->data.qr.qr_info.provisioning_device_secret, 21) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field provisioning_device_secret %s", msg->data.qr.qr_info.provisioning_device_secret);
+
+                    if (json_obj_get_string(&jctx, "wifi_psw", msg->data.qr.qr_info.wifi_psw, 30) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field wifi_psw %s", msg->data.qr.qr_info.wifi_psw);
+
+                    if (json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.qr_info.wifi_ssid, 30) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field wifi_ssid %s", msg->data.qr.qr_info.wifi_ssid);
+
+
+
+
+
+                    if (json_obj_get_bool(&jctx, "invalidate_thingsboard_auth", &msg->data.qr.invalidate_thingsboard_auth) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field invalidate_thingsboard_auth %d", msg->data.qr.invalidate_thingsboard_auth);
+
+                    if (json_obj_get_bool(&jctx, "invalidate_backend_auth", &msg->data.qr.invalidate_backend_auth) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field invalidate_backend_auth %d", msg->data.qr.invalidate_backend_auth);
+
+
                 });
 
                 jsend(conf->to_screen_queue, ScreenMsg, {
-                    msg->command = StateSuccess;
+                    msg->command = ShowMsg;
                     snprintf(msg->data.text, sizeof(msg->data.text), "Recieving configuration is over");
                 });
-
-                set_tmp_mode(state_display, 1, mirror);
 
                 free(payload_buffer);
                 payload_buffer = NULL;

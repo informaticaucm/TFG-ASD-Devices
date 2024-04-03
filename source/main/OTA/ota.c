@@ -62,7 +62,7 @@ void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
 
         jsend(
             conf->to_screen_queue, ScreenMsg, {
-                msg->command = StateText;
+                msg->command = ShowMsg;
                 strcpy(msg->data.text, ota_state_to_text[OTA_state]);
             })
     }
@@ -77,7 +77,7 @@ void command_ota_fail(char *error, struct OTAConf *conf)
     });
 
     jsend(conf->to_screen_queue, ScreenMsg, {
-        msg->command = StateError;
+        msg->command = ShowMsg;
         strcpy(msg->data.text, error);
     });
 }
@@ -168,7 +168,7 @@ void ota_routine(char *url, struct OTAConf *conf)
     if (err != ESP_OK)
     {
         jsend(conf->to_screen_queue, ScreenMsg, {
-            msg->command = StateError;
+            msg->command = ShowMsg;
             strcpy(msg->data.text, "la version del ota es la misma que la versión actual");
         });
 
@@ -201,7 +201,7 @@ void ota_routine(char *url, struct OTAConf *conf)
 
         {
             jsend(conf->to_screen_queue, ScreenMsg, {
-                msg->command = StateText;
+                msg->command = ShowMsg;
                 snprintf(msg->data.text, sizeof(msg->data.text), "Image bytes downloaded: %f%%", progress * 100);
             });
         }

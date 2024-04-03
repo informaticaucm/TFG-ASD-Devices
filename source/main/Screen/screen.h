@@ -13,12 +13,11 @@ enum ScreenCommand
 {
     DrawQr,
 
-    StateWarning,
-    StateSuccess,
-    StateError,
-    StateText,
+    StarterStateInform,
 
     Mirror,
+
+    ShowMsg,
 };
 
 struct ScreenMsg
@@ -26,6 +25,7 @@ struct ScreenMsg
     enum ScreenCommand command;
     union
     {
+        enum StarterState starter_state;
         char text[MAX_QR_SIZE];
         struct meta_frame *mf;
     } data;

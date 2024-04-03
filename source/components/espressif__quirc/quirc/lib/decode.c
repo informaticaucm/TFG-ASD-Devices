@@ -403,7 +403,6 @@ static quirc_decode_error_t correct_format(uint16_t *f_ret)
 
 	if (format_syndromes(u, s))
 	{
-		ESP_LOGE("log", "paso por aqui");
 		return QUIRC_ERROR_FORMAT_ECC;
 	}
 

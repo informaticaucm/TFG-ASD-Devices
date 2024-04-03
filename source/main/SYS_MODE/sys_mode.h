@@ -4,13 +4,13 @@
 #include "../common.h"
 #include <time.h>
 
-enum sys_mode
+enum ScreenMode
 {
     mirror,
     qr_display,
-    state_display,
-    BT_list,
+    msg_display,
     button_test,
+    
 };
 
 #define VALID_ENTRY(x) ((x.valid) && (time(0) - x.last_time) < BT_DEVICE_HISTORY_MAX_AGE)
@@ -30,8 +30,8 @@ struct sys_mode_state
     int rt_task_delay;
     int idle_task_delay;
     bool ota_running;
-    enum sys_mode mode;
-    enum sys_mode tmp_mode;
+    enum ScreenMode mode;
+    enum ScreenMode tmp_mode;
     int tmp_mode_expiration;
     char version[32];
     bool mqtt_normal_operation;
@@ -41,9 +41,10 @@ struct sys_mode_state
     struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
 };
 
-enum sys_mode get_mode();
-void set_mode(enum sys_mode mode);
-void set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode);
+enum ScreenMode get_mode();
+enum ScreenMode get_notmp_mode();
+void set_mode(enum ScreenMode mode);
+void set_tmp_mode(enum ScreenMode mode, int sec_duration, enum ScreenMode next_mode);
 
 void set_bt_device_history(struct bt_device_record *bt_device_history);
 void get_bt_device_history(struct bt_device_record *bt_device_history);

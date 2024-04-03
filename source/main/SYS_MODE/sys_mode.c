@@ -44,21 +44,33 @@ void init()
         }                                              \
     } while (0)
 
-void set_mode(enum sys_mode mode)
+void set_mode(enum ScreenMode mode)
 {
+    ESP_LOGE(TAG, "Setting mode %d", mode);
     critical_section(state.mode = mode);
 }
 
-void set_tmp_mode(enum sys_mode mode, int sec_duration, enum sys_mode next_mode)
+void set_tmp_mode(enum ScreenMode mode, int sec_duration, enum ScreenMode next_mode)
 {
+    ESP_LOGE(TAG, "Setting tmp mode %d for %d seconds", mode, sec_duration);
     critical_section(state.tmp_mode = mode;
                      state.tmp_mode_expiration = time(0) + sec_duration;
                      state.mode = next_mode);
 }
 
-enum sys_mode get_mode()
+
+enum ScreenMode get_notmp_mode()
 {
-    enum sys_mode ret = mirror;
+    enum ScreenMode ret = qr_display;
+    critical_section(  
+        ret = state.mode;
+    );
+    return ret;
+}
+
+enum ScreenMode get_mode()
+{
+    enum ScreenMode ret = qr_display;
     critical_section(
         if (state.tmp_mode_expiration > time(0)) {
             ret = state.tmp_mode;
