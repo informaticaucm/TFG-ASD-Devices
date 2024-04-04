@@ -84,6 +84,65 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                 memcpy(msg->data.backend_info.totp_seed, totp_secret, 17);
             });
         }
+
+        if (0 == strcmp(method, "seguimiento"))
+        {
+            int feedback_code = 0;
+
+            json_obj_get_object(&jctx, "response");
+            json_obj_get_int(&jctx, "feedback_code", &feedback_code);
+
+            switch (feedback_code){
+                case 1:
+                    jsend(conf->to_screen_queue, ScreenMsg, {
+                        msg->command = Flash;
+                        msg->data.icon = OK_Icon;
+                    });
+                    break;
+
+                case 2:
+                    jsend(conf->to_screen_queue, ScreenMsg, {
+                        msg->command = Flash;
+                        msg->data.icon = OtherClass_Icon;
+                    });
+                    break;
+                default:
+                    // Ha ido bien?
+            }
+        }
+
+        if (0 == strcmp(method, "seguimiento_err"))
+        {
+            // 400 - formato de un dato incorrecto
+            // 404 - la id no existe
+            // 422 - formato del mensaje incorrecto
+
+
+            int err_code = 0;
+
+            json_obj_get_object(&jctx, "response");
+            json_obj_get_int(&jctx, "status_code", &err_code);
+
+            ESP_LOGI(TAG, "ERR CODE: %d", err_code);
+
+            switch (err_code)
+            {
+            case 404:
+
+                jsend(conf->to_screen_queue, ScreenMsg, {
+                        msg->command = Flash;
+                        msg->data.icon = NotFound_Icon;
+                    });
+                break;
+
+            default:
+
+                // unknown error
+
+                break;
+            }
+        }
+
         if (0 == strcmp(method, "ble"))
         {
             struct ConnectionParameters parameters;

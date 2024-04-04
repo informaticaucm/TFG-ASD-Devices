@@ -33,8 +33,12 @@
 #include "../SYS_MODE/sys_mode.h"
 
 #define ALLOWED_AGE_FOR_QR 10
+#define FLASH_TIME 10;
+
 void screen_task(void *arg)
 {
+    int flash_timeout = 0;
+    enum Icon flash_icon_code = 0;
 
     struct ScreenConf *conf = arg;
 
@@ -89,6 +93,9 @@ void screen_task(void *arg)
     lv_obj_align(notification_textarea, LV_ALIGN_CENTER, 0, -100);
     lv_obj_add_style(notification_textarea, &label_style, LV_PART_MAIN);
 
+    lv_obj_t *flash_img = lv_img_create(lv_scr_act());
+    lv_obj_align(flash_img, LV_ALIGN_CENTER, 0, 0);
+
     while (1)
     {
 
@@ -101,6 +108,7 @@ void screen_task(void *arg)
             {
             case StarterStateInform:
             {
+                ESP_LOGE(TAG, "cambio de estado en la notificacion");
                 starter_state = msg->data.starter_state;
                 break;
             }
@@ -125,6 +133,12 @@ void screen_task(void *arg)
                 held_mf = msg->data.mf;
                 break;
             }
+            case Flash:
+            {
+                ESP_LOGE(TAG, "STARTED FLASH WITH %d, until %d ", msg->data.icon, time(0) + FLASH_TIME);
+                flash_icon_code = msg->data.icon;
+                flash_timeout = time(0) + FLASH_TIME;
+            }
             }
 
             free(msg);
@@ -148,123 +162,156 @@ void screen_task(void *arg)
 
         bsp_display_lock(0);
 
-        if (starter_state != Success)
+        ESP_LOGE("time: %d, flash_timeout: %d, %d", time(0), flash_timeout, time(0) < flash_timeout);
+
+        if (time(0) < flash_timeout)
         {
-            lv_obj_clear_flag(notification_textarea, LV_OBJ_FLAG_HIDDEN);
 
-            char notification[100];
+            lv_obj_add_flag(qr_obj_full_screen, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(qr_obj_smaller, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(bg_image, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(msg_label, LV_OBJ_FLAG_HIDDEN);
 
-            char *stater_state_to_string[] = {
-                "NoQRConfig",
-                "NoWifi",
-                "NoAuth",
-                "NoTB",
-                "NoBackendAuth",
-                "NoBackend",
-                "Success"};
+            lv_obj_clear_flag(flash_img, LV_OBJ_FLAG_HIDDEN);
 
-            snprintf(notification, sizeof(notification), "estado: %s", stater_state_to_string[starter_state]);
+            switch (flash_icon_code)
+            {
+            case OK_Icon:
+                lv_img_set_src(flash_img, &success);
+                break;
 
-            lv_label_set_text(notification_textarea, notification);
+            case NotFound_Icon:
+                lv_img_set_src(flash_img, &failure);
+                break;
+
+            case OtherClass_Icon:
+                lv_img_set_src(flash_img, &warning);
+                break;
+            }
         }
         else
         {
-            lv_obj_add_flag(notification_textarea, LV_OBJ_FLAG_HIDDEN);
-        }
-
-        switch (get_mode())
-        {
-
-        case msg_display:
-        {
-
-            // ESP_LOGE(TAG, "msg_display %s", msg_text);
-
-            lv_obj_add_flag(qr_obj_full_screen, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(qr_obj_smaller, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(bg_image, LV_OBJ_FLAG_HIDDEN);
-
-            lv_obj_clear_flag(msg_label, LV_OBJ_FLAG_HIDDEN);
-
-            lv_label_set_text(msg_label, msg_text);
-
-            break;
-        }
-        case qr_display:
-        {
-
-            // ESP_LOGE(TAG, "qr_display %s", qr_data);
-
-            lv_obj_add_flag(bg_image, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(msg_label, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
-
-            lv_obj_t *used_qr = qr_obj_full_screen;
-            lv_obj_t *unused_qr = qr_obj_smaller;
+            lv_obj_add_flag(flash_img, LV_OBJ_FLAG_HIDDEN);
 
             if (starter_state != Success)
             {
-                unused_qr = qr_obj_full_screen;
-                used_qr = qr_obj_smaller;
-            }
+                lv_obj_clear_flag(notification_textarea, LV_OBJ_FLAG_HIDDEN);
 
-            lv_obj_add_flag(unused_qr, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(used_qr, LV_OBJ_FLAG_HIDDEN);
+                char notification[100];
 
-            if (ALLOWED_AGE_FOR_QR > time(0) - qr_timestamp)
+                char *stater_state_to_string[] = {
+                    "NoQRConfig",
+                    "NoWifi",
+                    "NoAuth",
+                    "NoTB",
+                    "NoBackendAuth",
+                    "NoBackend",
+                    "Success"};
 
-            {
-                lv_qrcode_update(used_qr, qr_data, strlen(qr_data));
+                snprintf(notification, sizeof(notification), "estado: %s", stater_state_to_string[starter_state]);
+
+                lv_label_set_text(notification_textarea, notification);
             }
             else
             {
-                char err[] = "no tenemos el totp todavía";
-                lv_qrcode_update(used_qr, err, sizeof(err));
+                lv_obj_add_flag(notification_textarea, LV_OBJ_FLAG_HIDDEN);
             }
 
-            break;
+            switch (get_mode())
+            {
+
+            case msg_display:
+            {
+
+                // ESP_LOGE(TAG, "msg_display %s", msg_text);
+
+                lv_obj_add_flag(qr_obj_full_screen, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(qr_obj_smaller, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(bg_image, LV_OBJ_FLAG_HIDDEN);
+
+                lv_obj_clear_flag(msg_label, LV_OBJ_FLAG_HIDDEN);
+
+                lv_label_set_text(msg_label, msg_text);
+
+                break;
+            }
+            case qr_display:
+            {
+
+                // ESP_LOGE(TAG, "qr_display %s", qr_data);
+
+                lv_obj_add_flag(bg_image, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(msg_label, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+
+                lv_obj_t *used_qr = qr_obj_full_screen;
+                lv_obj_t *unused_qr = qr_obj_smaller;
+
+                if (starter_state != Success)
+                {
+                    unused_qr = qr_obj_full_screen;
+                    used_qr = qr_obj_smaller;
+                }
+
+                lv_obj_add_flag(unused_qr, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(used_qr, LV_OBJ_FLAG_HIDDEN);
+
+                if (ALLOWED_AGE_FOR_QR > time(0) - qr_timestamp)
+
+                {
+                    lv_qrcode_update(used_qr, qr_data, strlen(qr_data));
+                }
+                else
+                {
+                    char err[] = "no tenemos el totp todavía";
+                    lv_qrcode_update(used_qr, err, sizeof(err));
+                }
+
+                break;
+            }
+            case mirror:
+            {
+                // ESP_LOGE(TAG, "mirror tick %p", held_mf);
+
+                lv_obj_add_flag(bg_image, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(msg_label, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(qr_obj_full_screen, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(qr_obj_smaller, LV_OBJ_FLAG_HIDDEN);
+
+                lv_obj_clear_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+
+                lv_img_dsc_t img = {
+                    .header.always_zero = 0,
+                    .header.cf = LV_IMG_CF_TRUE_COLOR,
+                    .header.w = IMG_WIDTH,
+                    .header.h = IMG_HEIGHT,
+                    .data_size = sizeof(held_mf->buf),
+                    .data = held_mf->buf,
+                };
+
+                lv_img_set_src(mirror_img, &img);
+
+                break;
+            }
+            case button_test:
+            {
+
+                lv_obj_add_flag(qr_obj_full_screen, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(qr_obj_smaller, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(bg_image, LV_OBJ_FLAG_HIDDEN);
+
+                lv_obj_clear_flag(msg_label, LV_OBJ_FLAG_HIDDEN);
+                lv_label_set_text_fmt(msg_label, "pulse los 4 botones para continuar");
+
+                break;
+            }
+            }
+
+            bsp_display_unlock();
         }
-        case mirror:
-        {
-            // ESP_LOGE(TAG, "mirror tick %p", held_mf);
-
-            lv_obj_add_flag(bg_image, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(msg_label, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(qr_obj_full_screen, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(qr_obj_smaller, LV_OBJ_FLAG_HIDDEN);
-
-            lv_obj_clear_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
-
-            lv_img_dsc_t img = {
-                .header.always_zero = 0,
-                .header.cf = LV_IMG_CF_TRUE_COLOR,
-                .header.w = IMG_WIDTH,
-                .header.h = IMG_HEIGHT,
-                .data_size = sizeof(held_mf->buf),
-                .data = held_mf->buf,
-            };
-
-            lv_img_set_src(mirror_img, &img);
-
-            break;
-        }
-        case button_test:
-        {
-
-            lv_obj_add_flag(qr_obj_full_screen, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(qr_obj_smaller, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(mirror_img, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(bg_image, LV_OBJ_FLAG_HIDDEN);
-
-            lv_obj_clear_flag(msg_label, LV_OBJ_FLAG_HIDDEN);
-            lv_label_set_text_fmt(msg_label, "pulse los 4 botones para continuar");
-
-            break;
-        }
-        }
-
-        bsp_display_unlock();
     }
 }
 

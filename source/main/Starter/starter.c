@@ -61,6 +61,12 @@ void setState(enum StarterState state, struct StarterConf *conf)
     starterState = state;
 
     ESP_LOGI(TAG, "starter state changed to %s", state_string[state]);
+
+    jsend(conf->to_screen_queue, ScreenMsg, {
+        msg->command = StarterStateInform;
+        msg->data.starter_state = starterState;
+    });
+
 }
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -393,6 +399,7 @@ void starter_task(void *arg)
 
     while (1)
     {
+        ESP_LOGE(TAG, "tick starter");
         if (is_ota_running())
         {
             ESP_LOGE(TAG, "OTA is running, starter task waits");
@@ -412,11 +419,7 @@ void starter_task(void *arg)
 
         // ESP_LOGI(TAG, "managing state: %s", state_string[starterState]);
 
-        jsend(conf->to_screen_queue, ScreenMsg, {
-            msg->command = StarterStateInform;
-            msg->data.starter_state = starterState;
-        });
-
+      
         switch (starterState)
         {
         case NoQRConfig:
@@ -445,14 +448,11 @@ void starter_task(void *arg)
             break;
         }
 
-        ESP_LOGI(TAG, "starter tick");
-
         struct StarterMsg *msg;
         if (xQueueReceive(conf->to_starter_queue, &msg, get_task_delay()) != pdPASS)
         {
             continue;
         }
-        ESP_LOGI(TAG, "got a msg in starter");
 
         char *starter_command_to_string[] = {
             "QrInfo",
@@ -460,13 +460,10 @@ void starter_task(void *arg)
             "BackendInfo",
             "InvalidateConfig"};
 
-        ESP_LOGI(TAG, "starter received message %s", starter_command_to_string[msg->command]);
-
         switch (msg->command)
         {
         case QrInfo:
         {
-            ESP_LOGI(TAG, "received qr info");
             struct ConnectionParameters parameters;
             j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
             parameters.qr_info_valid = true;

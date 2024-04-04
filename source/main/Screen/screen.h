@@ -11,6 +11,8 @@
 
 enum ScreenCommand
 {
+    Flash,
+
     DrawQr,
 
     StarterStateInform,
@@ -18,6 +20,12 @@ enum ScreenCommand
     Mirror,
 
     ShowMsg,
+};
+
+enum Icon{
+    OK_Icon,
+    NotFound_Icon,
+    OtherClass_Icon,
 };
 
 struct ScreenMsg
@@ -28,6 +36,7 @@ struct ScreenMsg
         enum StarterState starter_state;
         char text[MAX_QR_SIZE];
         struct meta_frame *mf;
+        enum Icon icon;
     } data;
 };
 
