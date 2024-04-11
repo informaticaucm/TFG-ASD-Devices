@@ -54,6 +54,8 @@ void crash_wifi()
     }
 }
 
+bool inmediate_retick = false;
+
 void setState(enum StarterState state, struct StarterConf *conf)
 {
     tries = 0;
@@ -66,7 +68,6 @@ void setState(enum StarterState state, struct StarterConf *conf)
         msg->command = StarterStateInform;
         msg->data.starter_state = starterState;
     });
-
 }
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -96,7 +97,8 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 esp_err_t connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf *conf)
 {
 
-    if(strlen(WIFI_SSID) == 0){
+    if (strlen(WIFI_SSID) == 0)
+    {
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -234,6 +236,7 @@ void manage_state(bool (*is_next_state_ready)(),
     else
     {
         setState(next_state, conf);
+        inmediate_retick = true;
     }
 }
 
@@ -406,19 +409,22 @@ void starter_task(void *arg)
             continue;
         }
 
-        if (starterState == Success)
+        if (inmediate_retick)
         {
-            vTaskDelay(100 * get_idle_task_delay());
-        }
-        else
-        {
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            // ESP_LOGE(TAG, "starter is on state %s with tries %d (%d)", state_string[starterState], tries, cooldown);
+            inmediate_retick = false;
+            if (starterState == Success)
+            {
+                vTaskDelay(100 * get_idle_task_delay());
+            }
+            else
+            {
+                vTaskDelay(1000 / portTICK_PERIOD_MS);
+                // ESP_LOGE(TAG, "starter is on state %s with tries %d (%d)", state_string[starterState], tries, cooldown);
+            }
         }
 
         // ESP_LOGI(TAG, "managing state: %s", state_string[starterState]);
 
-      
         switch (starterState)
         {
         case NoQRConfig:

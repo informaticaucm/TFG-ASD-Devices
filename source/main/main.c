@@ -226,7 +226,6 @@ void app_main(void)
     start_totp(totp_conf);
     ESP_LOGI(TAG, "TOTP started");
 
-   
     set_mode(qr_display);
 
     {
@@ -245,7 +244,10 @@ void app_main(void)
 
     bt_start(bt_conf);
 
-
     ESP_LOGI(TAG, "BT started");
 
+    jsend(to_screen_queue, ScreenMsg, {
+        msg->command = Flash;
+        msg->data.icon = OK_Icon;
+    });
 }

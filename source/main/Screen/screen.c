@@ -33,7 +33,7 @@
 #include "../SYS_MODE/sys_mode.h"
 
 #define ALLOWED_AGE_FOR_QR 10
-#define FLASH_TIME 10
+#define FLASH_TIME 4
 
 void screen_task(void *arg)
 {
@@ -309,9 +309,8 @@ void screen_task(void *arg)
                 break;
             }
             }
-
-            bsp_display_unlock();
         }
+        bsp_display_unlock();
     }
 }
 

@@ -46,8 +46,8 @@ enum ScreenMode get_notmp_mode();
 void set_mode(enum ScreenMode mode);
 void set_tmp_mode(enum ScreenMode mode, int sec_duration, enum ScreenMode next_mode);
 
-void set_bt_device_history(struct bt_device_record *bt_device_history);
-void get_bt_device_history(struct bt_device_record *bt_device_history);
+void set_bt_device_history(struct bt_device_record bt_device_history[BT_DEVICE_HISTORY_SIZE]);
+void get_bt_device_history(struct bt_device_record bt_device_history[BT_DEVICE_HISTORY_SIZE]);
 
 void set_version(char version[32]);
 void get_version(char version[32]);

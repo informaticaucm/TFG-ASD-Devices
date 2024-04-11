@@ -80,12 +80,12 @@ enum ScreenMode get_mode()
     return ret;
 }
 
-void set_bt_device_history(struct bt_device_record *bt_device_history)
+void set_bt_device_history(struct bt_device_record bt_device_history[BT_DEVICE_HISTORY_SIZE])
 {
     critical_section(memcpy(state.device_history, bt_device_history, sizeof(state.device_history)));
 }
 
-void get_bt_device_history(struct bt_device_record *bt_device_history)
+void get_bt_device_history(struct bt_device_record bt_device_history[BT_DEVICE_HISTORY_SIZE])
 {
     critical_section(memcpy(bt_device_history, state.device_history, sizeof(state.device_history)));
 }
