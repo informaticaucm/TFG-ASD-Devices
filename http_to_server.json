@@ -1,0 +1,676 @@
+{
+  "ruleChain": {
+    "additionalInfo": {
+      "description": ""
+    },
+    "name": "http_to_server",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null
+  },
+  "metadata": {
+    "firstNodeIndex": 12,
+    "nodes": [
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 814,
+          "layoutY": 478
+        },
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Backend post dispositivos",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 1,
+        "configuration": {
+          "restEndpointUrlPattern": "http://10.3.141.119:8070/api/v1/dispositivos",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 0,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-API-KEY": "abcdef12345"
+          },
+          "useRedisQueueForMsgPersistence": false,
+          "trimQueue": null,
+          "maxQueueSize": null,
+          "credentials": {
+            "type": "anonymous"
+          }
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 512,
+          "layoutY": 485
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "msg = msg.params.request_body",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: msg.params.request_body, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1045,
+          "layoutY": 480
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "msg = {method, msg}",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: {\"method\":\"dispositivos\", response: msg}, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 167,
+          "layoutY": 698
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbJsSwitchNode",
+        "name": "path switch",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "function nextRelation(metadata, msg) {\n    return ['one','nine'];\n}\nif(msgType === 'POST_TELEMETRY_REQUEST') {\n    return ['two'];\n}\nreturn nextRelation(metadata, msg);",
+          "tbelScript": "return msg.params.path"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 521,
+          "layoutY": 659
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "msg = msg.params.request_body",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: msg.params.request_body, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 800,
+          "layoutY": 675
+        },
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Backend get ping",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 1,
+        "configuration": {
+          "restEndpointUrlPattern": "http://10.3.141.119:8070/api/v1/ping",
+          "requestMethod": "GET",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 0,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-API-KEY": "cuyalqurkjdkjfshsadfnb "
+          },
+          "useRedisQueueForMsgPersistence": false,
+          "trimQueue": null,
+          "maxQueueSize": null,
+          "credentials": {
+            "type": "anonymous"
+          }
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1050,
+          "layoutY": 678
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "msg = {method, msg}",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: {\"method\":\"ping\", response: msg}, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1360,
+          "layoutY": 571
+        },
+        "type": "org.thingsboard.rule.engine.flow.TbRuleChainOutputNode",
+        "name": "Success",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "version": 0
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 717,
+          "layoutY": 347
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "preping log",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nPRE-DEVICE:' + JSON.stringify(msg) + '\\n';"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 694,
+          "layoutY": 544
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "preping log",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nPRE-PING:' + JSON.stringify(msg) + '\\n';"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1082,
+          "layoutY": 346
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "preping log",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nPOS-DEVICE:' + JSON.stringify(msg) + '\\n';"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1059,
+          "layoutY": 543
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "preping log",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nPOS-PONG:' + JSON.stringify(msg) + '\\n';"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 468,
+          "layoutY": 163
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "log",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nSeding to server:\\n' + JSON.stringify(msg) + '\\n';"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 478,
+          "layoutY": 782
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "msg = msg.params.request_body",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: msg.params.request_body, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 724,
+          "layoutY": 791
+        },
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Backend post seguimiento",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 1,
+        "configuration": {
+          "restEndpointUrlPattern": "http://10.3.141.119:8070/api/v1/seguimiento",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 0,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-API-KEY": "cuyalqurkjdkjfshsadfnb "
+          },
+          "useRedisQueueForMsgPersistence": false,
+          "trimQueue": null,
+          "maxQueueSize": null,
+          "credentials": {
+            "type": "anonymous"
+          }
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 459,
+          "layoutY": 1110
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "msg = msg.params.request_body",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: msg.params.request_body, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 780,
+          "layoutY": 1119
+        },
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "Backend get ping",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 1,
+        "configuration": {
+          "restEndpointUrlPattern": "http://10.3.141.119:8070/api/v1/ble",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 0,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "X-API-KEY": "cuyalqurkjdkjfshsadfnb "
+          },
+          "useRedisQueueForMsgPersistence": false,
+          "trimQueue": null,
+          "maxQueueSize": null,
+          "credentials": {
+            "type": "anonymous"
+          }
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1067,
+          "layoutY": 1149
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "msg = {method, msg}",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: {\"method\":\"ble\", response: msg}, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 662,
+          "layoutY": 1026
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "preble log",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nPRE-BLE:' + JSON.stringify(msg) + '\\n';"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1053,
+          "layoutY": 1090
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "preble log",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nPOS-BLE:' + JSON.stringify(msg) + '\\n';"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 721,
+          "layoutY": 739
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "preseguimiento log",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nPRE-seguimiento:' + JSON.stringify(msg) + '\\n';"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1039,
+          "layoutY": 729
+        },
+        "type": "org.thingsboard.rule.engine.action.TbLogNode",
+        "name": "preseguimiento log",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return '\\nIncoming message:\\n' + JSON.stringify(msg) + '\\nIncoming metadata:\\n' + JSON.stringify(metadata);",
+          "tbelScript": "return '\\nPOS-SEGUIMIENTO:' + JSON.stringify(msg) + JSON.stringify(metadata) + '\\n';"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1033,
+          "layoutY": 838
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "msg = {method, msg}",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: {\"method\":\"seguimiento\", response: msg}, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1034,
+          "layoutY": 927
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "msg = {method, msg}",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "return {msg: {\"method\":\"seguimiento_err\", response: {error_body: metadata.error_body, status_code: Integer.parseInt(metadata.statusCode)}}, metadata: metadata, msgType: msgType};"
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 0,
+        "toIndex": 10,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 0,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 8,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 7,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 10,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 1,
+        "type": "dispositivos"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 4,
+        "type": "ping"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 13,
+        "type": "seguimiento"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 15,
+        "type": "ble"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 5,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 9,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 6,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 11,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 7,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 11,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 12,
+        "toIndex": 3,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 13,
+        "toIndex": 14,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 13,
+        "toIndex": 20,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 14,
+        "toIndex": 21,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 14,
+        "toIndex": 21,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 14,
+        "toIndex": 22,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 14,
+        "toIndex": 23,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 15,
+        "toIndex": 16,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 15,
+        "toIndex": 18,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 16,
+        "toIndex": 17,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 16,
+        "toIndex": 19,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 17,
+        "toIndex": 7,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 17,
+        "toIndex": 19,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 22,
+        "toIndex": 7,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 22,
+        "toIndex": 21,
+        "type": "Failure"
+      },
+      {
+        "fromIndex": 22,
+        "toIndex": 21,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 23,
+        "toIndex": 7,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

@@ -7,7 +7,8 @@ idf_component_register(SRCS "main.c" "TOTP/totp.c" "SYS_MODE/sys_mode.c" "Button
                     REQUIRES app_update
                     REQUIRES mqtt
                     REQUIRES esp_http_client
-                    REQUIRES esp_https_ota)
+                    REQUIRES esp_https_ota
+                    REQUIRES mbedtls)
 
 
 idf_component_get_property(quirc_lib_name espressif__quirc COMPONENT_LIB)

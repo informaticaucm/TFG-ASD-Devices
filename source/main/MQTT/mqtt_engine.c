@@ -1,6 +1,7 @@
 #pragma once
 #include "mqtt.h"
 #include "nvs_plugin.h"
+#include "esp_crt_bundle.h"
 
 esp_mqtt_client_handle_t client = 0;
 
@@ -335,7 +336,8 @@ void mqtt_task(void *arg)
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
                     .address.uri = msg->data.provisioning.broker_url,
-                    .verification.certificate = (const char *)server_cert_pem_start},
+                    .verification.crt_bundle_attach = esp_crt_bundle_attach,
+                },
                 .credentials = {
                     .username = "provision",
                 }};
@@ -382,7 +384,8 @@ void mqtt_task(void *arg)
             const esp_mqtt_client_config_t mqtt_cfg = {
                 .broker = {
                     .address.uri = msg->data.start.broker_url,
-                    .verification.certificate = (const char *)server_cert_pem_start},
+                    .verification.crt_bundle_attach = esp_crt_bundle_attach,
+                },
                 .credentials = {
                     .username = msg->data.start.access_token,
                 }};

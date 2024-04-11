@@ -1,0 +1,28 @@
+{
+  "name": "asd_profile",
+  "description": "",
+  "image": null,
+  "type": "DEFAULT",
+  "transportType": "DEFAULT",
+  "provisionType": "ALLOW_CREATE_NEW_DEVICES",
+  "defaultDashboardId": null,
+  "defaultQueueName": null,
+  "profileData": {
+    "configuration": {
+      "type": "DEFAULT"
+    },
+    "transportConfiguration": {
+      "type": "DEFAULT"
+    },
+    "provisionConfiguration": {
+      "type": "ALLOW_CREATE_NEW_DEVICES",
+      "provisionDeviceSecret": "of8htwr0xmh65wjpz7qe"
+    },
+    "alarms": null
+  },
+  "provisionDeviceKey": "o7l9pkujk2xgnixqlimv",
+  "firmwareId": null,
+  "softwareId": null,
+  "defaultEdgeRuleChainId": null,
+  "default": false
+}

@@ -4,10 +4,10 @@ let payload = "";
 
 const segment_size = 100;
 const conf_defaults = {
-    "thingsboard_url": { default_value: "https://thingsboard.asd:8080", type: "text" },
+    "thingsboard_url": { default_value: "https://tbm-asistencia.dev.fdi.ucm.es", type: "text" },
     "device_name": { default_value: "name_here", type: "text" },
     "space_id": { default_value: 10, type: "number" },
-    "mqtt_broker_url": { default_value: "mqtts://thingsboard.asd:8883", type: "text" },
+    "mqtt_broker_url": { default_value: "mqtts://mqtt.dev.fdi.ucm.es:443", type: "text" },
     "provisioning_device_key": { default_value: "o7l9pkujk2xgnixqlimv", type: "text" },
     "provisioning_device_secret": { default_value: "of8htwr0xmh65wjpz7qe", type: "text" },
     "wifi_psw": { default_value: "1234567890", type: "text" },

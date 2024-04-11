@@ -33,7 +33,7 @@
 #include "../SYS_MODE/sys_mode.h"
 
 #define ALLOWED_AGE_FOR_QR 10
-#define FLASH_TIME 10;
+#define FLASH_TIME 10
 
 void screen_task(void *arg)
 {
@@ -135,7 +135,7 @@ void screen_task(void *arg)
             }
             case Flash:
             {
-                ESP_LOGE(TAG, "STARTED FLASH WITH %d, until %d ", msg->data.icon, time(0) + FLASH_TIME);
+                ESP_LOGE(TAG, "STARTED FLASH WITH %d, until %d ", msg->data.icon, (int)time(0) + FLASH_TIME);
                 flash_icon_code = msg->data.icon;
                 flash_timeout = time(0) + FLASH_TIME;
             }
@@ -162,7 +162,7 @@ void screen_task(void *arg)
 
         bsp_display_lock(0);
 
-        ESP_LOGE("time: %d, flash_timeout: %d, %d", time(0), flash_timeout, time(0) < flash_timeout);
+        // ESP_LOGE(TAG, "time: %d, flash_timeout: %d, %d", (int)time(0), flash_timeout, time(0) < flash_timeout);
 
         if (time(0) < flash_timeout)
         {

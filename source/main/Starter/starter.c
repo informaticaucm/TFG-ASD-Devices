@@ -399,7 +399,6 @@ void starter_task(void *arg)
 
     while (1)
     {
-        ESP_LOGE(TAG, "tick starter");
         if (is_ota_running())
         {
             ESP_LOGE(TAG, "OTA is running, starter task waits");
