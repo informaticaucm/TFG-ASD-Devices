@@ -390,6 +390,10 @@ bool is_qr_info_valid()
     return err == ESP_OK && parameters.qr_info_valid;
 }
 
+#define check_if_ping_period 1000 / portTICK_PERIOD_MS
+
+int time_since_last_success_ping = 0;
+
 void starter_task(void *arg)
 {
     {
@@ -414,7 +418,14 @@ void starter_task(void *arg)
             inmediate_retick = false;
             if (starterState == Success)
             {
-                vTaskDelay(100 * get_idle_task_delay());
+                time_since_last_success_ping = 0;
+
+                while (time_since_last_success_ping < get_ping_delay())
+                {
+                    vTaskDelay(check_if_ping_period);
+                    ESP_LOGI(TAG, "waiting for ping period %d up to %d", time_since_last_success_ping, get_ping_delay());
+                    time_since_last_success_ping += check_if_ping_period;
+                }
             }
             else
             {

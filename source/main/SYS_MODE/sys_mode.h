@@ -29,6 +29,7 @@ struct sys_mode_state
     int task_delay;
     int rt_task_delay;
     int idle_task_delay;
+    int ping_delay;
     bool ota_running;
     enum ScreenMode mode;
     enum ScreenMode tmp_mode;
@@ -60,6 +61,9 @@ int get_task_delay();
 
 void set_idle_task_delay(int rt_task_delay);
 int get_idle_task_delay();
+
+void set_ping_delay(int ping_delay);
+int get_ping_delay();
 
 void set_ota_running(bool ota_running);
 bool is_ota_running();

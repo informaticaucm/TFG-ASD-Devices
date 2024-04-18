@@ -93,22 +93,23 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             json_obj_get_object(&jctx, "response");
             json_obj_get_int(&jctx, "feedback_code", &feedback_code);
 
-            switch (feedback_code){
-                case 1:
-                    jsend(conf->to_screen_queue, ScreenMsg, {
-                        msg->command = Flash;
-                        msg->data.icon = OK_Icon;
-                    });
-                    break;
+            switch (feedback_code)
+            {
+            case 1:
+                jsend(conf->to_screen_queue, ScreenMsg, {
+                    msg->command = Flash;
+                    msg->data.icon = OK_Icon;
+                });
+                break;
 
-                case 2:
-                    jsend(conf->to_screen_queue, ScreenMsg, {
-                        msg->command = Flash;
-                        msg->data.icon = OtherClass_Icon;
-                    });
-                    break;
-                default:
-                    // Ha ido bien?
+            case 2:
+                jsend(conf->to_screen_queue, ScreenMsg, {
+                    msg->command = Flash;
+                    msg->data.icon = OtherClass_Icon;
+                });
+                break;
+            default:
+                // Ha ido bien?
             }
         }
 
@@ -117,7 +118,6 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             // 400 - formato de un dato incorrecto
             // 404 - la id no existe
             // 422 - formato del mensaje incorrecto
-
 
             int err_code = 0;
 
@@ -131,9 +131,9 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             case 404:
 
                 jsend(conf->to_screen_queue, ScreenMsg, {
-                        msg->command = Flash;
-                        msg->data.icon = NotFound_Icon;
-                    });
+                    msg->command = Flash;
+                    msg->data.icon = NotFound_Icon;
+                });
                 break;
 
             default:
@@ -208,10 +208,19 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
     else if (strcmp(topic, "v1/devices/me/attributes") == 0)
     {
 
-        char fw_title[30];
-        int err = json_obj_get_string(&jctx, "fw_title", fw_title, 30);
+        char ping_delay_secs_string[20];
 
-        if (err == OS_SUCCESS)
+        if (json_obj_get_string(&jctx, "ping_delay", ping_delay_secs_string, sizeof(ping_delay_secs_string)) == OS_SUCCESS)
+        {
+            int ping_delay_secs = atoi(ping_delay_secs_string);
+            ESP_LOGE(TAG, "updated ping_delay: %d", ping_delay_secs);
+
+            set_ping_delay(ping_delay_secs * 1000 / portTICK_PERIOD_MS);
+        }
+
+        char fw_title[30];
+
+        if (json_obj_get_string(&jctx, "fw_title", fw_title, 30) == OS_SUCCESS)
         {
             char fw_url[URL_SIZE];
             int err = json_obj_get_string(&jctx, "fw_url", fw_url, URL_SIZE);

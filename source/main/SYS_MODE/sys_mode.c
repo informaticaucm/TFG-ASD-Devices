@@ -14,6 +14,7 @@ struct sys_mode_state state = {
     .rt_task_delay = DEFAULT_RT_TASK_DELAY,
     .task_delay = DEFAULT_TASK_DELAY,
     .idle_task_delay = DEFAULT_IDLE_TASK_DELAY,
+    .ping_delay = DEFAULT_PING_DELAY,
     .ota_running = false,
     .mqtt_normal_operation = false,
     .last_ping_time = -1,
@@ -133,6 +134,17 @@ int get_idle_task_delay()
 {
     int ret = 0;
     critical_section(ret = state.idle_task_delay);
+    return ret;
+}
+
+void set_ping_delay(int ping_delay){
+    critical_section(state.ping_delay = ping_delay);
+}
+
+int get_ping_delay()
+{
+    int ret = 0;
+    critical_section(ret = state.ping_delay);
     return ret;
 }
 
