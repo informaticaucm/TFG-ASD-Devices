@@ -1,7 +1,5 @@
 idf_component_register(SRCS "main.c" "TOTP/totp.c" "SYS_MODE/sys_mode.c" "Buttons/buttons.c" "nvs_plugin.c" "OTA/ota.c" "Camera/camera.c" "MQTT/mqtt.c" "QR/qr.c" "QR/qr_logic.c" "Screen/screen.c" "Starter/starter.c" "BT/bt.c" "BT/bt_logic.c" "common.c"
                     INCLUDE_DIRS "." 
-                    # Embed the server root certificate into the final binary
-                    EMBED_TXTFILES ${project_dir}/server_certs/ca_cert.pem
                     REQUIRES bt
                     REQUIRES nvs_flash
                     REQUIRES app_update

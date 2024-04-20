@@ -32,6 +32,16 @@
 #include "../Camera/camera.h"
 #include "../SYS_MODE/sys_mode.h"
 
+char *screen_stater_state_to_string[] = {
+    [NoQRConfig] = "NoQRConfig",
+    [NoWifi] = "NoWifi",
+    [NoBackend] = "NoBackend",
+    [NoBackendAuth] = "NoBackendAuth",
+    [NoTB] = "NoTB",
+    [NoTBAuth] = "NoTBAuth",
+    [Success] = "Success",
+};
+
 #define ALLOWED_AGE_FOR_QR 10
 #define FLASH_TIME 4
 
@@ -106,7 +116,7 @@ void screen_task(void *arg)
 
             switch (msg->command)
             {
-            case StarterStateInform:
+            case StarterStateInformToScreen:
             {
                 ESP_LOGE(TAG, "cambio de estado en la notificacion");
                 starter_state = msg->data.starter_state;
@@ -184,7 +194,22 @@ void screen_task(void *arg)
             case NotFound_Icon:
                 lv_img_set_src(flash_img, &failure);
                 break;
+            case NoBackendAuthIcon:
+            case NoBackendIcon:
+                lv_img_set_src(flash_img, &noBackend);
+                break;
 
+            case NoTBAuthIcon:
+            case NoTBIcon:
+                lv_img_set_src(flash_img, &noTB);
+                break;
+            case NoWifiIcon:
+                lv_img_set_src(flash_img, &noWifi);
+                break;
+
+            case NoQRConfigIcon:
+                lv_img_set_src(flash_img, &noQr);
+                break;
             case OtherClass_Icon:
                 lv_img_set_src(flash_img, &warning);
                 break;
@@ -200,16 +225,7 @@ void screen_task(void *arg)
 
                 char notification[100];
 
-                char *stater_state_to_string[] = {
-                    "NoQRConfig",
-                    "NoWifi",
-                    "NoAuth",
-                    "NoTB",
-                    "NoBackendAuth",
-                    "NoBackend",
-                    "Success"};
-
-                snprintf(notification, sizeof(notification), "estado: %s", stater_state_to_string[starter_state]);
+                snprintf(notification, sizeof(notification), "estado: %s", screen_stater_state_to_string[starter_state]);
 
                 lv_label_set_text(notification_textarea, notification);
             }

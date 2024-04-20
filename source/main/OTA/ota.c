@@ -13,6 +13,7 @@
 #include "nvs_flash.h"
 #include "protocol_examples_common.h"
 #include "bsp/esp-bsp.h"
+#include "esp_crt_bundle.h"
 
 #include "ota.h"
 #include "../MQTT/mqtt.h"
@@ -31,8 +32,6 @@
 #endif
 
 static const char *TAG = "ota";
-extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
-extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
 void command_ota_state(enum OTAState OTA_state, struct OTAConf *conf)
 {
@@ -135,7 +134,7 @@ void ota_routine(char *url, struct OTAConf *conf)
     esp_err_t ota_finish_err = ESP_OK;
     esp_http_client_config_t config = {
         .url = url,
-        .cert_pem = (char *)server_cert_pem_start,
+        .crt_bundle_attach = esp_crt_bundle_attach,
         .timeout_ms = CONFIG_EXAMPLE_OTA_RECV_TIMEOUT,
         .keep_alive_enable = true,
     };

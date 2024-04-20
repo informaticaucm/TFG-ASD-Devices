@@ -12,13 +12,9 @@
 enum ScreenCommand
 {
     Flash,
-
     DrawQr,
-
-    StarterStateInform,
-
+    StarterStateInformToScreen,
     Mirror,
-
     ShowMsg,
 };
 
@@ -26,6 +22,12 @@ enum Icon{
     OK_Icon,
     NotFound_Icon,
     OtherClass_Icon,
+    NoBackendIcon,
+    NoBackendAuthIcon,
+    NoTBIcon,
+    NoWifiIcon,
+    NoTBAuthIcon,
+    NoQRConfigIcon,
 };
 
 struct ScreenMsg

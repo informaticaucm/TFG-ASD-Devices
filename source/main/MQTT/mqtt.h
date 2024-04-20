@@ -29,9 +29,6 @@
 #include "freertos/semphr.h"
 #include "../common.h"
 
-extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
-extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
-
 enum MQTTCommand
 {
     OTA_failure,
@@ -43,6 +40,7 @@ enum MQTTCommand
     SendPingToServer,
     FetchBTMacs,
     TagScanned,
+    StarterStateInformToMQTT,
     
 };
 
@@ -97,6 +95,7 @@ struct MQTTMsg
         {
             uint64_t sn;
         } tag_scanned;
+        enum StarterState starter_state;
     } data;
 };
 

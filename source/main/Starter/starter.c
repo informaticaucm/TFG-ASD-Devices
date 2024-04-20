@@ -35,14 +35,15 @@ enum StarterState starterState = NoQRConfig;
 int tries = 0;
 int cooldown = 0;
 
-char *state_string[] = {
-    "NoQRConfig",
-    "NoWifi",
-    "NoAuth",
-    "NoTB",
-    "NoBackendAuth",
-    "NoBackend",
-    "Success"};
+char *stater_state_to_string[] = {
+    [NoQRConfig] = "NoQRConfig",
+    [NoWifi] = "NoWifi",
+    [NoBackend] = "NoBackend",
+    [NoBackendAuth] = "NoBackendAuth",
+    [NoTB] = "NoTB",
+    [NoTBAuth] = "NoTBAuth",
+    [Success] = "Success",
+};
 
 void crash_wifi()
 {
@@ -56,18 +57,43 @@ void crash_wifi()
 
 bool inmediate_retick = false;
 
+void notify_malfunction(struct StarterConf *conf)
+{
+    const enum Icon icon_map[] = {
+        [NoQRConfig] = NoQRConfigIcon,
+        [NoWifi] = NoWifiIcon,
+        [NoTBAuth] = NoTBAuthIcon,
+        [NoTB] = NoTBIcon,
+        [NoBackendAuth] = NoBackendAuthIcon,
+        [NoBackend] = NoBackendIcon,
+        [Success] = OK_Icon,
+    };
+
+    ESP_LOGE(TAG, "notifying malfunction"); 
+
+    jsend(conf->to_screen_queue, ScreenMsg, {
+        msg->command = Flash;
+        msg->data.icon = icon_map[starterState];
+    });
+}
+
 void setState(enum StarterState state, struct StarterConf *conf)
 {
     tries = 0;
     cooldown = 0;
     starterState = state;
 
-    ESP_LOGI(TAG, "starter state changed to %s", state_string[state]);
-
     jsend(conf->to_screen_queue, ScreenMsg, {
-        msg->command = StarterStateInform;
+        msg->command = StarterStateInformToScreen;
         msg->data.starter_state = starterState;
     });
+
+    jsend(conf->to_mqtt_queue, MQTTMsg, {
+        msg->command = StarterStateInformToMQTT;
+        msg->data.starter_state = starterState;
+    });
+
+    notify_malfunction(conf);
 }
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -430,11 +456,11 @@ void starter_task(void *arg)
             else
             {
                 vTaskDelay(1000 / portTICK_PERIOD_MS);
-                // ESP_LOGE(TAG, "starter is on state %s with tries %d (%d)", state_string[starterState], tries, cooldown);
+                // ESP_LOGE(TAG, "starter is on state %s with tries %d (%d)", stater_state_to_string[starterState], tries, cooldown);
             }
         }
 
-        // ESP_LOGI(TAG, "managing state: %s", state_string[starterState]);
+        // ESP_LOGI(TAG, "managing state: %s", stater_state_to_string[starterState]);
 
         switch (starterState)
         {
@@ -442,16 +468,16 @@ void starter_task(void *arg)
             manage_state(&is_qr_info_valid, &dont, &dont, &constant_backoff, NoWifi, NoQRConfig, conf, 10, 10);
             break;
         case NoWifi:
-            manage_state(&is_wifi_connected, &try_connect_wifi, &dont, &constant_backoff, NoAuth, NoWifi, conf, 10, 10); // latches
+            manage_state(&is_wifi_connected, &try_connect_wifi, &dont, &constant_backoff, NoTBAuth, NoWifi, conf, 10, 10); // latches
             break;
-        case NoAuth:
+        case NoTBAuth:
             manage_state(&is_tb_authenticated, &try_tb_auth, &dont, &constant_backoff, NoTB, NoWifi, conf, 10, 10);
             break;
         case NoTB:
-            manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackendAuth, NoAuth, conf, 3, 10);
+            manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackendAuth, NoTBAuth, conf, 3, 10);
             break;
         case NoBackendAuth:
-            manage_state(&is_backend_authenticated, &try_backend_auth, &invalidate_backend_auth_ping, &constant_backoff, NoBackend, NoAuth, conf, 10, PING_RATE);
+            manage_state(&is_backend_authenticated, &try_backend_auth, &invalidate_backend_auth_ping, &constant_backoff, NoBackend, NoTBAuth, conf, 10, PING_RATE);
             break;
         case NoBackend:
             manage_state(&is_backend_connected, &send_ping_to_backend, &dont, &constant_backoff, Success, NoTB, conf, 10, 10);
@@ -470,14 +496,13 @@ void starter_task(void *arg)
             continue;
         }
 
-        char *starter_command_to_string[] = {
-            "QrInfo",
-            "TBAuthInfo",
-            "BackendInfo",
-            "InvalidateConfig"};
-
         switch (msg->command)
         {
+        case NotifyMalfunction:
+        {
+            notify_malfunction(conf);
+            break;
+        }
         case QrInfo:
         {
             struct ConnectionParameters parameters;

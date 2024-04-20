@@ -24,4 +24,3 @@ TaskHandle_t xTaskCreateCap(TaskFunction_t pxTaskCode,
     xPortCheckValidTCBMem(pxTaskBuffer);
     return xTaskCreateStatic(pxTaskCode, pcName, ulStackDepth, pvParameters, uxPriority, puxStackBuffer, pxTaskBuffer);
 }
-

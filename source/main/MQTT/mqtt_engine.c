@@ -7,7 +7,7 @@ esp_mqtt_client_handle_t client = 0;
 
 bool specting_pong = false;
 int pong_timeout_time = 0;
-
+enum StarterState starter_state = NoQRConfig;
 static const char *TAG = "mqtt";
 
 void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
@@ -317,13 +317,24 @@ void mqtt_task(void *arg)
                 }
             }
             */
-            char params[MAX_QR_SIZE + 90];
-            char fw_version[32];
-            get_version(fw_version);
 
-            snprintf(params, sizeof(params), "{fw_version: \"%s\",qr_content: \"%s\"}", fw_version, msg->data.found_tui_qr.TUI_qr);
+            if (starter_state == Success)
+            {
 
-            send_api_post("seguimiento", params);
+                char params[MAX_QR_SIZE + 90];
+                char fw_version[32];
+                get_version(fw_version);
+
+                snprintf(params, sizeof(params), "{fw_version: \"%s\",qr_content: \"%s\"}", fw_version, msg->data.found_tui_qr.TUI_qr);
+
+                send_api_post("seguimiento", params);
+            }
+            else
+            {
+                jsend(conf->to_starter_queue, StarterMsg, {
+                    msg->command = NotifyMalfunction;
+                });
+            }
             break;
         case DoProvisioning:
         {
@@ -438,10 +449,20 @@ void mqtt_task(void *arg)
         }
         case FetchBTMacs:
         {
-            char *request_body = alloca(50);
-            snprintf(request_body, 50, "{\"espacioId\":%d}", msg->data.fetch_btmacs.space_id);
-            send_api_post("ble", request_body);
-            break;
+            if (starter_state != Success)
+            {
+                jsend(conf->to_starter_queue, StarterMsg, {
+                    msg->command = NotifyMalfunction;
+                });
+                break;
+            }
+            else
+            {
+                char *request_body = alloca(50);
+                snprintf(request_body, 50, "{\"espacioId\":%d}", msg->data.fetch_btmacs.space_id);
+                send_api_post("ble", request_body);
+                break;
+            }
         }
         case TagScanned:
         {
@@ -453,17 +474,31 @@ void mqtt_task(void *arg)
                 }
             */
 
-            struct ConnectionParameters parameters;
-            ESP_ERROR_CHECK(j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters)));
+            if (starter_state != Success)
+            {
+                jsend(conf->to_starter_queue, StarterMsg, {
+                    msg->command = NotifyMalfunction;
+                });
+                break;
+            }
+            else
+            {
+                struct ConnectionParameters parameters;
+                ESP_ERROR_CHECK(j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters)));
 
-            char *request_body = alloca(500);
+                char *request_body = alloca(500);
 
-            snprintf(request_body, 500, "{\"uid\":%lld,\"espacioId\":%d, \"dispositivoId\": %d, \"tipo_registro\": \"RegistroSeguimientoDispositivoNFC\"}", msg->data.tag_scanned.sn, parameters.qr_info.space_id, parameters.backend_info.device_id);
+                snprintf(request_body, 500, "{\"uid\":%lld,\"espacioId\":%d, \"dispositivoId\": %d, \"tipo_registro\": \"RegistroSeguimientoDispositivoNFC\"}", msg->data.tag_scanned.sn, parameters.qr_info.space_id, parameters.backend_info.device_id);
 
-            send_api_post("seguimiento", request_body);
+                send_api_post("seguimiento", request_body);
+            }
             break;
         }
-            free(msg);
+        case StarterStateInformToMQTT:
+        {
+            starter_state = msg->data.starter_state;
         }
+        }
+        free(msg);
     }
 }

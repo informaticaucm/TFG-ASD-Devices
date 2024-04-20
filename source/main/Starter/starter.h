@@ -1,5 +1,4 @@
-#ifndef __STARTER_H__
-#define __STARTER_H__
+#pragma once
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -10,7 +9,7 @@ enum StarterState
 {
     NoQRConfig,
     NoWifi,
-    NoAuth,
+    NoTBAuth,
     NoTB,
     NoBackendAuth,
     NoBackend,
@@ -23,6 +22,7 @@ enum StarterCommand
     TBAuthInfo,
     BackendInfo,
     InvalidateConfig,
+    NotifyMalfunction,
 };
 
 struct QRInfo
@@ -80,4 +80,3 @@ struct StarterConf
 
 void start_starter(struct StarterConf *conf);
 
-#endif // __STARTER_H__

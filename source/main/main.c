@@ -246,8 +246,4 @@ void app_main(void)
 
     ESP_LOGI(TAG, "BT started");
 
-    jsend(to_screen_queue, ScreenMsg, {
-        msg->command = Flash;
-        msg->data.icon = OK_Icon;
-    });
 }
