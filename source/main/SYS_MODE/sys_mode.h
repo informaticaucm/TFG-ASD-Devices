@@ -10,7 +10,7 @@ enum ScreenMode
     qr_display,
     msg_display,
     button_test,
-    
+
 };
 
 #define VALID_ENTRY(x) ((x.valid) && (time(0) - x.last_time) < BT_DEVICE_HISTORY_MAX_AGE)
@@ -22,7 +22,7 @@ struct bt_device_record
     char address[6];
     int last_time;
     int first_time;
-} ;
+};
 
 struct sys_mode_state
 {
@@ -31,6 +31,7 @@ struct sys_mode_state
     int idle_task_delay;
     int ping_delay;
     bool ota_running;
+    char totp_form_base_url[URL_SIZE];
     enum ScreenMode mode;
     enum ScreenMode tmp_mode;
     int tmp_mode_expiration;
@@ -52,6 +53,9 @@ void get_bt_device_history(struct bt_device_record bt_device_history[BT_DEVICE_H
 
 void set_version(char version[32]);
 void get_version(char version[32]);
+
+void set_totp_form_base_url(int totp_form_base_url);
+int get_totp_form_base_url();
 
 void set_rt_task_delay(int rt_task_delay);
 int get_rt_task_delay();

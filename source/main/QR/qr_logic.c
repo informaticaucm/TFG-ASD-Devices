@@ -189,7 +189,8 @@ void qr_seen(struct QRConf *conf, char *data)
                     if (json_obj_get_string(&jctx, "wifi_ssid", msg->data.qr.qr_info.wifi_ssid, 30) == OS_SUCCESS)
                         ESP_LOGI(TAG, "json field wifi_ssid %s", msg->data.qr.qr_info.wifi_ssid);
 
-
+                    if(json_obj_get_string(&jctx, "totp_form_base_url", msg->data.qr.qr_info.totp_form_base_url, URL_SIZE) == OS_SUCCESS)
+                        ESP_LOGI(TAG, "json field totp_form_base_url %s", msg->data.qr.qr_info.totp_form_base_url);
 
 
 

@@ -1,0 +1,51 @@
+dependencies:
+  espressif/button:
+    component_hash: e162e6c8fc670ae297dca5ec75037966c1d69a1509f0b2048a883a7c54fb7aba
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 2.5.6
+  espressif/cmake_utilities:
+    component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 0.5.3
+  espressif/esp-dsp:
+    component_hash: a9a1e516033ce2ea63e6286cc227d8ecb87769d628dcc6394b4e024311ac64b9
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.3.0
+  espressif/esp32-camera:
+    component_hash: e00e75c24164b5d097bf98f325938558697916a0cb6b68872b9927587b46882a
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 2.0.8
+  espressif/esp32_s3_eye:
+    component_hash: 403285fd920dc31aa1fbd5832729e31ed5f1348409cfb9b628fc357d25e65eb7
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 2.0.1
+  espressif/esp_lvgl_port:
+    component_hash: d4288a8a1b1db92b62cef9fe1375ea216e5470e48fc7d752816161442f181758
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 2.0.0
+  idf:
+    component_hash: null
+    source:
+      type: idf
+    version: 5.1.1
+  lvgl/lvgl:
+    component_hash: d7c1ac037ae6e85d94897f807d6e7ba0946a83e720074fc95a4f6241da9f9f53
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 8.4.0
+manifest_hash: 865bb967dc1d65edf568f7d1d2df29fd86af817ef7f2a6d9ccc96fa00d5b288f
+target: esp32s3
+version: 1.0.0

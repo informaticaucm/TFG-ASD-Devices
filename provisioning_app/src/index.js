@@ -12,6 +12,7 @@ const conf_defaults = {
     "provisioning_device_secret": { default_value: "of8htwr0xmh65wjpz7qe", type: "text" },
     "wifi_psw": { default_value: "1234567890", type: "text" },
     "wifi_ssid": { default_value: "tfgseguimientodocente", type: "text" },
+    "totp_form_base_url" : { default_value: "https://tbm-asistencia.dev.fdi.ucm.es/api/auth/login", type: "text" },
     "invalidate_backend_auth": { default_value: false, type: "checkbox" },
     "invalidate_thingsboard_auth": { default_value: false, type: "checkbox" },
 };

@@ -1,6 +1,6 @@
 const fs = require("fs");
-const { encode} = require('urlencode');
-var ncp = require("copy-paste"); 
+const { encode } = require('urlencode');
+var ncp = require("copy-paste");
 const webpack = require("webpack");
 
 

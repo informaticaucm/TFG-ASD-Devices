@@ -218,6 +218,18 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             set_ping_delay(ping_delay_secs * 1000 / portTICK_PERIOD_MS);
         }
 
+        char totp_form_base_url[URL_SIZE];
+
+        if (json_obj_get_string(&jctx, "totp_form_base_url", totp_form_base_url, sizeof(totp_form_base_url)) == OS_SUCCESS)
+        {
+            ESP_LOGE(TAG, "updated totp_form_base_url: %s", totp_form_base_url);
+
+            struct ConnectionParameters parameters;
+            j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+            memcpy(parameters.qr_info.totp_form_base_url, totp_form_base_url, URL_SIZE);
+            j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
+        }
+
         char fw_title[30];
 
         if (json_obj_get_string(&jctx, "fw_title", fw_title, 30) == OS_SUCCESS)

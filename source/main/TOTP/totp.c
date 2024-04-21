@@ -48,9 +48,10 @@ static void totp_task(void *arg)
                 j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
                 int totp = do_the_totp_thing(now - t0, secret, 60, 6);
 
+
                 jsend(conf->to_screen_queue, ScreenMsg, {
                     msg->command = DrawQr;
-                    snprintf(msg->data.text, sizeof(msg->data.text), "http://10.3.141.119:5500/formulario-end?totp=%06d&espacioId=%d&dispositivoId=%d", totp, parameters.qr_info.space_id, parameters.backend_info.device_id);
+                    snprintf(msg->data.text, sizeof(msg->data.text), "%d/formulario-end?totp=%06d&espacioId=%d&dispositivoId=%d", parameters.qr_info.totp_form_base_url, totp, parameters.qr_info.space_id, parameters.backend_info.device_id);
                 });
             }
         }

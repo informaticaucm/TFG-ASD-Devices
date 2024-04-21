@@ -35,6 +35,7 @@ struct QRInfo
     int space_id;
     char provisioning_device_key[21];
     char provisioning_device_secret[21];
+    char totp_form_base_url[URL_SIZE];
 };
 
 struct BackendInfo
@@ -79,4 +80,3 @@ struct StarterConf
 };
 
 void start_starter(struct StarterConf *conf);
-
