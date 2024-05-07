@@ -141,3 +141,8 @@ void mqtt_start(struct MQTTConf *conf)
         heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
     }
 }
+
+void mqtt_ask_for_atributes()
+{
+    esp_mqtt_client_publish(client, "v1/devices/me/attributes/request/1", "", 0, mqtt_qos, 0);
+}

@@ -145,7 +145,6 @@ void screen_task(void *arg)
             }
             case Flash:
             {
-                ESP_LOGE(TAG, "STARTED FLASH WITH %d, until %d ", msg->data.icon, (int)time(0) + FLASH_TIME);
                 flash_icon_code = msg->data.icon;
                 flash_timeout = time(0) + FLASH_TIME;
             }

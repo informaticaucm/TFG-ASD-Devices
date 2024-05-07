@@ -179,13 +179,13 @@ esp_err_t connect_wifi(char *WIFI_SSID, char *WIFI_PASSWORD, struct StarterConf 
      * happened. */
     if (bits & WIFI_CONNECTED_BIT)
     {
-        ESP_LOGI(WIFI_TAG, "connected to ap SSID:%s password:%s",
-                 WIFI_SSID, WIFI_PASSWORD);
+        ESP_LOGI(WIFI_TAG, "connected to ap SSID:%s",
+                 WIFI_SSID);
     }
     else if (bits & WIFI_FAIL_BIT)
     {
-        ESP_LOGI(WIFI_TAG, "Failed to connect to SSID:%s, password:%s",
-                 WIFI_SSID, WIFI_PASSWORD);
+        ESP_LOGI(WIFI_TAG, "Failed to connect to SSID:%s",
+                 WIFI_SSID);
     }
     else
     {
@@ -474,13 +474,13 @@ void starter_task(void *arg)
             manage_state(&is_tb_authenticated, &try_tb_auth, &dont, &constant_backoff, NoTB, NoWifi, conf, 10, 10);
             break;
         case NoTB:
-            manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackendAuth, NoTBAuth, conf, 3, 10);
+            manage_state(&is_tb_connected, &try_tb_connect, &dont, &constant_backoff, NoBackendAuth, NoWifi, conf, 3, 10);
             break;
         case NoBackendAuth:
             manage_state(&is_backend_authenticated, &try_backend_auth, &invalidate_backend_auth_ping, &constant_backoff, NoBackend, NoTBAuth, conf, 10, PING_RATE);
             break;
         case NoBackend:
-            manage_state(&is_backend_connected, &send_ping_to_backend, &dont, &constant_backoff, Success, NoTB, conf, 10, 10);
+            manage_state(&is_backend_connected, &send_ping_to_backend, &dont, &constant_backoff, Success, NoTBAuth, conf, 10, 10);
             break;
         case Success:
             manage_state(&is_backend_connected, &send_ping_to_backend, &invalidate_backend_auth_ping, &constant_backoff, Success, NoBackend, conf, 10, PING_RATE);

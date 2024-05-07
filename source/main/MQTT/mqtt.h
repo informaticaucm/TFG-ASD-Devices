@@ -1,5 +1,4 @@
-#ifndef __MQTT_H__
-#define __MQTT_H__
+#pragma once
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -117,5 +116,4 @@ void send_api_post(char *path, char *request_body);
 void mqtt_send_ota_status_report(enum OTAState status);
 void mqtt_send_ota_fail(char *explanation);
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
-
-#endif
+void mqtt_ask_for_atributes();

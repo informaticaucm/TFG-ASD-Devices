@@ -205,7 +205,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             }
         }
     }
-    else if (strcmp(topic, "v1/devices/me/attributes") == 0)
+    else if (strncmp(topic, "v1/devices/me/rpc/response/", strlen("v1/devices/me/rpc/response/")) == 0 || strcmp(topic, "v1/devices/me/attributes") == 0)
     {
 
         char ping_delay_secs_string[20];
@@ -232,12 +232,11 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
         char fw_title[30];
 
-        if (json_obj_get_string(&jctx, "fw_title", fw_title, 30) == OS_SUCCESS)
+        if (json_obj_get_string(&jctx, "fw_title", fw_title, sizeof(fw_title)) == OS_SUCCESS)
         {
             char fw_url[URL_SIZE];
-            int err = json_obj_get_string(&jctx, "fw_url", fw_url, URL_SIZE);
 
-            if (err == OS_SUCCESS)
+            if (json_obj_get_string(&jctx, "fw_url", fw_url, URL_SIZE) == OS_SUCCESS)
             {
                 jsend(conf->to_ota_queue, OTAMsg, {
                     msg->command = Update;
@@ -248,7 +247,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
             else
             {
                 char fw_version[30];
-                json_obj_get_string(&jctx, "fw_version", fw_version, 30);
+                json_obj_get_string(&jctx, "fw_version", fw_version, sizeof(fw_version));
 
                 struct ConnectionParameters parameters;
                 j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
@@ -280,19 +279,6 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
                 ESP_LOGI(TAG, "access token is : %s", msg->data.access_token);
             });
         }
-        // else
-        // {
-
-        //     struct StarterMsg *msg = jalloc(sizeof(struct StarterMsg));
-        //     msg->command = InvalidateConfig;
-        //     ESP_LOGI(TAG, "config error, invalidating!");
-
-        //     int res = xQueueSend(conf->to_starter_queue, &msg, 0);
-        //     if (res != pdTRUE)
-        //     {
-        //         free(msg);
-        //     }
-        // }
     }
 }
 
@@ -427,6 +413,7 @@ void mqtt_task(void *arg)
             ESP_ERROR_CHECK(esp_mqtt_client_start(client));
             mqtt_subscribe("v1/devices/me/attributes");
             mqtt_subscribe("v1/devices/me/rpc/request/+");
+            mqtt_subscribe("v1/devices/me/attributes/response/+");
 
             if (conf->send_updated_mqtt_on_start)
             {
@@ -437,10 +424,8 @@ void mqtt_task(void *arg)
                 mqtt_send_ota_status_report(UPDATED);
             }
 
-            {
-                mqtt_send_rpc("tb_ping", "{}");
-                break;
-            }
+            mqtt_send_rpc("tb_ping", "{}");
+            mqtt_ask_for_atributes();
 
             break;
         }
