@@ -16,6 +16,7 @@ enum OTACommand
 struct OTAMsg
 {
     enum OTACommand command;
+    bool requested;
     char url[OTA_URL_SIZE];
 };
 

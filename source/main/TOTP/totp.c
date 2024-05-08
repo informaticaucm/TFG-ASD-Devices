@@ -26,7 +26,7 @@ static void totp_task(void *arg)
 
         if (is_ota_running())
         {
-            ESP_LOGE(TAG, "OTA running, I sleep");
+            // ESP_LOGE(TAG, "OTA running, I sleep");
             continue;
         }
 

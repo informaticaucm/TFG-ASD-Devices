@@ -69,8 +69,6 @@ void notify_malfunction(struct StarterConf *conf)
         [Success] = OK_Icon,
     };
 
-    ESP_LOGE(TAG, "notifying malfunction"); 
-
     jsend(conf->to_screen_queue, ScreenMsg, {
         msg->command = Flash;
         msg->data.icon = icon_map[starterState];
@@ -79,21 +77,25 @@ void notify_malfunction(struct StarterConf *conf)
 
 void setState(enum StarterState state, struct StarterConf *conf)
 {
+
+    if (starterState != state)
+    {
+        starterState = state;
+        notify_malfunction(conf);
+    }
+
     tries = 0;
     cooldown = 0;
-    starterState = state;
-
-    jsend(conf->to_screen_queue, ScreenMsg, {
-        msg->command = StarterStateInformToScreen;
-        msg->data.starter_state = starterState;
-    });
 
     jsend(conf->to_mqtt_queue, MQTTMsg, {
         msg->command = StarterStateInformToMQTT;
         msg->data.starter_state = starterState;
     });
 
-    notify_malfunction(conf);
+    jsend(conf->to_screen_queue, ScreenMsg, {
+        msg->command = StarterStateInformToScreen;
+        msg->data.starter_state = starterState;
+    });
 }
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -434,7 +436,7 @@ void starter_task(void *arg)
     {
         if (is_ota_running())
         {
-            ESP_LOGE(TAG, "OTA is running, starter task waits");
+            // ESP_LOGE(TAG, "OTA is running, starter task waits");
             vTaskDelay(get_idle_task_delay());
             continue;
         }
@@ -449,7 +451,7 @@ void starter_task(void *arg)
                 while (time_since_last_success_ping < get_ping_delay())
                 {
                     vTaskDelay(check_if_ping_period);
-                    ESP_LOGI(TAG, "waiting for ping period %d up to %d", time_since_last_success_ping, get_ping_delay());
+                    // ESP_LOGI(TAG, "waiting for ping period %d up to %d", time_since_last_success_ping, get_ping_delay());
                     time_since_last_success_ping += check_if_ping_period;
                 }
             }

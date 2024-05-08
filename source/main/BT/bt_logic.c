@@ -85,7 +85,7 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
     {
         int overwriting_record = get_disposable_record_i(device_history);
 
-        ESP_LOGI(TAG, "overwriting record %d %s", overwriting_record, scanned_name);
+        // ESP_LOGI(TAG, "overwriting record %d %s", overwriting_record, scanned_name);
 
         /* Store the scanned device in history. */
         device_history[overwriting_record].last_time = time(0);

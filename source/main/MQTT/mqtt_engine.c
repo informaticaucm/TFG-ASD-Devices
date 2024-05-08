@@ -2,19 +2,18 @@
 #include "mqtt.h"
 #include "nvs_plugin.h"
 #include "esp_crt_bundle.h"
+#include "tb_shared_attribute_ingest.c"
+#include "tb_rpc_ingest.c"
 
 esp_mqtt_client_handle_t client = 0;
 
 bool specting_pong = false;
 int pong_timeout_time = 0;
 enum StarterState starter_state = NoQRConfig;
-static const char *TAG = "mqtt";
 
 void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 {
-
-    ESP_LOGI(TAG, "topic %s", topic);
-    ESP_LOGI(TAG, "msg %s", msg);
+    ESP_LOGI(TAG, "recieved %s through topic %s", msg, topic);
 
     jparse_ctx_t jctx;
     int err = json_parse_start(&jctx, msg, strlen(msg));
@@ -23,242 +22,18 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
         ESP_LOGE(TAG, "ERROR ON JSON PARSE: %d", err);
     }
 
-    if (strncmp(topic, "v1/devices/me/rpc/response/", strlen("v1/devices/me/rpc/response/")) == 0) // response to a device rpc request
+    if (strncmp(topic, "v1/devices/me/rpc/response/", 27) == 0)
     {
-        char method[20];
-        json_obj_get_string(&jctx, "method", method, 20);
-
-        if (0 == strcmp(method, "tb_ping"))
-        {
-            set_last_tb_ping_time(time(0));
-        }
-        if (0 == strcmp(method, "ping"))
-        {
-            bool failure = false;
-            long long int epoch;
-            int err = json_obj_get_object(&jctx, "response");
-            if (err == OS_SUCCESS)
-            {
-                err = json_obj_get_int64(&jctx, "epoch", &epoch);
-                if (err == OS_SUCCESS)
-                {
-                    struct timeval now = {.tv_sec = epoch};
-                    settimeofday(&now, NULL);
-                    ESP_LOGI(TAG, "epoch is: %lld", epoch);
-                }
-                else
-                {
-                    failure = true;
-                }
-            }
-            else
-            {
-                failure = true;
-            }
-            json_obj_leave_object(&jctx);
-
-            if (failure)
-            {
-                ESP_LOGE(TAG, "ERROR ON JSON KEY EXTRACTION: %d", err);
-            }
-
-            set_last_ping_time(time(0));
-        }
-        if (0 == strcmp(method, "dispositivos"))
-        {
-            json_obj_get_object(&jctx, "response");
-
-            char totp_secret[17];
-            int t0;
-            int id;
-
-            json_obj_get_int(&jctx, "id", &id);
-
-            json_obj_get_object(&jctx, "totpConfig");
-            json_obj_get_string(&jctx, "secret", totp_secret, 17);
-            json_obj_get_int(&jctx, "t0", &t0);
-
-            jsend(conf->to_starter_queue, StarterMsg, {
-                msg->command = BackendInfo;
-                msg->data.backend_info.totp_t0 = t0;
-                msg->data.backend_info.device_id = id;
-                memcpy(msg->data.backend_info.totp_seed, totp_secret, 17);
-            });
-        }
-
-        if (0 == strcmp(method, "seguimiento"))
-        {
-            int feedback_code = 0;
-
-            json_obj_get_object(&jctx, "response");
-            json_obj_get_int(&jctx, "feedback_code", &feedback_code);
-
-            switch (feedback_code)
-            {
-            case 1:
-                jsend(conf->to_screen_queue, ScreenMsg, {
-                    msg->command = Flash;
-                    msg->data.icon = OK_Icon;
-                });
-                break;
-
-            case 2:
-                jsend(conf->to_screen_queue, ScreenMsg, {
-                    msg->command = Flash;
-                    msg->data.icon = OtherClass_Icon;
-                });
-                break;
-            default:
-                // Ha ido bien?
-            }
-        }
-
-        if (0 == strcmp(method, "seguimiento_err"))
-        {
-            // 400 - formato de un dato incorrecto
-            // 404 - la id no existe
-            // 422 - formato del mensaje incorrecto
-
-            int err_code = 0;
-
-            json_obj_get_object(&jctx, "response");
-            json_obj_get_int(&jctx, "status_code", &err_code);
-
-            ESP_LOGI(TAG, "ERR CODE: %d", err_code);
-
-            switch (err_code)
-            {
-            case 404:
-
-                jsend(conf->to_screen_queue, ScreenMsg, {
-                    msg->command = Flash;
-                    msg->data.icon = NotFound_Icon;
-                });
-                break;
-
-            default:
-
-                // unknown error
-
-                break;
-            }
-        }
-
-        if (0 == strcmp(method, "ble"))
-        {
-            struct ConnectionParameters parameters;
-            j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-            /*
-                {
-                    "macs": [
-                        "00:11:22:33:FF:EE",
-                        "11:22:33:44:AA:BB"
-                    ]
-                }
-            */
-            json_obj_get_object(&jctx, "response");
-            int mac_count = 0;
-            json_obj_get_array(&jctx, "macs", &mac_count);
-
-            for (int i = 0; i < mac_count; i++)
-            {
-                char mac[18];
-                char decoded_mac[6];
-                json_arr_get_string(&jctx, i, mac, 18);
-                sscanf(mac, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &decoded_mac[0], &decoded_mac[1], &decoded_mac[2], &decoded_mac[3], &decoded_mac[4], &decoded_mac[5]);
-
-                struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];
-                get_bt_device_history(device_history);
-
-                for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
-                {
-                    // log the macs we are comparing
-                    if (VALID_ENTRY(device_history[i]))
-                    {
-                        ESP_LOGI(TAG, "comparing %02X:%02X:%02X:%02X:%02X:%02X with %02X:%02X:%02X:%02X:%02X:%02X", device_history[i].address[0], device_history[i].address[1], device_history[i].address[2], device_history[i].address[3], device_history[i].address[4], device_history[i].address[5], decoded_mac[0], decoded_mac[1], decoded_mac[2], decoded_mac[3], decoded_mac[4], decoded_mac[5]);
-
-                        if (memcmp(device_history[i].address, decoded_mac, 6) == 0)
-                        {
-                            /*
-                               {
-                                    "tipo_registro": "RegistroSeguimientoDispositivoBle",
-                                    "espacioId": 1,
-                                    "dispositivoId": 1,
-                                    "mac": "00:11:22:33:FF:EE"
-                                }
-                            */
-                            char params[200];
-                            snprintf(params, sizeof(params), "{"
-                                                             "  \"tipo_registro\": \"RegistroSeguimientoDispositivoBle\","
-                                                             "  \"espacioId\": %d,"
-                                                             "  \"dispositivoId\": %d,"
-                                                             "  \"mac\": \"%s\""
-                                                             "}",
-                                     parameters.qr_info.space_id, parameters.backend_info.device_id, mac);
-
-                            send_api_post("seguimiento", params);
-
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        tb_rpc_ingest(&jctx, conf);
     }
-    else if (strncmp(topic, "v1/devices/me/rpc/response/", strlen("v1/devices/me/rpc/response/")) == 0 || strcmp(topic, "v1/devices/me/attributes") == 0)
+    else if (strncmp(topic, "v1/devices/me/attributes/response/", 34) == 0)
     {
-
-        char ping_delay_secs_string[20];
-
-        if (json_obj_get_string(&jctx, "ping_delay", ping_delay_secs_string, sizeof(ping_delay_secs_string)) == OS_SUCCESS)
-        {
-            int ping_delay_secs = atoi(ping_delay_secs_string);
-            ESP_LOGE(TAG, "updated ping_delay: %d", ping_delay_secs);
-
-            set_ping_delay(ping_delay_secs * 1000 / portTICK_PERIOD_MS);
-        }
-
-        char totp_form_base_url[URL_SIZE];
-
-        if (json_obj_get_string(&jctx, "totp_form_base_url", totp_form_base_url, sizeof(totp_form_base_url)) == OS_SUCCESS)
-        {
-            ESP_LOGE(TAG, "updated totp_form_base_url: %s", totp_form_base_url);
-
-            struct ConnectionParameters parameters;
-            j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-            memcpy(parameters.qr_info.totp_form_base_url, totp_form_base_url, URL_SIZE);
-            j_nvs_set(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-        }
-
-        char fw_title[30];
-
-        if (json_obj_get_string(&jctx, "fw_title", fw_title, sizeof(fw_title)) == OS_SUCCESS)
-        {
-            char fw_url[URL_SIZE];
-
-            if (json_obj_get_string(&jctx, "fw_url", fw_url, URL_SIZE) == OS_SUCCESS)
-            {
-                jsend(conf->to_ota_queue, OTAMsg, {
-                    msg->command = Update;
-                    snprintf(msg->url, OTA_URL_SIZE, "%s", fw_url);
-                    ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
-                });
-            }
-            else
-            {
-                char fw_version[30];
-                json_obj_get_string(&jctx, "fw_version", fw_version, sizeof(fw_version));
-
-                struct ConnectionParameters parameters;
-                j_nvs_get(nvs_conf_tag, &parameters, sizeof(struct ConnectionParameters));
-
-                jsend(conf->to_ota_queue, OTAMsg, {
-                    msg->command = Update;
-                    snprintf(msg->url, OTA_URL_SIZE, "%s/api/v1/%s/firmware/?title=%s&version=%s", parameters.qr_info.thingsboard_url, parameters.access_token, fw_title, fw_version);
-                    ESP_LOGI(TAG, "installing new firmware from: %s", msg->url);
-                });
-            }
-        }
+        json_obj_get_object(&jctx, "shared");
+        tb_shared_attribute_ingest(&jctx, conf, true);
+    }
+    else if (strcmp(topic, "v1/devices/me/attributes") == 0)
+    {
+        tb_shared_attribute_ingest(&jctx, conf, false);
     }
     else if (strcmp(topic, "/provision/response") == 0)
     {

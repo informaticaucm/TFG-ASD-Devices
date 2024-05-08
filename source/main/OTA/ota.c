@@ -125,7 +125,7 @@ static esp_err_t _http_client_init_cb(esp_http_client_handle_t http_client)
     return err;
 }
 
-void ota_routine(char *url, struct OTAConf *conf)
+void ota_routine(char *url, struct OTAConf *conf, bool requested)
 {
     // esp_camera_deinit();
     // bsp_i2c_deinit();
@@ -171,10 +171,18 @@ void ota_routine(char *url, struct OTAConf *conf)
             strcpy(msg->data.text, "la version del ota es la misma que la versión actual");
         });
 
+        if (!requested)
+        {
+            ESP_LOGE(TAG, "image header verification failed and the trigger was not requested");
+            command_ota_fail("la version del ota es la misma que la versión actual", conf);
+        }
+        
         ESP_LOGE(TAG, "image header verification failed");
         goto ota_end;
     }
     ESP_LOGI(TAG, "image header is OK");
+
+    time_t start_time = time(NULL);
 
     while (1)
     {
@@ -196,12 +204,16 @@ void ota_routine(char *url, struct OTAConf *conf)
         // heap_caps_print_heap_info(0x00000008);
         // ESP_LOGI("xTaskCreateCap", "single largest posible allocation: %d", heap_caps_get_largest_free_block(0x00000008));
 
-        ESP_LOGI(TAG, "Image bytes read: %f", progress);
+        // ESP_LOGI(TAG, "Image bytes read: %f", progress);
+
+        time_t elapsed_time = time(NULL) - start_time;
+
+        int remaining_time = progress == 0 ? 0 : (elapsed_time / progress) - elapsed_time;
 
         {
             jsend(conf->to_screen_queue, ScreenMsg, {
                 msg->command = ShowMsg;
-                snprintf(msg->data.text, sizeof(msg->data.text), "Image bytes downloaded: %f%%", progress * 100);
+                snprintf(msg->data.text, sizeof(msg->data.text), "Downloaded: %d%%\nETA: %ds", (int)(progress * 100), remaining_time);
             });
         }
     }
@@ -314,7 +326,7 @@ void ota_task(void *arg)
         case Update:
         {
             set_ota_running(true);
-            ota_routine(msg->url, conf);
+            ota_routine(msg->url, conf, msg->requested);
             set_ota_running(false);
             break;
         }

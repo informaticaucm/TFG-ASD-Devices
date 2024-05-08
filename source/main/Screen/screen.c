@@ -118,7 +118,6 @@ void screen_task(void *arg)
             {
             case StarterStateInformToScreen:
             {
-                ESP_LOGE(TAG, "cambio de estado en la notificacion");
                 starter_state = msg->data.starter_state;
                 break;
             }

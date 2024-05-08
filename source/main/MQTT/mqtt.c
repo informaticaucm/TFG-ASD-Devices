@@ -4,7 +4,6 @@
 #include "mqtt_engine.c"
 #include <sys/param.h>
 
-
 #define TAG "mqtt"
 
 void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
@@ -63,10 +62,11 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     }
 }
 
-void send_api_post(char* path, char* request_body){
+void send_api_post(char *path, char *request_body)
+{
     int len = strlen(request_body) + strlen(path) + 50;
-    char* rpc_params = alloca(len);
-    snprintf(rpc_params,len, "{\"path\": \"%s\", \"request_body\": %s}", path, request_body);
+    char *rpc_params = alloca(len);
+    snprintf(rpc_params, len, "{\"path\": \"%s\", \"request_body\": %s}", path, request_body);
 
     mqtt_send_rpc("api_post", rpc_params);
 }
@@ -112,11 +112,11 @@ void mqtt_send_ota_status_report(enum OTAState status)
         return;
     }
     char *to_string[] = {
-        "DOWNLOADING",
-        "DOWNLOADED",
-        "VERIFIED",
-        "UPDATING",
-        "UPDATED",
+        [DOWNLOADING] = "DOWNLOADING",
+        [DOWNLOADED] = "DOWNLOADED",
+        [VERIFIED] = "VERIFIED",
+        [UPDATING] = "UPDATING",
+        [UPDATED] = "UPDATED",
     };
 
     char msg[100];
@@ -144,5 +144,6 @@ void mqtt_start(struct MQTTConf *conf)
 
 void mqtt_ask_for_atributes()
 {
-    esp_mqtt_client_publish(client, "v1/devices/me/attributes/request/1", "", 0, mqtt_qos, 0);
+    mqtt_send("v1/devices/me/attributes/request/1",
+              "{\"clientKeys\":\"attribute1,attribute2\", \"sharedKeys\":\"fw_checksum,fw_checksum_algorithm,fw_size,fw_tag,fw_title,fw_version,ping_delay\"}");
 }

@@ -53,7 +53,7 @@ void set_mode(enum ScreenMode mode)
 
 void set_tmp_mode(enum ScreenMode mode, int sec_duration, enum ScreenMode next_mode)
 {
-    ESP_LOGE(TAG, "Setting tmp mode %d for %d seconds", mode, sec_duration);
+    // ESP_LOGE(TAG, "Setting tmp mode %d for %d seconds", mode, sec_duration);
     critical_section(state.tmp_mode = mode;
                      state.tmp_mode_expiration = time(0) + sec_duration;
                      state.mode = next_mode);
