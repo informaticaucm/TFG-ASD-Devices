@@ -176,7 +176,11 @@ void ota_routine(char *url, struct OTAConf *conf, bool requested)
             ESP_LOGE(TAG, "image header verification failed and the trigger was not requested");
             command_ota_fail("la version del ota es la misma que la versión actual", conf);
         }
-        
+        else
+        {
+            command_ota_state(UPDATED, conf);
+        }
+
         ESP_LOGE(TAG, "image header verification failed");
         goto ota_end;
     }
