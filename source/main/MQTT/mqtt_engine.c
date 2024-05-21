@@ -11,12 +11,14 @@ bool specting_pong = false;
 int pong_timeout_time = 0;
 enum StarterState starter_state = NoQRConfig;
 
-void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
+void mqtt_listener(char *topic, char *mqtt_msg, struct MQTTConf *conf)
 {
-    ESP_LOGI(TAG, "recieved %s through topic %s", msg, topic);
+
+    ESP_LOGI(TAG, "recieved %s (%d) through topic %s", mqtt_msg, strlen(mqtt_msg), topic);
 
     jparse_ctx_t jctx;
-    int err = json_parse_start(&jctx, msg, strlen(msg));
+
+    int err = json_parse_start(&jctx, mqtt_msg, strlen(mqtt_msg));
     if (err != OS_SUCCESS)
     {
         ESP_LOGE(TAG, "ERROR ON JSON PARSE: %d", err);
@@ -24,6 +26,7 @@ void mqtt_listener(char *topic, char *msg, struct MQTTConf *conf)
 
     if (strncmp(topic, "v1/devices/me/rpc/response/", 27) == 0)
     {
+        ESP_LOGE(TAG, "rpc ingest (%s)", mqtt_msg);
         tb_rpc_ingest(&jctx, conf);
     }
     else if (strncmp(topic, "v1/devices/me/attributes/response/", 34) == 0)

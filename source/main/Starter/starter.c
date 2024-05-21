@@ -213,6 +213,7 @@ void print_ConnectionParameters(struct ConnectionParameters *cp)
     ESP_LOGI(TAG, "      .space_id: %d", cp->qr_info.space_id);
     ESP_LOGI(TAG, "      .provisioning_device_key: %s", cp->qr_info.provisioning_device_key);
     ESP_LOGI(TAG, "      .provisioning_device_secret: %s", cp->qr_info.provisioning_device_secret);
+    ESP_LOGI(TAG, "      .totp_form_base_url: %s", cp->qr_info.totp_form_base_url);
     ESP_LOGI(TAG, "   access_token_valid: %d", cp->access_token_valid);
     ESP_LOGI(TAG, "      access_token: %s", cp->access_token);
     ESP_LOGI(TAG, "   backend_info_valid: %d", cp->backend_info_valid);

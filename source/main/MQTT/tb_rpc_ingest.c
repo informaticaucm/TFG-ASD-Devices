@@ -35,10 +35,10 @@ void tb_rpc_ingest(jparse_ctx_t *jctx, struct MQTTConf *conf)
         int t0;
         int id;
 
-        if (json_obj_get_int(&jctx, "id", &id) == OS_SUCCESS &&
-            json_obj_get_object(&jctx, "totpConfig") == OS_SUCCESS &&
-            json_obj_get_string(&jctx, "secret", totp_secret, 17) == OS_SUCCESS &&
-            json_obj_get_int(&jctx, "t0", &t0) == OS_SUCCESS)
+        if (json_obj_get_int(jctx, "id", &id) == OS_SUCCESS &&
+            json_obj_get_object(jctx, "totpConfig") == OS_SUCCESS &&
+            json_obj_get_string(jctx, "secret", totp_secret, 17) == OS_SUCCESS &&
+            json_obj_get_int(jctx, "t0", &t0) == OS_SUCCESS)
         {
             jsend(conf->to_starter_queue, StarterMsg, {
                 msg->command = BackendInfo;
@@ -52,7 +52,7 @@ void tb_rpc_ingest(jparse_ctx_t *jctx, struct MQTTConf *conf)
     {
         int feedback_code = 0;
 
-        if (json_obj_get_int(&jctx, "feedback_code", &feedback_code) != OS_SUCCESS)
+        if (json_obj_get_int(jctx, "feedback_code", &feedback_code) != OS_SUCCESS)
         {
             return;
         }
@@ -83,15 +83,17 @@ void tb_rpc_ingest(jparse_ctx_t *jctx, struct MQTTConf *conf)
         // 404 - la id no existe
         // 422 - formato del mensaje incorrecto
 
-        int err_code = 0;
+        char err_code[10];
 
-        if (json_obj_get_int(&jctx, "status_code", &err_code) != OS_SUCCESS)
+        if (json_obj_get_string(jctx, "status_code", err_code, 10) != OS_SUCCESS)
         {
         }
 
-        ESP_LOGI(TAG, "ERR CODE: %d", err_code);
+        int err_code_int = atoi(err_code);
 
-        switch (err_code)
+        ESP_LOGI(TAG, "ERR CODE: %d", err_code_int);
+
+        switch (err_code_int)
         {
         case 404:
 
@@ -121,13 +123,13 @@ void tb_rpc_ingest(jparse_ctx_t *jctx, struct MQTTConf *conf)
             }
         */
         int mac_count = 0;
-        json_obj_get_array(&jctx, "macs", &mac_count);
+        json_obj_get_array(jctx, "macs", &mac_count);
 
         for (int i = 0; i < mac_count; i++)
         {
             char mac[18];
             char decoded_mac[6];
-            json_arr_get_string(&jctx, i, mac, 18);
+            json_arr_get_string(jctx, i, mac, 18);
             sscanf(mac, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &decoded_mac[0], &decoded_mac[1], &decoded_mac[2], &decoded_mac[3], &decoded_mac[4], &decoded_mac[5]);
 
             struct bt_device_record device_history[BT_DEVICE_HISTORY_SIZE];

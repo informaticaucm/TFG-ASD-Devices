@@ -51,7 +51,7 @@ static void totp_task(void *arg)
 
                 jsend(conf->to_screen_queue, ScreenMsg, {
                     msg->command = DrawQr;
-                    snprintf(msg->data.text, sizeof(msg->data.text), "%s/formulario-end?totp=%06d&espacioId=%d&dispositivoId=%d", parameters.qr_info.totp_form_base_url, totp, parameters.qr_info.space_id, parameters.backend_info.device_id);
+                    snprintf(msg->data.text, sizeof(msg->data.text), "%s?totp=%06d&espacioId=%d&dispositivoId=%d", parameters.qr_info.totp_form_base_url, totp, parameters.qr_info.space_id, parameters.backend_info.device_id);
                 });
             }
         }

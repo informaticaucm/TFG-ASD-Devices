@@ -362,6 +362,6 @@ void bt_start(struct BTConf *arg)
         ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
 
         /* Start periodic timer for 5 sec. */
-        ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 20 * 60 * 1000000)); // 60 sec
+        ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 20 * 60 * 1000000)); // 20 min
     }
 }
