@@ -2,7 +2,7 @@ const QRCode = require('qrcode');
 
 let payload = "";
 
-const segment_size = 100;
+const segment_size = 50;
 const conf_defaults = {
     "thingsboard_url": { default_value: "https://tbm-asistencia.dev.fdi.ucm.es", type: "text" },
     "device_name": { default_value: "name_here", type: "text" },
