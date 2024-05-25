@@ -60,20 +60,6 @@ void camera_task(void *arg)
             vTaskDelay(get_task_delay());
         }
 
-        // struct CameraMsg *msg;
-        // if (xQueueReceive(conf->to_cam_queue, &msg, 0) == pdPASS)
-        // {
-        //     switch (msg->command)
-        //     {
-        //     case StreamToScreen:
-        //         stream_refresh_rate = msg->data.stream.refreshRate;
-        //         stream_end_time = msg->data.stream.time;
-        //         break;
-        //     }
-
-        //     free(msg);
-        // }
-
         camera_fb_t *pic = esp_camera_fb_get();
         if (pic == NULL)
         {

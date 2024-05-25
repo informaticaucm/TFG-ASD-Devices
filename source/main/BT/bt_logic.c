@@ -76,8 +76,6 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
 
     if (found)
     {
-        // ESP_LOGI(TAG, "updating record %d", j);
-
         // update the time
         device_history[j].last_time = time(0);
     }
@@ -85,29 +83,12 @@ void device_seen(char *scanned_name, uint8_t *addr, int rssi)
     {
         int overwriting_record = get_disposable_record_i(device_history);
 
-        // ESP_LOGI(TAG, "overwriting record %d %s", overwriting_record, scanned_name);
-
-        /* Store the scanned device in history. */
         device_history[overwriting_record].last_time = time(0);
         device_history[overwriting_record].first_time = time(0);
         device_history[overwriting_record].valid = true;
         strncpy(device_history[overwriting_record].name, scanned_name, sizeof(device_history[overwriting_record].name));
         memcpy(device_history[overwriting_record].address, addr, 6);
     }
-
-    // print the history
-
-    // for (int i = 0; i < BT_DEVICE_HISTORY_SIZE; i++)
-    // {
-    //     if (VALID_ENTRY(device_history[i]))
-    //     {
-    //         ESP_LOGE("historial_bt", "%d: device %s %d", i, device_history[i].name, (int)time(0) - device_history[i].last_time);
-    //     }
-    //     else
-    //     {
-    //         ESP_LOGE("historial_bt", "%d: -----", i);
-    //     }
-    // }
 
     set_bt_device_history(device_history);
 }

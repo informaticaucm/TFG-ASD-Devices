@@ -90,29 +90,13 @@ static esp_err_t validate_image_header(esp_app_desc_t *new_app_info)
         return ESP_ERR_INVALID_ARG;
     }
 
-#ifndef CONFIG_EXAMPLE_SKIP_VERSION_CHECK
     ESP_LOGI(TAG, "Updating firmware version to %s", new_app_info->version);
 
-    if (memcmp(new_app_info->version, running_app_info.version, sizeof(new_app_info->version)) == 0)
+    if (strcmp(running_app_info.version, new_app_info->version) >= 0)
     {
-        ESP_LOGW(TAG, "Current running version is the same as a new. We will not continue the update.");
+        ESP_LOGW(TAG, "Current running version (%s) is the same or higher than the remote (%s). We will not continue the update.", running_app_info.version, new_app_info->version);
         return ESP_FAIL;
     }
-#endif
-
-#ifdef CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
-    /**
-     * Secure version check from firmware image header prevents subsequent download and flash write of
-     * entire firmware image. However this is optional because it is also taken care in API
-     * esp_https_ota_finish at the end of OTA update procedure.
-     */
-    const uint32_t hw_sec_version = esp_efuse_read_secure_version();
-    if (new_app_info->secure_version < hw_sec_version)
-    {
-        ESP_LOGW(TAG, "New firmware security version is less than eFuse programmed, %" PRIu32 " < %" PRIu32, new_app_info->secure_version, hw_sec_version);
-        return ESP_FAIL;
-    }
-#endif
 
     return ESP_OK;
 }
@@ -135,7 +119,7 @@ void ota_routine(char *url, struct OTAConf *conf, bool requested)
     esp_http_client_config_t config = {
         .url = url,
         .crt_bundle_attach = esp_crt_bundle_attach,
-        .timeout_ms = CONFIG_EXAMPLE_OTA_RECV_TIMEOUT,
+        .timeout_ms = 5000,
         .keep_alive_enable = true,
     };
 

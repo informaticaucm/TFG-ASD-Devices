@@ -93,10 +93,6 @@ static void qr_task(void *arg)
         // Return the frame buffer to the camera driver ASAP to avoid DMA errors
         meta_frame_free(mf);
 
-        // Process the frame. This step find the corners of the QR code (capstones)
-        // ESP_LOGE("D", "%p : %p at %d", (void *)qr, (void *)qr->flood_fill_vars, (int)((void *)&(qr->flood_fill_vars) - (void *)qr));
-        // ESP_LOGE("define log", "%d %d %d", QUIRC_MAX_REGIONS, QUIRC_MAX_CAPSTONES, QUIRC_MAX_GRIDS);
-
         quirc_end(qr);
         int count = quirc_count(qr);
         quirc_decode_error_t err = QUIRC_ERROR_DATA_UNDERFLOW;
