@@ -1,93 +1,166 @@
 dependencies:
   espressif/button:
-    component_hash: 1f5297fe16f0ee988dbb14b6f4c91782fe2baf85025bb15cc1e0093edd3fb2ee
+    component_hash: 5357a6a2c0c47fa67eb9a4dad8cbd78f848d05409b3557e49ec9948898655cfb
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.0'
+    - name: espressif/cmake_utilities
+      registry_url: https://components.espressif.com
+      require: private
+      version: 0.*
     source:
-      service_url: https://api.components.espressif.com/
+      registry_url: https://components.espressif.com
       type: service
-    version: 3.2.0
+    version: 3.4.0
   espressif/cmake_utilities:
     component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
+    dependencies:
+    - name: idf
+      registry_url: https://components.espressif.com
+      require: private
+      version: '>=4.1'
     source:
-      service_url: https://api.components.espressif.com/
+      registry_url: https://components.espressif.com
       type: service
     version: 0.5.3
   espressif/esp-dsp:
     component_hash: a9a1e516033ce2ea63e6286cc227d8ecb87769d628dcc6394b4e024311ac64b9
+    dependencies:
+    - name: idf
+      registry_url: https://components.espressif.com
+      require: private
+      version: '>=4.2'
     source:
-      service_url: https://api.components.espressif.com/
+      registry_url: https://components.espressif.com/
       type: service
     version: 1.3.0
   espressif/esp32-camera:
     component_hash: 7e60dc75e1e7b44fc06a931a1dcd3bab5ce49d04098fb2021753f6d987982db9
+    dependencies: []
     source:
-      service_url: https://api.components.espressif.com/
+      registry_url: https://components.espressif.com/
       type: service
     version: 2.0.5
   espressif/esp32_s3_eye:
     component_hash: d0a57075768f6ab8fe7f92bafb4717fc6994c1c9fa336ecfa5acfade08a2f06c
+    dependencies:
+    - name: lvgl/lvgl
+      registry_url: https://components.espressif.com
+      require: private
+      version: ^8
+    - name: idf
+      registry_url: https://components.espressif.com
+      require: private
+      version: '>=4.4.5'
+    - name: espressif/esp_lvgl_port
+      registry_url: https://components.espressif.com
+      require: public
+      version: ^1
+    - name: espressif/esp_codec_dev
+      registry_url: https://components.espressif.com
+      require: public
+      version: ^1
+    - name: espressif/esp32-camera
+      registry_url: https://components.espressif.com
+      require: public
+      version: ^2.0.2
+    - name: espressif/button
+      registry_url: https://components.espressif.com
+      require: public
+      version: '>=2.5,<4.0'
     source:
-      service_url: https://api.components.espressif.com/
+      registry_url: https://components.espressif.com/
       type: service
+    targets:
+    - esp32s3
     version: 3.0.4
   espressif/esp_codec_dev:
-    component_hash: 1a3a2e518cd8b52e8796ec393a4050977f8f113599056faf085a02a57e194f86
+    component_hash: af363202469b2bbecc87f3268729adf37c18c886eba55cab4c268cc9be25b6af
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.0'
     source:
-      service_url: https://api.components.espressif.com/
+      registry_url: https://components.espressif.com
       type: service
-    version: 1.1.0
+    version: 1.3.2
+  espressif/esp_lvgl_port:
+    dependencies:
+    - name: idf
+      version: '>=4.4'
+    - name: lvgl/lvgl
+      public: true
+      version: ^8
+    source:
+      path: C:\Users\santi\Documents\GitHub\TFG-ASD-Devices\source\components\espressif__esp_lvgl_port
+      type: local
+    version: 1.3.0
   espressif/jsmn:
     component_hash: d80350c41bbaa827c98a25b6072df00884e72f54885996fab4a4f0aebce6b6c3
+    dependencies:
+    - name: idf
+      registry_url: https://components.espressif.com
+      require: private
+      version: '>=4.3'
     source:
-      service_url: https://api.components.espressif.com/
+      registry_url: https://components.espressif.com
       type: service
     version: 1.1.0
   espressif/json_parser:
     component_hash: d74b81729ad06ec11ff5eb5b1b0d7df1d00e6027fc11471f4b139c70dcf1b1e4
+    dependencies:
+    - name: espressif/jsmn
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: idf_version >=5.0
+      version: ~1.1
     source:
-      service_url: https://api.components.espressif.com/
+      registry_url: https://components.espressif.com/
       type: service
     version: 1.0.3
-  espressif__esp_lvgl_port:
-    component_hash: null
+  espressif/quirc:
+    dependencies:
+    - name: idf
+      version: '>=4.3.0'
     source:
-      path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\espressif__esp_lvgl_port
-      type: local
-    version: 1.3.0
-  espressif__quirc:
-    component_hash: null
-    source:
-      path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\espressif__quirc
+      path: C:\Users\santi\Documents\GitHub\TFG-ASD-Devices\source\components\espressif__quirc
       type: local
     version: 1.2.0
   hci_common_component:
-    component_hash: null
+    dependencies: []
     source:
-      path: C:\Users\Jaime\esp\v5.2.1\esp-idf\examples\bluetooth\hci\hci_common_component
+      path: C:\Espressif\frameworks\esp-idf-v5.3.1\examples\bluetooth\hci\hci_common_component
       type: local
     version: '*'
   idf:
-    component_hash: null
     source:
       type: idf
-    version: 5.2.1
+    version: 5.3.1
   lvgl/lvgl:
-    component_hash: d7c1ac037ae6e85d94897f807d6e7ba0946a83e720074fc95a4f6241da9f9f53
+    dependencies: []
     source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 8.4.0
-  lvgl__lvgl:
-    component_hash: null
-    source:
-      path: C:\Users\Jaime\Escritorio\sharedProjects\4to\TFG\TFG-ASD-Devices\source\components\lvgl__lvgl
+      path: C:\Users\santi\Documents\GitHub\TFG-ASD-Devices\source\components\lvgl__lvgl
       type: local
     version: 8.3.10
   protocol_examples_common:
-    component_hash: null
+    dependencies: []
     source:
-      path: C:\Users\Jaime\esp\v5.2.1\esp-idf\examples\common_components\protocol_examples_common
+      path: C:\Espressif\frameworks\esp-idf-v5.3.1\examples\common_components\protocol_examples_common
       type: local
     version: '*'
-manifest_hash: 8ca3527f9297f0ee28b0b3056187a46e518cfd2499cb7739e381a13aa5c738ea
+direct_dependencies:
+- espressif/esp-dsp
+- espressif/esp32-camera
+- espressif/esp32_s3_eye
+- espressif/esp_lvgl_port
+- espressif/json_parser
+- espressif/quirc
+- hci_common_component
+- idf
+- lvgl/lvgl
+- protocol_examples_common
+manifest_hash: c505fa84cf1cdbf6d3ba4172cddff0df0080d41ebd5b0016a0af1be0bd6590e9
 target: esp32s3
-version: 1.0.0
+version: 2.0.0
