@@ -1,4 +1,9 @@
 {
     "cmake.sourceDirectory": "C:/Users/Jaime/Escritorio/sharedProjects/4to/TFG/TFG-ASD-Devices/demos/blink",
-    "idf.flashType": "UART"
+    "idf.flashType": "JTAG",
+    "idf.portWin": "COM3",
+    "idf.adapterTargetName": "esp32s3",
+    "idf.openOcdConfigs": [
+        "board/esp32s3-builtin.cfg"
+    ]
 }
