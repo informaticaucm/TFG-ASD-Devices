@@ -78,5 +78,6 @@ struct StarterConf
     QueueHandle_t to_starter_queue;
     QueueHandle_t to_mqtt_queue;
 };
-
 void start_starter(struct StarterConf *conf);
+void set_starter_conf(struct StarterConf *conf);
+struct StarterConf* get_starter_conf();

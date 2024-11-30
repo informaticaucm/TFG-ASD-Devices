@@ -46,13 +46,14 @@ struct button_adc_config_t
     int min;
     int max;
     enum ScreenMode mode;
+    void (*action)(void);
 };
 
 struct button_adc_config_t adc_buttons[4] = {
-    {1, 2800, 3000, qr_display},
-    {2, 2250, 2450, qr_display},
-    {3, 300, 500, mirror},
-    {4, 850, 1050, mirror}};
+    {1, 2800, 3000, qr_display,nonAction},
+    {2, 2250, 2450, qr_display,restart_provisioning},
+    {3, 300, 500, mirror,nonAction},
+    {4, 850, 1050, mirror,nonAction}};
 int adc_button_num = 4;
 
 static bool adc_calibration_init(adc_cali_handle_t *out_handle)
@@ -182,5 +183,16 @@ void buttons_start(struct ButtonsConf *conf)
         ESP_LOGE(TAG, "Problem on task start");
     }
 }
+
+void nonAction(void){
+    ESP_LOGI(TAG, "Executing none action");
+}
+
+
+void restart_provisioning(void){
+    start_starter(get_starter_conf());
+    ESP_LOGI(TAG, "Executing restart provisioning");
+}
+
 
 #endif

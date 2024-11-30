@@ -9,6 +9,9 @@ struct ButtonsConf
 };
 
 void buttons_start(struct ButtonsConf *conf);
+void nonAction(void);
+void restart_provisioning(void);
+
 
 #include "esp_timer.h"
 #include "esp_event.h"

@@ -32,6 +32,8 @@ esp_netif_t *my_ap = 0;
 static const char *WIFI_TAG = "wifi station";
 enum StarterState starterState = NoQRConfig;
 
+struct StarterConf * st_conf;
+
 int tries = 0;
 int cooldown = 0;
 
@@ -568,9 +570,23 @@ void starter_task(void *arg)
 void start_starter(struct StarterConf *conf)
 {
     TaskHandle_t handle = jTaskCreate(&starter_task, "Starter task", 6000, conf, 1, MALLOC_CAP_INTERNAL);
+    set_starter_conf(conf);
     if (handle == NULL)
     {
         ESP_LOGE(TAG, "Problem on task start ");
         heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
     }
+}
+
+void set_starter_conf(struct StarterConf *conf){
+    if(st_conf==NULL){
+        st_conf=jalloc(sizeof(struct StarterConf));
+    }
+    st_conf->to_mqtt_queue = conf->to_mqtt_queue;
+    st_conf->to_screen_queue=conf->to_screen_queue;
+    st_conf->to_starter_queue=conf->to_starter_queue;
+}
+
+struct StarterConf* get_starter_conf(){
+    return st_conf;
 }

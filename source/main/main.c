@@ -208,6 +208,7 @@ void app_main(void)
     starter_conf->to_starter_queue = to_starter_queue;
     starter_conf->to_mqtt_queue = to_mqtt_queue;
 
+    set_starter_conf(starter_conf);
     start_starter(starter_conf);
     ESP_LOGI(TAG, "starter started");
 
